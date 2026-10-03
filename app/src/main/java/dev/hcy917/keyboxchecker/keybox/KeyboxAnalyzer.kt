@@ -157,19 +157,18 @@ class KeyboxAnalyzer(
             if (child.issuerX500Principal != parent.subjectX500Principal) {
                 return ChainResult(false, "证书链断裂：${child.subjectX500Principal.name} 的签发者不匹配")
             }
-            val ok = runCatching { child.verify(parent.publicKey) }
-                .onFailure { return ChainResult(false, "证书签名校验失败：${it.message}") }
-                .getOrDefault(false)
-            if (!ok) {
+            // X509Certificate.verify returns Unit, so success is signalled by the
+            // absence of a thrown exception rather than by a value.
+            val failure = runCatching { child.verify(parent.publicKey) }.exceptionOrNull()
+            if (failure != null) {
                 allLinksVerified = false
-                return ChainResult(false, "证书签名校验未通过（第 ${index + 1} 级）")
+                return ChainResult(false, "证书签名校验未通过（第 ${index + 1} 级）：${failure.message}")
             }
         }
 
         val tail = certificates.last()
-        val selfSigned = runCatching {
-            tail.subjectX500Principal == tail.issuerX500Principal && tail.verify(tail.publicKey)
-        }.getOrDefault(false)
+        val selfIssued = tail.subjectX500Principal == tail.issuerX500Principal
+        val selfSigned = selfIssued && runCatching { tail.verify(tail.publicKey) }.isSuccess
 
         return when {
             selfSigned -> ChainResult(true, null)
