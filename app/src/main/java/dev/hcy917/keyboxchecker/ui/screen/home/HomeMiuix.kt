@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import top.yukonga.miuix.kmp.basic.TextField
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
@@ -99,6 +100,7 @@ fun HomePagerMiuix(
                         WarningCard(stringResource(R.string.home_sample_notification))
                         PermissionCardMiuix(permissionState, actions.onPermissionsClick)
                         InfoCard(systemInfo = state.systemInfo)
+            TelegramConfigCard(state = state, actions = actions)
                         ExampleLinkCard(onOpenUrl = actions.onOpenUrl)
                     }
                     Spacer(Modifier.height(bottomInnerPadding))
@@ -258,6 +260,35 @@ private fun InfoCard(systemInfo: SystemInfo) {
                 title = stringResource(R.string.home_app_version),
                 content = systemInfo.appVersion,
                 bottomPadding = 0.dp
+            )
+        }
+    }
+}
+
+@Composable
+private fun TelegramConfigCard(state: HomeUiState, actions: HomeActions) {
+    Card {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = "Telegram 配置",
+                fontSize = MiuixTheme.textStyles.headline1.fontSize,
+                fontWeight = FontWeight.SemiBold,
+                color = colorScheme.onSurface
+            )
+            top.yukonga.miuix.kmp.basic.TextField(
+                value = state.tgBotToken,
+                onValueChange = actions.onTgBotTokenChanged,
+                modifier = Modifier.fillMaxWidth()
+            )
+            top.yukonga.miuix.kmp.basic.TextField(
+                value = state.tgChannelId,
+                onValueChange = actions.onTgChannelIdChanged,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }

@@ -25,6 +25,7 @@ import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
@@ -66,6 +67,7 @@ fun HomePagerMaterial(
             WarningCard(stringResource(R.string.home_sample_notification))
             PermissionCard(permissionState, actions.onPermissionsClick)
             InfoCard(systemInfo = state.systemInfo)
+            TelegramConfigCard(state = state, actions = actions)
             ExampleLinkCard(onOpenUrl = actions.onOpenUrl)
             Spacer(Modifier.height(bottomInnerPadding))
         }
@@ -232,6 +234,38 @@ private fun InfoCard(systemInfo: SystemInfo) {
             }
 
             InfoCardItem(stringResource(R.string.home_app_version), systemInfo.appVersion)
+        }
+    }
+}
+
+@Composable
+private fun TelegramConfigCard(state: HomeUiState, actions: HomeActions) {
+    TonalCard {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = "Telegram 配置",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            OutlinedTextField(
+                value = state.tgBotToken,
+                onValueChange = actions.onTgBotTokenChanged,
+                label = { Text("Bot Token") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+            OutlinedTextField(
+                value = state.tgChannelId,
+                onValueChange = actions.onTgChannelIdChanged,
+                label = { Text("Channel ID / Username") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
         }
     }
 }

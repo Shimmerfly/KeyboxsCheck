@@ -22,6 +22,16 @@ class HomeViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(buildState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+    fun updateTgBotToken(token: String) {
+        _uiState.update { it.copy(tgBotToken = token) }
+        templateApp.getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putString("tg_bot_token", token).apply()
+    }
+
+    fun updateTgChannelId(id: String) {
+        _uiState.update { it.copy(tgChannelId = id) }
+        templateApp.getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putString("tg_channel_id", id).apply()
+    }
+
     fun refresh() {
         viewModelScope.launch {
             val baseState = withContext(Dispatchers.IO) { buildState() }
@@ -34,9 +44,12 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun buildState(): HomeUiState {
+        val prefs = templateApp.getSharedPreferences("settings", Context.MODE_PRIVATE)
         val appVersion = getAppVersion(templateApp)
 
         return HomeUiState(
+            tgBotToken = prefs.getString("tg_bot_token", "") ?: "",
+            tgChannelId = prefs.getString("tg_channel_id", "") ?: "",
             checkUpdateEnabled = templateApp.getSharedPreferences("settings", Context.MODE_PRIVATE)
                 .getBoolean("check_update", true),
             latestVersionInfo = LatestVersionInfo(),

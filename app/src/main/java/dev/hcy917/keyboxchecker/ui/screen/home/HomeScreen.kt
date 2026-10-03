@@ -45,6 +45,8 @@ fun HomePager(
     }
 
     val actions = HomeActions(
+        onTgBotTokenChanged = viewModel::updateTgBotToken,
+        onTgChannelIdChanged = viewModel::updateTgChannelId,
         onPermissionsClick = { navigator.push(Route.Permissions) },
         onOpenUrl = uriHandler::openUri,
     )
