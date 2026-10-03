@@ -7,4 +7,13 @@ build
 captures
 .cxx
 local.properties
-key.jks
+
+# Signing material must never be committed; CI reads it from repository secrets.
+*.jks
+*.keystore
+sign.properties
+signing.properties
+
+# Never commit captured keyboxes, reports or bot credentials.
+keyboxes/
+*.tg-token

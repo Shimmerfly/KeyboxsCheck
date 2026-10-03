@@ -146,6 +146,8 @@ dependencies {
 
     implementation(libs.material.kolor)
 
+    testImplementation(libs.junit)
+    testImplementation(libs.json)
 }
 
 kotlin {
