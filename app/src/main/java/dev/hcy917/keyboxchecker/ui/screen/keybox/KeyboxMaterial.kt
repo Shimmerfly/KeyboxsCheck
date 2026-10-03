@@ -446,6 +446,33 @@ private fun MemberRow(member: AnalyzedKeybox) {
                     color = keyboxStatusColor(key.status),
                 )
             }
+            key.chainRoot?.let { root ->
+                if (key.rootRecognized) {
+                    Text(
+                        text = stringResource(R.string.keybox_root_recognized, root),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontFamily = FontFamily.Monospace,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+        member.deviceIdMatchesLeafSerial?.let { matches ->
+            Text(
+                text = stringResource(
+                    if (matches) {
+                        R.string.keybox_device_id_matches
+                    } else {
+                        R.string.keybox_device_id_tampered
+                    },
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = if (matches) {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                } else {
+                    MaterialTheme.colorScheme.error
+                },
+            )
         }
     }
 }

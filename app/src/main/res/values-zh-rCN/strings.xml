@@ -105,4 +105,7 @@
     <string name="keybox_source_telegram">Telegram</string>
     <string name="keybox_source_local">本地</string>
     <string name="keybox_privacy_note">Bot Token 仅保存在应用私有配置中，绝不会写入报告或日志。</string>
-    </resources>
+        <string name="keybox_device_id_matches">DeviceID 与叶子证书序列号一致</string>
+    <string name="keybox_device_id_tampered">DeviceID 与叶子证书序列号不一致 —— 该字段在签发后被修改过</string>
+    <string name="keybox_root_recognized">链根：%1$s</string>
+</resources>

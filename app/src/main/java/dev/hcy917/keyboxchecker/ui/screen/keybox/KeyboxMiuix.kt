@@ -460,6 +460,32 @@ private fun MemberRowsMiuix(member: AnalyzedKeybox) {
                     color = keyboxStatusColor(key.status),
                 )
             }
+            key.chainRoot?.let { root ->
+                if (key.rootRecognized) {
+                    MiuixText(
+                        text = stringResource(R.string.keybox_root_recognized, root),
+                        fontSize = MiuixTheme.textStyles.body2.fontSize,
+                        color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
+                    )
+                }
+            }
+        }
+        member.deviceIdMatchesLeafSerial?.let { matches ->
+            MiuixText(
+                text = stringResource(
+                    if (matches) {
+                        R.string.keybox_device_id_matches
+                    } else {
+                        R.string.keybox_device_id_tampered
+                    },
+                ),
+                fontSize = MiuixTheme.textStyles.body2.fontSize,
+                color = if (matches) {
+                    MiuixTheme.colorScheme.onSurfaceVariantSummary
+                } else {
+                    MiuixTheme.colorScheme.error
+                },
+            )
         }
     }
 }

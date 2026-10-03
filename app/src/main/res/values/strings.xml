@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name" translatable="false">KernelSU Style UI Kit</string>
+    <string name="app_name" translatable="false">KeyboxsCheck</string>
     <string name="home_sample_notification" translatable="false">这是一条示例通知</string>
     <string name="home_app_version" translatable="false">App 版本</string>
     <string name="home_example_link_title" translatable="false">这是一条示例链接</string>
@@ -112,4 +112,7 @@
     <string name="keybox_source_telegram">Telegram</string>
     <string name="keybox_source_local">Local</string>
     <string name="keybox_privacy_note">The bot token is stored only in private app preferences; it is never written to a report or a log.</string>
-    </resources>
+        <string name="keybox_device_id_matches">DeviceID matches the leaf certificate serial</string>
+    <string name="keybox_device_id_tampered">DeviceID does not match the leaf certificate serial — the field was edited after issuance</string>
+    <string name="keybox_root_recognized">Chain root: %1$s</string>
+</resources>
