@@ -67,7 +67,7 @@
     <string name="settings_enable_glass_summary">Enable liquid glass effect for floating bottom bar.</string>
     <!-- Keybox scanning, revocation lookup and key identity classification. -->
     <string name="keybox_section">Keybox Check</string>
-    <string name="keybox_home_summary">Scan keybox files, check the Google revocation list and group keys by identity.</string>
+    <string name="keybox_home_summary">Scan keybox files, check the Google revocation list and flag the files that share a key.</string>
     <string name="keybox_input_title">Input</string>
     <string name="keybox_path_label">Directory or file path</string>
     <string name="keybox_path_hint">/storage/emulated/0/Download</string>
