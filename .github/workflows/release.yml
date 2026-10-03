@@ -36,10 +36,17 @@ jobs:
       # The keystore is passed as a base64 blob because repository secrets are
       # strings. The apksign plugin falls back to the debug signature when the
       # store file is missing, so an unconfigured repository still builds.
+      #
+      # The properties are exported only when the secret exists: apksign calls
+      # project.file(...) on the configured value, and an empty string makes it
+      # fail with "Cannot convert '' to File" before the fallback can run.
       - name: Restore signing keystore
         id: keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_FILE }}
+          SIGNING_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          SIGNING_ALIAS: ${{ secrets.KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           if [ -z "$KEYSTORE_BASE64" ]; then
             echo "configured=false" >> "$GITHUB_OUTPUT"
@@ -47,14 +54,15 @@ jobs:
             exit 0
           fi
           echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
+          {
+            echo "ORG_GRADLE_PROJECT_KEYSTORE_FILE=$RUNNER_TEMP/release.jks"
+            echo "ORG_GRADLE_PROJECT_KEYSTORE_PASSWORD=$SIGNING_PASSWORD"
+            echo "ORG_GRADLE_PROJECT_KEY_ALIAS=$SIGNING_ALIAS"
+            echo "ORG_GRADLE_PROJECT_KEY_PASSWORD=$SIGNING_KEY_PASSWORD"
+          } >> "$GITHUB_ENV"
           echo "configured=true" >> "$GITHUB_OUTPUT"
 
       - name: Assemble release
-        env:
-          ORG_GRADLE_PROJECT_KEYSTORE_FILE: ${{ steps.keystore.outputs.configured == 'true' && format('{0}/release.jks', runner.temp) || '' }}
-          ORG_GRADLE_PROJECT_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          ORG_GRADLE_PROJECT_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          ORG_GRADLE_PROJECT_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew --no-daemon :app:assembleRelease
 
       - name: Collect APK
