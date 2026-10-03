@@ -257,7 +257,8 @@ object ReportWriter {
 
         builder.append("---\n\n")
         builder.append("> 说明：DeviceID 与 attestation 属性可被任意编辑，因此**不参与**密钥匹配；")
-        builder.append("仅密钥材料（私钥推导出的公钥指纹）决定分组。状态为 UNKNOWN 表示未能完成吊销查询。\n")
+        builder.append("仅密钥材料（私钥推导出的公钥指纹）决定分组。状态为 UNKNOWN 表示未能完成吊销查询；")
+        builder.append("链中任一证书不在有效期内时，该 keybox 直接记为 REVOKED（已吊销）且不会被保存。\n")
         builder.append("> 检测项：证书有效期、私钥与叶证书匹配、链内逐级签名、链根公钥比对、证书张数、")
         builder.append("逐张证书吊销查询（KimmyXYC/KeyboxChecker 的方法，链根公钥来自 VisionR1/KeyAttestation）。\n")
         return builder.toString()
@@ -292,11 +293,8 @@ object ReportWriter {
         val parts = ArrayList<String>(5)
         member.duplicateOf?.let { parts += "内容重复于 `$it`" }
         member.parseError?.let { parts += it }
-        if (member.expired) {
-            member.keys.flatMap { it.expiredCertificates }.distinct().sorted().let { indexes ->
-                parts += if (indexes.isEmpty()) "证书已过期" else "证书已过期（第 ${indexes.joinToString("、") { (it + 1).toString() }} 张）"
-            }
-        }
+        // Expired certificates need no note of their own: every expired key
+        // carries its expiry inside the revocation reason below.
         member.keys.mapNotNull { it.identityError }.distinct().forEach { parts += it }
         member.keys.mapNotNull { it.chainError }.distinct().forEach { parts += it }
         member.keys.mapNotNull { it.revocationReason }.distinct()

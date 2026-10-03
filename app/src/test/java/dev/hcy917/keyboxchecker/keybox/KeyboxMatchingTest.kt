@@ -292,6 +292,39 @@ class KeyboxMatchingTest {
         assertEquals(1, analyzed.keys.size)
     }
 
+    // ---------------------------------------------------------------- expiry
+
+    @Test
+    fun `an expired certificate makes the keybox count as revoked`() {
+        val key = analyze(keybox(chain = listOf(expiredLeafPem(), rootPem()))).keys.single()
+
+        assertEquals(RevocationStatus.REVOKED, key.status)
+        assertTrue(key.expired)
+        assertEquals(listOf(0), key.expiredCertificates)
+        assertNotNull(key.revocationReason)
+        assertTrue(key.revocationReason!!.contains("证书已过期"))
+    }
+
+    @Test
+    fun `expiry alone is enough to revoke without the published list`() {
+        val key = analyze(
+            keybox = keybox(chain = listOf(expiredLeafPem(), rootPem())),
+            revocation = RevocationSnapshot(emptyMap(), RevocationSource.NONE, fixedNow),
+        ).keys.single()
+
+        assertEquals(RevocationStatus.REVOKED, key.status)
+    }
+
+    @Test
+    fun `a keybox inside its validity window stays valid`() {
+        val key = analyze(keybox()).keys.single()
+
+        assertEquals(RevocationStatus.VALID, key.status)
+        assertFalse(key.expired)
+        assertTrue(key.expiredCertificates.isEmpty())
+        assertNull(key.revocationReason)
+    }
+
     // ------------------------------------------------------------------ utils
 
     private fun rootDer(): ByteArray = TestPki.selfSigned(rootPair, TestPki.GOOGLE_ROOT_CN, 1L)
@@ -332,6 +365,18 @@ class KeyboxMatchingTest {
             issuerCommonName = TestPki.GOOGLE_ROOT_CN,
             issuerKey = rootPair.private,
             serial = leafSerial,
+        ),
+    )
+
+    private fun expiredLeafPem(): String = Pem.encode(
+        "CERTIFICATE",
+        TestPki.certificate(
+            subjectCommonName = "Keybox Leaf",
+            subjectKey = leafPair.public,
+            issuerCommonName = TestPki.GOOGLE_ROOT_CN,
+            issuerKey = rootPair.private,
+            serial = leafSerial,
+            notAfterMillis = fixedNow - 1_000L,
         ),
     )
 

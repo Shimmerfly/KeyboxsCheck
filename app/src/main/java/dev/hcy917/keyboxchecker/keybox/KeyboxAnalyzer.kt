@@ -63,8 +63,17 @@ class KeyboxAnalyzer(
         val revocationMatch = worstRevocation(certificates)
         val rootStatus = RootKeys.identify(certificates.lastOrNull())
 
+        // An expired certificate is reported as revoked: the keybox cannot be
+        // used any more, and that verdict is reached locally, without the list.
+        val expiryReason = expiry.expired
+            .takeIf { it.isNotEmpty() }
+            ?.let { indices ->
+                "证书已过期（" + indices.joinToString("、") { "第 ${it + 1} 张" } + "），视为已吊销"
+            }
+
         val status = when {
             certificates.isEmpty() -> RevocationStatus.UNKNOWN
+            expiryReason != null -> RevocationStatus.REVOKED
             !revocation.isUsable -> RevocationStatus.UNKNOWN
             else -> revocationMatch?.status ?: RevocationStatus.VALID
         }
@@ -77,7 +86,9 @@ class KeyboxAnalyzer(
             identityError = identity.error,
             status = status,
             matchedSerial = revocationMatch?.serialHex,
-            revocationReason = revocationMatch?.reason,
+            revocationReason = listOfNotNull(revocationMatch?.reason, expiryReason)
+                .joinToString("；")
+                .ifEmpty { null },
             chainValid = chain.valid,
             chainError = chain.error,
             chainRoot = certificates.lastOrNull()

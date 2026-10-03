@@ -21,7 +21,7 @@ its remote-provisioning (RKP) detection.
 
    | Check | Rule |
    | --- | --- |
-   | Validity period | every certificate must be inside its `notBefore`/`notAfter` window |
+   | Validity period | every certificate must be inside its `notBefore`/`notAfter` window — **a keybox with any expired certificate is reported as `REVOKED`** |
    | Private key ↔ leaf | the public key derived from the private key must equal the leaf certificate's public key |
    | Chain links | each certificate's issuer must be the next certificate's subject, and each signature must verify |
    | Chain root | the last certificate must match one of the pinned roots |
@@ -42,14 +42,16 @@ its remote-provisioning (RKP) detection.
    status found: `REVOKED`, `SUSPENDED`, `VALID` or `UNKNOWN`. The published list
    mixes decimal and hex serials, so both readings are indexed. Without a usable
    list every key is reported as `UNKNOWN` rather than pretending to be valid.
+   An expired certificate is `REVOKED` on its own — that verdict is reached
+   locally, so it holds even when the list cannot be fetched.
 7. **Group by key identity**: keys are identified by the SHA-256 of the
    SubjectPublicKeyInfo derived from the private key (falling back to the leaf
    certificate, then to the raw PEM bytes). `DeviceID` and other attestation
    properties a cloner can freely edit **never** take part in matching.
 8. **Save** the confirmed keyboxes that are still valid:
 
-   - expired keyboxes (any certificate outside its validity window) are not
-     saved and are listed as skipped instead;
+   - expired keyboxes (any certificate outside its validity window) are reported
+     as `REVOKED` and are not saved — they are listed as skipped instead;
    - `DeviceID` is rewritten to **your own device id**, which you type into the
      keybox screen, so a saved keybox carries your identity rather than the
      seller's;
