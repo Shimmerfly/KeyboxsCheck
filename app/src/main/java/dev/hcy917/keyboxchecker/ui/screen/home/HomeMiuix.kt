@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.hcy917.keyboxchecker.R
 import dev.hcy917.keyboxchecker.permission.PermissionState
-import dev.hcy917.keyboxchecker.ui.component.miuix.WarningCard
 import dev.hcy917.keyboxchecker.ui.theme.LocalEnableBlur
 import dev.hcy917.keyboxchecker.ui.util.BlurredBar
 import dev.hcy917.keyboxchecker.ui.util.rememberBlurBackdrop
@@ -97,12 +96,9 @@ fun HomePagerMiuix(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        // Keep the theme settings preview in sync whenever this home layout changes.
-                        WarningCard(stringResource(R.string.home_sample_notification))
                         PermissionCardMiuix(permissionState, actions.onPermissionsClick)
                         InfoCard(systemInfo = state.systemInfo)
-            KeyboxEntryCard(onClick = actions.onKeyboxClick)
-                        ExampleLinkCard(onOpenUrl = actions.onOpenUrl)
+                        KeyboxEntryCard(onClick = actions.onKeyboxClick)
                     }
                     Spacer(Modifier.height(bottomInnerPadding))
                 }
@@ -204,27 +200,6 @@ private fun TopBar(
             color = barColor,
             title = stringResource(R.string.app_name),
             scrollBehavior = scrollBehavior
-        )
-    }
-}
-
-@Composable
-private fun ExampleLinkCard(
-    onOpenUrl: (String) -> Unit,
-) {
-    val url = stringResource(R.string.home_example_link_url)
-    Card(modifier = Modifier.fillMaxWidth()) {
-        BasicComponent(
-            title = stringResource(R.string.home_example_link_title),
-            summary = stringResource(R.string.home_example_link_subtitle),
-            endActions = {
-                Icon(
-                    imageVector = MiuixIcons.Link,
-                    tint = colorScheme.onSurface,
-                    contentDescription = null
-                )
-            },
-            onClick = { onOpenUrl(url) }
         )
     }
 }

@@ -63,12 +63,9 @@ fun HomePagerMaterial(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Keep the theme settings preview in sync whenever this home layout changes.
-            WarningCard(stringResource(R.string.home_sample_notification))
             PermissionCard(permissionState, actions.onPermissionsClick)
             InfoCard(systemInfo = state.systemInfo)
             KeyboxEntryCard(onClick = actions.onKeyboxClick)
-            ExampleLinkCard(onOpenUrl = actions.onOpenUrl)
             Spacer(Modifier.height(bottomInnerPadding))
         }
     }
@@ -164,51 +161,6 @@ private fun PermissionCard(
                             contentDescription = null,
                         )
                     },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun WarningCard(
-    message: String,
-    color: Color = MaterialTheme.colorScheme.error,
-    onClick: (() -> Unit)? = null
-) {
-    val content = @Composable {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp)
-        ) {
-            Text(text = message, style = MaterialTheme.typography.bodyMedium)
-        }
-    }
-    if (onClick != null) {
-        TonalCard(containerColor = color, onClick = onClick, content = content)
-    } else {
-        TonalCard(containerColor = color, content = content)
-    }
-}
-
-@Composable
-private fun ExampleLinkCard(onOpenUrl: (String) -> Unit) {
-    val url = stringResource(R.string.home_example_link_url)
-    TonalCard(onClick = { onOpenUrl(url) }) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(text = stringResource(R.string.home_example_link_title), style = MaterialTheme.typography.titleSmall)
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.home_example_link_subtitle),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.outline
                 )
             }
         }

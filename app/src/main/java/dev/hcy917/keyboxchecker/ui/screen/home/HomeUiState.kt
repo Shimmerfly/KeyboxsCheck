@@ -15,5 +15,4 @@ data class HomeUiState(
 data class HomeActions(
     val onPermissionsClick: () -> Unit,
     val onKeyboxClick: () -> Unit,
-    val onOpenUrl: (String) -> Unit,
 )

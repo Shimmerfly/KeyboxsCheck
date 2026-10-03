@@ -89,6 +89,11 @@ android {
         // records those findings so lint still fails the build on *new* issues.
         // Regenerate with the "Lint baseline" workflow after an upstream sync.
         baseline = file("lint-baseline.xml")
+        // This app ships exactly two locales, English and Simplified Chinese;
+        // the other 40+ resource directories come from the upstream template and
+        // are not a translation commitment. Keeping the check on would fail the
+        // build on every newly added English string, which is not a defect.
+        disable += "MissingTranslation"
     }
 
     compileOptions {

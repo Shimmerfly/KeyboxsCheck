@@ -25,7 +25,7 @@
 
     <issue
         id="InlinedApi"
-        message="Field requires API level 33 (current min is 31): `android.Manifest.permission#POST_NOTIFICATIONS`"
+        message="Field requires API level 33 (current min is 26): `android.Manifest.permission#POST_NOTIFICATIONS`"
         errorLine1="        Manifest.permission.POST_NOTIFICATIONS.takeIf { Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU }"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -36,7 +36,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 33 (current min is 31): `BgEffectPainter`"
+        message="Call requires API level 33 (current min is 26): `BgEffectPainter`"
         errorLine1="        val painter = remember { BgEffectPainter() }"
         errorLine2="                                 ~~~~~~~~~~~~~~~">
         <location
@@ -47,7 +47,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 33 (current min is 31): `updateResolution`"
+        message="Call requires API level 33 (current min is 26): `updateResolution`"
         errorLine1="                painter.updateResolution(size.width, size.height)"
         errorLine2="                        ~~~~~~~~~~~~~~~~">
         <location
@@ -58,7 +58,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 33 (current min is 31): `updateBoundIfNeeded`"
+        message="Call requires API level 33 (current min is 26): `updateBoundIfNeeded`"
         errorLine1="                painter.updateBoundIfNeeded(drawHeight, size.height, size.width)"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -69,7 +69,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 33 (current min is 31): `updatePresetIfNeeded`"
+        message="Call requires API level 33 (current min is 26): `updatePresetIfNeeded`"
         errorLine1="                painter.updatePresetIfNeeded(deviceType, isDarkTheme)"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -80,7 +80,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 33 (current min is 31): `updateColors`"
+        message="Call requires API level 33 (current min is 26): `updateColors`"
         errorLine1="                painter.updateColors(preset, colorStage())"
         errorLine2="                        ~~~~~~~~~~~~">
         <location
@@ -91,7 +91,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 33 (current min is 31): `updateAnimTime`"
+        message="Call requires API level 33 (current min is 26): `updateAnimTime`"
         errorLine1="                painter.updateAnimTime(animTime)"
         errorLine2="                        ~~~~~~~~~~~~~~">
         <location
@@ -102,7 +102,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 33 (current min is 31): `updatePointsAnim`"
+        message="Call requires API level 33 (current min is 26): `updatePointsAnim`"
         errorLine1="                painter.updatePointsAnim(animTime, preset)"
         errorLine2="                        ~~~~~~~~~~~~~~~~">
         <location
@@ -113,13 +113,24 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 33 (current min is 31): `getBrush`"
+        message="Field requires API level 33 (current min is 26): `getBrush`"
         errorLine1="                drawRect(painter.brush, alpha = alphaValue)"
         errorLine2="                                 ~~~~~">
         <location
             file="src/main/java/dev/hcy917/keyboxchecker/ui/component/miuix/effect/BgEffectModifier.kt"
             line="174"
             column="34"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `hasFragileUserData` is only used in API level 29 and higher (current min is 26)"
+        errorLine1="        android:hasFragileUserData=&quot;true&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="25"
+            column="9"/>
     </issue>
 
     <issue
@@ -139,7 +150,7 @@
         errorLine1="distributionUrl=https\://services.gradle.org/distributions/gradle-9.5.1-bin.zip"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/wrapper/gradle-wrapper.properties"
+            file="$HOME/文档/KeyboxsCheck/gradle/wrapper/gradle-wrapper.properties"
             line="3"
             column="17"/>
     </issue>
@@ -150,7 +161,7 @@
         errorLine1="agp = &quot;9.2.1&quot;"
         errorLine2="      ~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="2"
             column="7"/>
     </issue>
@@ -161,7 +172,7 @@
         errorLine1="compose-bom = &quot;2026.05.01&quot;"
         errorLine2="              ~~~~~~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="4"
             column="15"/>
     </issue>
@@ -172,7 +183,7 @@
         errorLine1="lifecycle = &quot;2.10.0&quot;"
         errorLine2="            ~~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="5"
             column="13"/>
     </issue>
@@ -183,7 +194,7 @@
         errorLine1="lifecycle = &quot;2.10.0&quot;"
         errorLine2="            ~~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="5"
             column="13"/>
     </issue>
@@ -194,7 +205,7 @@
         errorLine1="lifecycle = &quot;2.10.0&quot;"
         errorLine2="            ~~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="5"
             column="13"/>
     </issue>
@@ -205,7 +216,7 @@
         errorLine1="lifecycle = &quot;2.10.0&quot;"
         errorLine2="            ~~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="5"
             column="13"/>
     </issue>
@@ -216,7 +227,7 @@
         errorLine1="navigation3 = &quot;1.1.2&quot;"
         errorLine2="              ~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="8"
             column="15"/>
     </issue>
@@ -227,7 +238,7 @@
         errorLine1="navigationevent = &quot;1.1.1&quot;"
         errorLine2="                  ~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="9"
             column="19"/>
     </issue>
@@ -238,7 +249,7 @@
         errorLine1="webkit = &quot;1.16.0&quot;"
         errorLine2="         ~~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="11"
             column="10"/>
     </issue>
@@ -249,7 +260,7 @@
         errorLine1="material3 = &quot;1.5.0-alpha22&quot;"
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="12"
             column="13"/>
     </issue>
@@ -260,7 +271,7 @@
         errorLine1="kotlin = &quot;2.4.0&quot;"
         errorLine2="         ~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="3"
             column="10"/>
     </issue>
@@ -271,7 +282,7 @@
         errorLine1="kotlin = &quot;2.4.0&quot;"
         errorLine2="         ~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="3"
             column="10"/>
     </issue>
@@ -282,7 +293,7 @@
         errorLine1="kotlin = &quot;2.4.0&quot;"
         errorLine2="         ~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="3"
             column="10"/>
     </issue>
@@ -293,7 +304,7 @@
         errorLine1="commonmark = &quot;0.28.0&quot;"
         errorLine2="             ~~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="10"
             column="14"/>
     </issue>
@@ -304,7 +315,7 @@
         errorLine1="commonmark = &quot;0.28.0&quot;"
         errorLine2="             ~~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="10"
             column="14"/>
     </issue>
@@ -315,7 +326,7 @@
         errorLine1="commonmark = &quot;0.28.0&quot;"
         errorLine2="             ~~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="10"
             column="14"/>
     </issue>
@@ -326,7 +337,7 @@
         errorLine1="commonmark = &quot;0.28.0&quot;"
         errorLine2="             ~~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="10"
             column="14"/>
     </issue>
@@ -337,7 +348,7 @@
         errorLine1="commonmark = &quot;0.28.0&quot;"
         errorLine2="             ~~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="10"
             column="14"/>
     </issue>
@@ -348,7 +359,7 @@
         errorLine1="materialKolor = &quot;4.1.1&quot;"
         errorLine2="                ~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="13"
             column="17"/>
     </issue>
@@ -359,7 +370,7 @@
         errorLine1="miuix = &quot;0.9.2&quot;"
         errorLine2="        ~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="15"
             column="9"/>
     </issue>
@@ -370,7 +381,7 @@
         errorLine1="miuix = &quot;0.9.2&quot;"
         errorLine2="        ~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="15"
             column="9"/>
     </issue>
@@ -381,7 +392,7 @@
         errorLine1="miuix = &quot;0.9.2&quot;"
         errorLine2="        ~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="15"
             column="9"/>
     </issue>
@@ -392,7 +403,7 @@
         errorLine1="miuix = &quot;0.9.2&quot;"
         errorLine2="        ~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="15"
             column="9"/>
     </issue>
@@ -403,7 +414,7 @@
         errorLine1="miuix = &quot;0.9.2&quot;"
         errorLine2="        ~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="15"
             column="9"/>
     </issue>
@@ -414,7 +425,7 @@
         errorLine1="okhttp = &quot;5.3.2&quot;"
         errorLine2="         ~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="16"
             column="10"/>
     </issue>
@@ -425,7 +436,7 @@
         errorLine1="json = &quot;20250517&quot;"
         errorLine2="       ~~~~~~~~~~">
         <location
-            file="$HOME/work/KeyboxsCheck/KeyboxsCheck/gradle/libs.versions.toml"
+            file="$HOME/文档/KeyboxsCheck/gradle/libs.versions.toml"
             line="19"
             column="8"/>
     </issue>
@@ -453,1157 +464,13 @@
     </issue>
 
     <issue
-        id="MissingTranslation"
-        message="&quot;permission_section&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;permission_section&quot;>Permissions&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="10"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;permission_ready&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;permission_ready&quot;>Core permissions are ready.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="11"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;permission_missing&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;permission_missing&quot;>Grant missing permissions first.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="12"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;permission_storage&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;permission_storage&quot;>Storage Access&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="13"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;permission_notification&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;permission_notification&quot;>Notifications&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="14"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;permission_microphone&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;permission_microphone&quot;>Microphone&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="15"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;permission_battery&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;permission_battery&quot;>Battery Whitelist&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="16"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;permission_overlay&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;permission_overlay&quot;>Overlay&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="17"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;permission_granted&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;permission_granted&quot;>Granted&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="18"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;permission_required&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;permission_required&quot;>Required&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="19"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;permission_optional&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;permission_optional&quot;>Optional&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="20"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;permission_action_required&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;permission_action_required&quot;>Action Required&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="21"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;permission_grant_action&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;permission_grant_action&quot;>Grant&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="22"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;permission_status_ready_title&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;permission_status_ready_title&quot;>Permissions Ready&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="23"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;permission_status_missing_title&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;permission_status_missing_title&quot;>Permissions Required&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="24"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;home&quot; is not translated in &quot;my&quot; (Burmese) or &quot;tl&quot; (Tagalog)"
-        errorLine1="    &lt;string name=&quot;home&quot;>Home&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="25"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;confirm&quot; is not translated in &quot;hi&quot; (Hindi), &quot;lt&quot; (Lithuanian), &quot;hu&quot; (Hungarian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;fa&quot; (Persian), &quot;ro&quot; (Romanian)"
-        errorLine1="    &lt;string name=&quot;confirm&quot;>Confirm&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="26"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings&quot; is not translated in &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;my&quot; (Burmese), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog)"
-        errorLine1="    &lt;string name=&quot;settings&quot;>Settings&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="27"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;about&quot; is not translated in &quot;de&quot; (German), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;gl&quot; (Galician), &quot;my&quot; (Burmese), &quot;tl&quot; (Tagalog)"
-        errorLine1="    &lt;string name=&quot;about&quot;>About&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="28"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;send_log&quot; is not translated in &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;gl&quot; (Galician), &quot;ms&quot; (Malay), &quot;my&quot; (Burmese), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog)"
-        errorLine1="    &lt;string name=&quot;send_log&quot;>Send logs&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="29"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_check_update&quot; is not translated in &quot;hi&quot; (Hindi), &quot;lt&quot; (Lithuanian), &quot;bn&quot; (Bangla), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;my&quot; (Burmese), &quot;iw&quot; (Hebrew), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian)"
-        errorLine1="    &lt;string name=&quot;settings_check_update&quot;>Check for updates&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="30"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_check_update_summary&quot; is not translated in &quot;hi&quot; (Hindi), &quot;lt&quot; (Lithuanian), &quot;bn&quot; (Bangla), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;my&quot; (Burmese), &quot;iw&quot; (Hebrew), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian)"
-        errorLine1="    &lt;string name=&quot;settings_check_update_summary&quot;>Automatically check for updates when opening the app.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="31"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_enable_predictive_back&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_enable_predictive_back&quot;>Predictive back gesture&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="32"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_enable_predictive_back_summary&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_enable_predictive_back_summary&quot;>Enable predictive back gesture support.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="33"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;save_log&quot; is not translated in &quot;km&quot; (Khmer), &quot;gl&quot; (Galician), &quot;my&quot; (Burmese), &quot;tl&quot; (Tagalog)"
-        errorLine1="    &lt;string name=&quot;save_log&quot;>Save logs&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="34"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;log_saved&quot; is not translated in &quot;hi&quot; (Hindi), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;ro&quot; (Romanian)"
-        errorLine1="    &lt;string name=&quot;log_saved&quot;>Logs saved&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="35"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;processing&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;ro&quot; (Romanian)"
-        errorLine1="    &lt;string name=&quot;processing&quot;>Processing…&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="36"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_theme&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_theme&quot;>Theme&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="37"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_theme_summary&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_theme_summary&quot;>Choose the app theme mode.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="38"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_theme_mode_system&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_theme_mode_system&quot;>Follow system&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="39"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_theme_mode_light&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_theme_mode_light&quot;>Light&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="40"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_theme_mode_dark&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_theme_mode_dark&quot;>Dark&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="41"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_monet&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_monet&quot;>Enable Monet&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="42"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_key_color&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_key_color&quot;>Key color&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="43"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_key_color_default&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_key_color_default&quot;>Default&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="44"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_ui_mode&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_ui_mode&quot;>UI Style&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="45"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_ui_mode_summary&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_ui_mode_summary&quot;>Choose the interface style.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="46"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_page_scale&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_page_scale&quot;>Page Scale&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="47"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_page_scale_summary&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_page_scale_summary&quot;>Adjust the global display scale.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="48"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_color_spec&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_color_spec&quot;>Color Spec&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="49"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_color_style&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_color_style&quot;>Color Style&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="50"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;color_blue&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;color_blue&quot;>Blue&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="51"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;color_red&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;color_red&quot;>Red&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="52"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;color_green&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;color_green&quot;>Green&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="53"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;color_purple&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;color_purple&quot;>Purple&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="54"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;color_orange&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;color_orange&quot;>Orange&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="55"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;color_teal&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;color_teal&quot;>Teal&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="56"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;color_pink&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;color_pink&quot;>Pink&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="57"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;color_brown&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;color_brown&quot;>Brown&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="58"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;color_deep_purple&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;color_deep_purple&quot;>Deep Purple&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="59"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;color_indigo&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;color_indigo&quot;>Indigo&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="60"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;color_cyan&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;color_cyan&quot;>Cyan&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="61"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;color_yellow&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;color_yellow&quot;>Yellow&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="62"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;color_amber&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;color_amber&quot;>Amber&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="63"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;color_blue_grey&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;color_blue_grey&quot;>Blue Grey&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="64"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;color_sakura&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;color_sakura&quot;>Sakura&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="65"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_enable_blur&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_enable_blur&quot;>Blur&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="66"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_enable_blur_summary&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_enable_blur_summary&quot;>Enable blur effect for top and bottom bars.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="67"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_floating_bottom_bar&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_floating_bottom_bar&quot;>Floating bottom bar&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="68"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_floating_bottom_bar_summary&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_floating_bottom_bar_summary&quot;>Use Apple style floating bottom bar.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="69"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_enable_glass&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_enable_glass&quot;>Liquid glass&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="70"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;settings_enable_glass_summary&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch)"
-        errorLine1="    &lt;string name=&quot;settings_enable_glass_summary&quot;>Enable liquid glass effect for floating bottom bar.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="71"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_section&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_section&quot;>Keybox Check&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="73"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_home_summary&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_home_summary&quot;>Scan keybox files, check the Google revocation list and group keys by identity.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="74"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_input_title&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_input_title&quot;>Input&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="75"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_path_label&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_path_label&quot;>Directory or file path&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="76"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_path_hint&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_path_hint&quot;>/storage/emulated/0/Download&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="77"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_pick_directory&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_pick_directory&quot;>Pick directory&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="78"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_picked&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_picked&quot;>Selected: %1$s&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="79"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_scan&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_scan&quot;>Scan&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="80"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_cancel&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_cancel&quot;>Cancel&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="81"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_telegram_title&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_telegram_title&quot;>Telegram channel&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="82"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_telegram_note&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_telegram_note&quot;>The bot must be a member of the channel (administrator recommended), otherwise Telegram does not return its posts. Use the numeric -100… id for private channels.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="83"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_bot_token&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_bot_token&quot;>Bot token&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="84"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_channel&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_channel&quot;>Channel id or @username&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="85"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_import&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_import&quot;>Import from channel&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="86"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_progress_working&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_progress_working&quot;>Working…&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="87"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_results_title&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_results_title&quot;>Results&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="88"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_no_results&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_no_results&quot;>No keybox has been analysed yet.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="89"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_group_members&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_group_members&quot;>%1$d file(s) share this key&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="90"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_group_variants&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_group_variants&quot;>%1$d certificate chain variant(s)&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="91"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_group_devices&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_group_devices&quot;>DeviceID: %1$s&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="92"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_group_identity&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_group_identity&quot;>Key fingerprint (SHA-256 of the public key): %1$s&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="93"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_group_ignored&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_group_ignored&quot;>DeviceID, attestation properties and NumberOfKeyboxes are ignored when matching keys — only the key itself is compared.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="94"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_status_revoked&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_status_revoked&quot;>Revoked&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="95"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_status_suspended&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_status_suspended&quot;>Suspended&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="96"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_status_valid&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_status_valid&quot;>Not revoked&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="97"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_status_unknown&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_status_unknown&quot;>Unknown&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="98"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_chain_valid&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_chain_valid&quot;>Chain verified&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="99"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_chain_invalid&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_chain_invalid&quot;>Chain invalid&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="100"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_chain_unknown&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_chain_unknown&quot;>Chain not verifiable&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="101"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_revocation_title&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_revocation_title&quot;>Revocation list&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="102"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_revocation_refresh&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_revocation_refresh&quot;>Refresh&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="103"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_revocation_source_network&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_revocation_source_network&quot;>Fetched from Google&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="104"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_revocation_source_cache&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_revocation_source_cache&quot;>Offline cache&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="105"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_revocation_source_none&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_revocation_source_none&quot;>Unavailable&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="106"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_revocation_entries&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_revocation_entries&quot;>%1$d entries&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="107"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_output_title&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_output_title&quot;>Save confirmed keyboxes&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="108"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_output_dir&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_output_dir&quot;>Output directory&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="109"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_save&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_save&quot;>Save confirmed keyboxes&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="110"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_notes&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_notes&quot;>Details&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="111"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_source_telegram&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_source_telegram&quot;>Telegram&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="112"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_source_local&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_source_local&quot;>Local&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="113"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;keybox_privacy_note&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;bg&quot; (Bulgarian), &quot;fil&quot; (Filipino; Pilipino), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;lv&quot; (Latvian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;bs&quot; (Bosnian), &quot;uk&quot; (Ukrainian), &quot;sl&quot; (Slovenian), &quot;sr&quot; (Serbian), &quot;km&quot; (Khmer), &quot;kn&quot; (Kannada), &quot;ko&quot; (Korean), &quot;gl&quot; (Galician), &quot;in&quot; (Indonesian), &quot;mr&quot; (Marathi), &quot;ms&quot; (Malay), &quot;it&quot; (Italian), &quot;my&quot; (Burmese), &quot;es&quot; (Spanish), &quot;iw&quot; (Hebrew), &quot;et&quot; (Estonian), &quot;ar&quot; (Arabic), &quot;te&quot; (Telugu), &quot;vi&quot; (Vietnamese), &quot;th&quot; (Thai), &quot;ja&quot; (Japanese), &quot;tl&quot; (Tagalog), &quot;az&quot; (Azerbaijani), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
-        errorLine1="    &lt;string name=&quot;keybox_privacy_note&quot;>The bot token is stored only in private app preferences; it is never written to a report or a log.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="114"
-            column="13"/>
-    </issue>
-
-    <issue
         id="PluralsCandidate"
         message="Formatting %d followed by words (&quot;file&quot;): This should probably be a plural rather than a string"
         errorLine1="    &lt;string name=&quot;keybox_group_members&quot;>%1$d file(s) share this key&lt;/string>"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="90"
+            line="86"
             column="5"/>
     </issue>
 
@@ -1614,7 +481,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="91"
+            line="87"
             column="5"/>
     </issue>
 
@@ -1625,41 +492,8 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="107"
+            line="103"
             column="5"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 31"
-        errorLine1="        Manifest.permission.READ_EXTERNAL_STORAGE.takeIf { Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.R }"
-        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/dev/hcy917/keyboxchecker/permission/PermissionManager.kt"
-            line="35"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 31"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/dev/hcy917/keyboxchecker/permission/PermissionManager.kt"
-            line="38"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 31"
-        errorLine1="        storage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/dev/hcy917/keyboxchecker/permission/PermissionManager.kt"
-            line="67"
-            column="23"/>
     </issue>
 
     <issue

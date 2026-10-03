@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -26,7 +25,6 @@ fun HomePager(
 ) {
     val viewModel = viewModel<HomeViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val uriHandler = LocalUriHandler.current
     val context = androidx.compose.ui.platform.LocalContext.current
     val permissionManager = remember(context) { PermissionManager(context) }
     val permissionState by permissionManager.state.collectAsStateWithLifecycle()
@@ -47,7 +45,6 @@ fun HomePager(
     val actions = HomeActions(
         onPermissionsClick = { navigator.push(Route.Permissions) },
         onKeyboxClick = { navigator.push(Route.Keybox) },
-        onOpenUrl = uriHandler::openUri,
     )
 
     when (LocalUiMode.current) {
