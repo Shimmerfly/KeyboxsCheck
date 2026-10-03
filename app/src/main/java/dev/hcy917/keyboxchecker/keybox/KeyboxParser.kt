@@ -126,19 +126,32 @@ object KeyboxParser {
         else -> "PRIVATE KEY"
     }
 
-    private fun parseDocument(text: String): Document? = runCatching {
-        val factory = DocumentBuilderFactory.newInstance().apply {
-            isNamespaceAware = true
-            isExpandEntityReferences = false
-            // Hardening against XXE: keybox files are untrusted input.
-            setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
-            setFeature("http://xml.org/sax/features/external-general-entities", false)
-            setFeature("http://xml.org/sax/features/external-parameter-entities", false)
-            isXIncludeAware = false
-        }
-        factory.newDocumentBuilder()
-            .parse(ByteArrayInputStream(text.toByteArray(Charsets.UTF_8)))
-    }.getOrNull()
+    private fun parseDocument(text: String): Document? {
+        // Hardening against XXE: keybox files are untrusted input.
+        //
+        // Android's XML parser does not implement every Xerces feature name, and
+        // asking for an unsupported one throws ParserConfigurationException. An
+        // unconditional setFeature therefore made *every* keybox unparsable on a
+        // real device while passing on the JVM. Each feature is now best effort,
+        // and the DOCTYPE guard that actually stops external entities is applied
+        // to the text itself, which works on both platforms.
+        if (text.contains("<!DOCTYPE", ignoreCase = true)) return null
+        val factory = DocumentBuilderFactory.newInstance()
+        runCatching { factory.isNamespaceAware = true }
+        runCatching { factory.isExpandEntityReferences = false }
+        runCatching { factory.isXIncludeAware = false }
+        setFeatureQuietly(factory, "http://apache.org/xml/features/disallow-doctype-decl", true)
+        setFeatureQuietly(factory, "http://xml.org/sax/features/external-general-entities", false)
+        setFeatureQuietly(factory, "http://xml.org/sax/features/external-parameter-entities", false)
+        return runCatching {
+            factory.newDocumentBuilder()
+                .parse(ByteArrayInputStream(text.toByteArray(Charsets.UTF_8)))
+        }.getOrNull()
+    }
+
+    private fun setFeatureQuietly(factory: DocumentBuilderFactory, name: String, value: Boolean) {
+        runCatching { factory.setFeature(name, value) }
+    }
 
     private fun Element.deviceId(): String? =
         attrIgnoreCase(this, DEVICE_ID)

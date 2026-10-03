@@ -39,6 +39,12 @@ object KeyboxClassifier {
     /**
      * Marks every file whose bytes already appeared in this scan.
      *
+     * This is deliberately idempotent: a first occurrence always ends up with
+     * `duplicateOf == null`, even when the incoming list was already marked.
+     * The report is rebuilt from a previous report (for example when a channel
+     * import is merged in), and a stale marking on the survivor would otherwise
+     * pair every copy up with another one, leaving the whole group unsaveable.
+     *
      * @return the relabelled list (first occurrence keeps `duplicateOf == null`)
      *   together with the number of duplicates found.
      */
@@ -51,7 +57,7 @@ object KeyboxClassifier {
             val first = seen[digest]
             if (first == null) {
                 seen[digest] = keybox.fileName
-                keybox
+                if (keybox.duplicateOf == null) keybox else keybox.copy(duplicateOf = null)
             } else {
                 duplicates++
                 keybox.copy(duplicateOf = first)

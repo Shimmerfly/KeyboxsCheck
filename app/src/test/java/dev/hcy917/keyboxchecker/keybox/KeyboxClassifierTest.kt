@@ -104,6 +104,41 @@ class KeyboxClassifierTest {
     }
 
     @Test
+    fun `marking is idempotent so a reordered report keeps one survivor`() {
+        // The report is rebuilt from a previous report, so the survivor arrives
+        // already marked and in a different order. A stale flag on the survivor
+        // used to make every copy point at another one, which left the whole
+        // group unsaveable.
+        val previouslyMarked = listOf(
+            analyzed("b.xml", "KEY-1", contentSha256 = "SAME").copy(duplicateOf = "a.xml"),
+            analyzed("a.xml", "KEY-1", contentSha256 = "SAME"),
+        )
+
+        val marking = KeyboxClassifier.markDuplicates(previouslyMarked)
+
+        assertEquals(1, marking.duplicateCount)
+        assertNull(marking.keyboxes[0].duplicateOf)
+        assertEquals("b.xml", marking.keyboxes[1].duplicateOf)
+        assertEquals(1, marking.keyboxes.count { it.duplicateOf == null })
+    }
+
+    @Test
+    fun `remarking an already clean list changes nothing`() {
+        val once = KeyboxClassifier.markDuplicates(
+            listOf(
+                analyzed("a.xml", "KEY-1", contentSha256 = "SAME"),
+                analyzed("b.xml", "KEY-1", contentSha256 = "SAME"),
+            ),
+        ).keyboxes
+
+        val twice = KeyboxClassifier.markDuplicates(once)
+
+        assertEquals(1, twice.duplicateCount)
+        assertNull(twice.keyboxes[0].duplicateOf)
+        assertEquals("a.xml", twice.keyboxes[1].duplicateOf)
+    }
+
+    @Test
     fun `stats count only confirmed keyboxes`() {
         val stats = KeyboxClassifier.stats(
             filesScanned = 10,
