@@ -1,7 +1,7 @@
 package dev.hcy917.keyboxchecker.ui.component.miuix.animation
 
-import android.annotation.SuppressLint
 import android.graphics.RuntimeShader
+import android.os.Build
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VisibilityThreshold
@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
 import dev.hcy917.keyboxchecker.ui.component.miuix.modifier.inspectDragGestures
 import org.intellij.lang.annotations.Language
 
-@SuppressLint("NewApi")
 class InteractiveHighlight(
     val animationScope: CoroutineScope,
     val position: (size: Size, offset: Offset) -> Offset = { _, offset -> offset }
@@ -40,10 +39,17 @@ class InteractiveHighlight(
     private var startPosition = Offset.Zero
     val offset: Offset get() = positionAnimation.value - startPosition
 
+    /**
+     * `RuntimeShader` only exists from API 33. Call sites are supposed to check
+     * `isRuntimeShaderSupported()` first, but this class is constructed
+     * unconditionally, so the shader itself has to stay null on older devices
+     * instead of crashing the whole bottom bar.
+     */
     @Language("AGSL")
-    private val shader =
-        RuntimeShader(
-            """
+    private val shader: RuntimeShader? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            RuntimeShader(
+                """
     uniform float2 size;
     layout(color) uniform half4 color;
     uniform float radius;
@@ -54,7 +60,10 @@ class InteractiveHighlight(
         float intensity = smoothstep(radius, radius * 0.5, dist);
         return color * intensity;
     }"""
-        )
+            )
+        } else {
+            null
+        }
 
     val modifier: Modifier =
         Modifier.drawWithContent {
@@ -64,21 +73,24 @@ class InteractiveHighlight(
                     Color.White.copy(0.06f * progress),
                     blendMode = BlendMode.Plus
                 )
-                shader.apply {
-                    val position = position(size, positionAnimation.value)
-                    setFloatUniform("size", size.width, size.height)
-                    setColorUniform("color", Color.White.copy(0.12f * progress).toArgb())
-                    setFloatUniform("radius", size.minDimension * 1.2f)
-                    setFloatUniform(
-                        "position",
-                        position.x.fastCoerceIn(0f, size.width),
-                        position.y.fastCoerceIn(0f, size.height)
+                val activeShader = shader
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && activeShader != null) {
+                    activeShader.apply {
+                        val position = position(size, positionAnimation.value)
+                        setFloatUniform("size", size.width, size.height)
+                        setColorUniform("color", Color.White.copy(0.12f * progress).toArgb())
+                        setFloatUniform("radius", size.minDimension * 1.2f)
+                        setFloatUniform(
+                            "position",
+                            position.x.fastCoerceIn(0f, size.width),
+                            position.y.fastCoerceIn(0f, size.height)
+                        )
+                    }
+                    drawRect(
+                        ShaderBrush(activeShader),
+                        blendMode = BlendMode.Plus
                     )
                 }
-                drawRect(
-                    ShaderBrush(shader),
-                    blendMode = BlendMode.Plus
-                )
             }
 
             drawContent()

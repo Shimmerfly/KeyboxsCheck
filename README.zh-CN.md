@@ -26,7 +26,7 @@ keybox，对照 Google 的证明吊销列表检查每个密钥，并按**密钥�
 
 ## 环境要求
 
-- Android 12（API 31）及以上。
+- Android 8.0（API 26）及以上。
 - 不需要 root。读取任意绝对路径是可选项，用 `MANAGE_EXTERNAL_STORAGE`；默认走 SAF。
 - 联网获取吊销列表。无网络时使用 24 小时缓存；完全没有缓存时全部报告为
   `UNKNOWN`，**不会**误报为未吊销。

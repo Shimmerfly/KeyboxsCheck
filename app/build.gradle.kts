@@ -84,9 +84,9 @@ android {
         abortOnError = true
         checkReleaseBuilds = false
         // The upstream UI kit template ships lint errors that predate this
-        // project (blur effect that needs API 33 while minSdk is 31, and
-        // untranslated template strings in 40+ locales). The baseline records
-        // those findings so lint still fails the build on *new* issues.
+        // project (mostly APIs newer than minSdk 26 in the blur effect stack,
+        // and untranslated template strings in 40+ locales). The baseline
+        // records those findings so lint still fails the build on *new* issues.
         // Regenerate with the "Lint baseline" workflow after an upstream sync.
         baseline = file("lint-baseline.xml")
     }

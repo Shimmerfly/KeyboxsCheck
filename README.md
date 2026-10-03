@@ -32,7 +32,7 @@ template and modelled after [KeyAttestation](https://github.com/VisionR1/KeyAtte
 
 ## Requirements
 
-- Android 12 (API 31) or newer.
+- Android 8.0 (API 26) or newer.
 - No root. Reading arbitrary absolute paths is optional and uses
   `MANAGE_EXTERNAL_STORAGE`; the default path is the Storage Access Framework.
 - A network connection for the revocation list. Without one the app uses the

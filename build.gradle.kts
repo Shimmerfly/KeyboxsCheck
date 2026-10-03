@@ -4,7 +4,10 @@ plugins {
     alias(libs.plugins.compose.compiler) apply false
 }
 
-val androidMinSdkVersion by extra(31)
+// Android 8.0. miuix-ui and friends need 23; only the blur effect library asks
+// for more, and it is overridden in the manifest because every entry point into
+// it is guarded by isRenderEffectSupported() / isRuntimeShaderSupported().
+val androidMinSdkVersion by extra(26)
 val androidTargetSdkVersion by extra(37)
 val androidCompileSdkVersion by extra(37)
 val androidCompileSdkVersionMinor by extra(0)

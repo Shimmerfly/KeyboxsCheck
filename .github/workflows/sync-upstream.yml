@@ -1,8 +1,12 @@
 name: Sync upstream template
 
+# This repository started as a copy of chenaizhang/KernelSU-Style-UI-Kit, so it
+# shares no git history with it: a plain `git merge upstream/main` fails with
+# "refusing to merge unrelated histories". Instead the workflow applies upstream
+# changes as a file-level overlay — files this project never touched are taken
+# straight from upstream, files this project owns are listed for manual porting.
 on:
   schedule:
-    # Every day at 03:00 UTC.
     - cron: '0 3 * * *'
   workflow_dispatch:
 
@@ -25,11 +29,6 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Configure git identity
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-
       - name: Fetch upstream
         run: |
           git remote add upstream https://github.com/chenaizhang/KernelSU-Style-UI-Kit.git
@@ -38,59 +37,106 @@ jobs:
       - name: Detect new upstream commits
         id: detect
         run: |
-          if git merge-base --is-ancestor upstream/main HEAD; then
-            echo "up_to_date=true" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          if [ ! -f .github/upstream-baseline ]; then
+            echo "::error::.github/upstream-baseline is missing; it records the last synced upstream commit."
+            exit 1
+          fi
+          baseline="$(tr -d '[:space:]' < .github/upstream-baseline)"
+          echo "baseline=$baseline" >> "$GITHUB_OUTPUT"
+          if [ "$(git rev-parse upstream/main)" = "$baseline" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            echo "up_to_date=false" >> "$GITHUB_OUTPUT"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Report that upstream is already merged
-        if: steps.detect.outputs.up_to_date == 'true'
+      - name: Report that nothing needs syncing
+        if: steps.detect.outputs.changed == 'false'
         run: |
           {
-            echo '## Upstream is up to date'
+            echo "## Upstream template is up to date"
             echo
-            echo 'No new commits in `chenaizhang/KernelSU-Style-UI-Kit` since the last sync.'
+            echo "\`chenaizhang/KernelSU-Style-UI-Kit\` is still at \`${{ steps.detect.outputs.baseline }}\`."
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Open a sync pull request
-        if: steps.detect.outputs.up_to_date == 'false'
+      - name: Apply upstream changes on a branch
+        if: steps.detect.outputs.changed == 'true'
+        id: apply
+        run: |
+          set -euo pipefail
+          baseline="${{ steps.detect.outputs.baseline }}"
+          upstream_sha="$(git rev-parse upstream/main)"
+          branch="chore/sync-upstream-$(date -u +%Y%m%d-%H%M%S)"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+
+          applied=()
+          manual=()
+          while IFS=$'\t' read -r status path extra; do
+            [ -z "${status:-}" ] && continue
+            case "$status" in
+              R*|C*)
+                # Renames and copies always need a human: the destination may already
+                # exist here under a different path.
+                manual+=("$status $path -> ${extra:-}")
+                continue
+                ;;
+            esac
+            # A file identical to the baseline was never touched by this project, so
+            # upstream's version can replace it. Anything else is ours to reconcile.
+            if git diff --quiet "$baseline" HEAD -- "$path"; then
+              case "$status" in
+                A|M) git checkout upstream/main -- "$path"; applied+=("$status $path") ;;
+                D)   git rm -q --ignore-unmatch -- "$path"; applied+=("$status $path") ;;
+              esac
+            else
+              manual+=("$status $path")
+            fi
+          done < <(git diff --name-status "$baseline" upstream/main)
+
+          echo "$upstream_sha" > .github/upstream-baseline
+
+          {
+            echo "# Upstream sync $(date -u +%Y-%m-%d)"
+            echo
+            echo "Upstream \`chenaizhang/KernelSU-Style-UI-Kit\` moved from \`$baseline\` to \`$upstream_sha\`."
+            echo
+            echo "## Applied automatically (${#applied[@]})"
+            echo
+            if [ "${#applied[@]}" -eq 0 ]; then echo "_none_"; else printf -- '- `%s`\n' "${applied[@]}"; fi
+            echo
+            echo "## Needs manual porting (${#manual[@]})"
+            echo
+            echo "These files changed upstream but this project has its own version, so"
+            echo "they were left alone:"
+            echo
+            if [ "${#manual[@]}" -eq 0 ]; then echo "_none_"; else printf -- '- `%s`\n' "${manual[@]}"; fi
+          } > docs/upstream-sync.md
+
+          {
+            echo "Upstream moved \`${baseline:0:7}\` → \`${upstream_sha:0:7}\`."
+            echo
+            echo "- Applied automatically: **${#applied[@]}**"
+            echo "- Needs manual porting: **${#manual[@]}**"
+            echo
+            echo "The file list is in \`docs/upstream-sync.md\`. Files under \"needs manual"
+            echo "porting\" carry this project's own changes (package rename, keybox code)"
+            echo "and must be reviewed by hand before merging."
+          } > /tmp/pr-body.md
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add -A
+          git commit -q -m "chore: sync upstream template to ${upstream_sha:0:7}"
+          git push -u origin "$branch"
+
+      - name: Open pull request
+        if: steps.detect.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -euo pipefail
-          branch="chore/sync-upstream-$(date -u +%Y%m%d)"
-          git checkout -b "$branch"
-
-          if git merge --no-edit upstream/main; then
-            status='clean'
-          else
-            status='conflicted'
-            git add -A
-            git commit --no-edit -m "chore: sync upstream template (conflicts left unresolved on purpose)" || true
-          fi
-
-          git push --force-with-lease -u origin "$branch"
-
-          body=$(printf '%s\n' \
-            'Automated sync of new commits from `chenaizhang/KernelSU-Style-UI-Kit`.' \
-            '' \
-            "Merge status: **${status}**." \
-            '' \
-            'This repository adds the keybox engine and screens on top of the template, so review the diff before merging.')
-
-          if [ "$status" = 'conflicted' ]; then
-            body=$(printf '%s\n' "$body" '' 'The merge left conflicts committed as-is; resolve them in this pull request before merging.')
-          fi
-
           gh pr create \
             --base main \
-            --head "$branch" \
+            --head "${{ steps.apply.outputs.branch }}" \
             --title "chore: sync upstream template ($(date -u +%Y-%m-%d))" \
-            --body "$body"
-
-          {
-            echo '## Sync pull request opened'
-            echo
-            echo "Branch: \`${branch}\` — merge status: **${status}**"
-          } >> "$GITHUB_STEP_SUMMARY"
+            --body-file /tmp/pr-body.md
