@@ -215,6 +215,7 @@ class KeyboxViewModel : ViewModel() {
             val notes = buildList {
                 add("输出目录：${result.directory.absolutePath}")
                 if (result.saved.isEmpty()) add("没有写入任何文件")
+                addAll(result.saved.map { "已保存 $it" })
                 addAll(result.skipped.map { "跳过 $it" })
                 addAll(result.failed.map { "失败 $it" })
                 addAll(result.reportFiles.map { "已写出报告 ${it.name}" })
