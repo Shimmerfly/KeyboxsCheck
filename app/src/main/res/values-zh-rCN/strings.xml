@@ -75,9 +75,9 @@
     <string name="keybox_progress_working">处理中…</string>
     <string name="keybox_results_title">结果</string>
     <string name="keybox_no_results">尚未分析任何 keybox。</string>
-    <string name="keybox_group_members">%1$d 个文件共用同一密钥</string>
-    <string name="keybox_group_variants">%1$d 种证书链</string>
-    <string name="keybox_group_devices">DeviceID：%1$s</string>
+    <string name="keybox_repeated_title">⚠️ 雷同证书</string>
+    <string name="keybox_repeated_note">下列文件互为同一个密钥，保存时只保留其中一份。</string>
+    <string name="keybox_repeated_key">与 %1$s 是同一个密钥，保存时只保留一份</string>
     <string name="keybox_group_identity">密钥指纹（公钥的 SHA-256）：%1$s</string>
     <string name="keybox_group_ignored">匹配时忽略 DeviceID、attestation 属性与 NumberOfKeyboxes，只比较密钥本身。</string>
     <string name="keybox_status_revoked">已被吊销</string>

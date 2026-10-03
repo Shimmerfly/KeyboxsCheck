@@ -68,7 +68,6 @@ class ReportWriterTest {
 
         assertEquals(1, report.keys.size)
         assertEquals("good.xml", report.keys[0].fileName)
-        assertEquals(1, report.groups.size)
         assertEquals(7L, report.stats.filesScanned.toLong())
         assertEquals(3L, report.stats.xmlFiles.toLong())
         assertEquals(2L, report.stats.unreadable.toLong())
@@ -103,7 +102,7 @@ class ReportWriterTest {
     }
 
     @Test
-    fun `assemble groups keyboxes that share a key identity`() {
+    fun `assemble lists every file and reports the keys they share`() {
         val report = ReportWriter.assemble(
             inputDescription = "dir",
             analyzed = listOf(
@@ -119,10 +118,16 @@ class ReportWriterTest {
             nowMillis = fixedNow,
         )
 
-        assertEquals(2, report.groups.size)
-        val shared = report.groups.first { it.keyId == "SAME" }
-        assertEquals(2, shared.memberCount)
-        assertEquals(listOf("CLONED", "ORIGINAL"), shared.deviceIds.sorted())
+        // Three files, three entries: an edited DeviceID does not merge them.
+        assertEquals(3, report.keys.size)
+        assertEquals(
+            listOf("a.xml", "b.xml", "c.xml"),
+            report.keys.map { it.fileName }.sorted(),
+        )
+        assertEquals("CLONED", report.keys.first { it.fileName == "b.xml" }.deviceId)
+        assertEquals(1, report.repeatedKeys.size)
+        assertEquals("SAME", report.repeatedKeys[0].keyId)
+        assertEquals(listOf("a.xml", "b.xml"), report.repeatedKeys[0].fileNames)
     }
 
     // -------------------------------------------------------------------- JSON
@@ -149,19 +154,20 @@ class ReportWriterTest {
         val stats = root.getJSONObject("stats")
         assertEquals(4, stats.getInt("filesScanned"))
 
-        val group = root.getJSONArray("groups").getJSONObject(0)
-        assertEquals("SAME", group.getString("keyId"))
-        assertEquals("REVOKED", group.getString("status"))
-        assertEquals(2, group.getInt("memberCount"))
-        assertEquals(1, group.getInt("chainVariants"))
-        assertTrue(group.getBoolean("identicalChains"))
+        val certificates = root.getJSONArray("certificates")
+        assertEquals(2, certificates.length())
+        val certificate = certificates.getJSONObject(0)
+        assertEquals("a.xml", certificate.getString("fileName"))
+        assertEquals("SAME", certificate.getString("keyId"))
+        assertEquals("REVOKED", certificate.getString("status"))
+        assertEquals("ORIGINAL", certificate.getString("deviceId"))
+        assertEquals("LOCAL_PATH", certificate.getString("source"))
 
-        val member = group.getJSONArray("members").getJSONObject(0)
-        assertEquals("a.xml", member.getString("fileName"))
-        assertEquals("ORIGINAL", member.getString("deviceId"))
-        assertEquals("LOCAL_PATH", member.getString("source"))
+        val repeated = root.getJSONArray("repeatedKeys").getJSONObject(0)
+        assertEquals("SAME", repeated.getString("keyId"))
+        assertEquals(2, repeated.getInt("count"))
 
-        val key = member.getJSONArray("keys").getJSONObject(0)
+        val key = certificate.getJSONArray("keys").getJSONObject(0)
         assertEquals("SAME", key.getString("keyId"))
         assertEquals("PRIVATE_KEY", key.getString("identitySource"))
         assertEquals("REVOKED", key.getString("status"))
@@ -195,12 +201,12 @@ class ReportWriterTest {
         assertEquals("NONE", root.getJSONObject("revocation").getString("source"))
         assertTrue(root.getJSONObject("revocation").isNull("expires"))
 
-        val member = root.getJSONArray("groups").getJSONObject(0).getJSONArray("members").getJSONObject(0)
-        assertTrue(member.isNull("deviceId"))
-        assertTrue(member.isNull("duplicateOf"))
-        assertTrue(member.isNull("parseError"))
+        val certificate = root.getJSONArray("certificates").getJSONObject(0)
+        assertTrue(certificate.isNull("deviceId"))
+        assertTrue(certificate.isNull("duplicateOf"))
+        assertTrue(certificate.isNull("parseError"))
 
-        val key = member.getJSONArray("keys").getJSONObject(0)
+        val key = certificate.getJSONArray("keys").getJSONObject(0)
         assertTrue(key.isNull("chainValid"))
         assertEquals("私钥无法推导公钥", key.getString("identityError"))
     }
@@ -243,8 +249,7 @@ class ReportWriterTest {
         )
 
         val certificate = JSONObject(ReportWriter.toJson(report))
-            .getJSONArray("groups").getJSONObject(0)
-            .getJSONArray("members").getJSONObject(0)
+            .getJSONArray("certificates").getJSONObject(0)
             .getJSONArray("keys").getJSONObject(0)
             .getJSONArray("certificates").getJSONObject(0)
 
@@ -263,7 +268,7 @@ class ReportWriterTest {
 
         assertTrue(markdown.startsWith("# KeyboxsCheck 检测报告"))
         assertTrue(markdown.contains("| 确认为 keybox | 2 |"))
-        assertTrue(markdown.contains("| 密钥身份组 | 1 |"))
+        assertTrue(markdown.contains("| keybox 文件 | 2 |"))
         // The full group fingerprint is printed, not the truncated heading.
         assertTrue(markdown.contains("`SAME`"))
         assertTrue(markdown.contains("🔴 已吊销 REVOKED"))
@@ -306,7 +311,7 @@ class ReportWriterTest {
         val markdown = ReportWriter.toMarkdown(report)
 
         assertTrue(markdown.contains("_没有解析出任何 keybox。_"))
-        assertTrue(report.groups.isEmpty())
+        assertTrue(report.keys.isEmpty())
     }
 
     @Test
@@ -328,7 +333,7 @@ class ReportWriterTest {
 
         assertTrue(report.stats.duplicates == 1)
         assertTrue(markdown.contains("内容重复于 `first.xml`"))
-        assertTrue(markdown.contains("| 失效 |"))
+        assertTrue(markdown.contains("证书链：失效"))
     }
 
     // ------------------------------------------------------------------- utils

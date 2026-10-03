@@ -1,39 +1,32 @@
 package dev.hcy917.keyboxchecker.keybox
 
 /**
- * Groups analysed keyboxes by *key identity*.
+ * Facts about the keys carried by a scan.
  *
- * The `DeviceID`, the attestation properties and every other field a user can
- * edit with a text editor are deliberately excluded from the grouping key —
- * they are reported per member so two files with the same key but different
- * DeviceIDs are visibly flagged as one identity with a rewritten label.
+ * A scan result lists its files one by one: two keyboxes are never merged into
+ * a single row, because the row would then hide which file the reader has to
+ * look at. Ties between files are reported instead of resolved — [repeatedKeys]
+ * names the files that carry one and the same key, and it is exactly this list
+ * the save step consults before it writes anything to the library.
  */
 object KeyboxClassifier {
 
-    /** A keybox with no key at all cannot be grouped; it is reported separately. */
-    fun classify(keyboxes: List<AnalyzedKeybox>): List<KeyGroup> {
-        val grouped = LinkedHashMap<String, MutableList<AnalyzedKeybox>>()
+    /**
+     * Keys that more than one file carries, worst first then by file name.
+     *
+     * Files whose key cannot be identified are left out: nothing can be claimed
+     * about a key that was never derived.
+     */
+    fun repeatedKeys(keyboxes: List<AnalyzedKeybox>): List<RepeatedKey> {
+        val byKey = LinkedHashMap<String, MutableList<String>>()
         for (keybox in keyboxes) {
             val keyId = keybox.primaryKeyId ?: continue
-            grouped.getOrPut(keyId) { ArrayList() }.add(keybox)
+            byKey.getOrPut(keyId) { ArrayList() }.add(keybox.fileName)
         }
-
-        val groups = grouped.map { (keyId, members) ->
-            val variants = members.map { it.chainFingerprint }.filter { it.isNotEmpty() }.distinct()
-            KeyGroup(
-                keyId = keyId,
-                status = members.maxByOrNull { it.status.severity }?.status ?: RevocationStatus.UNKNOWN,
-                members = members.sortedBy { it.fileName },
-                chainVariants = variants.size,
-                identicalChains = variants.size <= 1,
-            )
-        }
-
-        return groups.sortedWith(
-            compareByDescending<KeyGroup> { it.status.severity }
-                .thenByDescending { it.memberCount }
-                .thenBy { it.keyId },
-        )
+        return byKey
+            .filterValues { it.size > 1 }
+            .map { (keyId, names) -> RepeatedKey(keyId, names.sorted()) }
+            .sortedWith(compareByDescending<RepeatedKey> { it.count }.thenBy { it.fileNames.first() })
     }
 
     /**
@@ -44,6 +37,10 @@ object KeyboxClassifier {
      * The report is rebuilt from a previous report (for example when a channel
      * import is merged in), and a stale marking on the survivor would otherwise
      * pair every copy up with another one, leaving the whole group unsaveable.
+     *
+     * Byte identity is only the first, cheapest tie: two files that differ by a
+     * single editable character still carry the same key, which [repeatedKeys]
+     * and the save step take care of.
      *
      * @return the relabelled list (first occurrence keeps `duplicateOf == null`)
      *   together with the number of duplicates found.

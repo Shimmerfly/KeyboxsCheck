@@ -39,7 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.hcy917.keyboxchecker.R
 import dev.hcy917.keyboxchecker.keybox.AnalyzedKeybox
-import dev.hcy917.keyboxchecker.keybox.KeyGroup
+import dev.hcy917.keyboxchecker.keybox.RepeatedKey
 import dev.hcy917.keyboxchecker.keybox.RevocationSource
 import dev.hcy917.keyboxchecker.keybox.RevocationStatus
 import dev.hcy917.keyboxchecker.keybox.RootStatus
@@ -91,7 +91,7 @@ internal fun KeyboxScreenMaterial(
                 )
             }
 
-            if (state.groups.isEmpty()) {
+            if (state.certificates.isEmpty()) {
                 item {
                     TonalCard {
                         Text(
@@ -103,11 +103,16 @@ internal fun KeyboxScreenMaterial(
                 }
             }
 
-            items(state.groups, key = { it.keyId }) { group ->
-                GroupCard(
-                    group = group,
-                    expanded = state.expandedGroups.contains(group.keyId),
-                    onToggle = actions.onToggleGroup,
+            if (state.repeatedKeys.isNotEmpty()) {
+                item { RepeatedCard(state.repeatedKeys) }
+            }
+
+            items(state.certificates, key = { it.fileName }) { keybox ->
+                CertificateCard(
+                    keybox = keybox,
+                    twins = state.twinNames(keybox),
+                    expanded = state.expandedFiles.contains(keybox.fileName),
+                    onToggle = actions.onToggleFile,
                 )
             }
 
@@ -288,9 +293,14 @@ private fun RevocationCard(state: KeyboxUiState, actions: KeyboxActions) {
 }
 
 @Composable
-private fun GroupCard(group: KeyGroup, expanded: Boolean, onToggle: (String) -> Unit) {
-    val color = keyboxStatusColor(group.status)
-    TonalCard(onClick = { onToggle(group.keyId) }) {
+private fun CertificateCard(
+    keybox: AnalyzedKeybox,
+    twins: List<String>,
+    expanded: Boolean,
+    onToggle: (String) -> Unit,
+) {
+    val color = keyboxStatusColor(keybox.status)
+    TonalCard(onClick = { onToggle(keybox.fileName) }) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -308,39 +318,35 @@ private fun GroupCard(group: KeyGroup, expanded: Boolean, onToggle: (String) -> 
                         .background(color),
                 )
                 Text(
-                    text = stringResource(keyboxStatusLabelRes(group.status)),
+                    text = stringResource(keyboxStatusLabelRes(keybox.status)),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = color,
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
-                    text = keyboxShortHex(group.keyId),
+                    text = keyboxShortHex(keybox.primaryKeyId ?: keybox.contentSha256),
                     style = MaterialTheme.typography.labelSmall,
                     fontFamily = FontFamily.Monospace,
                 )
             }
 
             Text(
-                text = stringResource(R.string.keybox_group_members, group.memberCount),
+                text = keybox.fileName,
                 style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
             )
-            if (group.chainVariants > 1) {
+            if (twins.isNotEmpty()) {
                 Text(
-                    text = stringResource(R.string.keybox_group_variants, group.chainVariants),
+                    text = stringResource(R.string.keybox_repeated_key, twins.joinToString("、")),
                     style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
                 )
             }
 
             if (expanded) {
-                group.deviceIds.take(6).forEach { deviceId ->
-                    Text(
-                        text = stringResource(R.string.keybox_group_devices, deviceId),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
                 Text(
-                    text = stringResource(R.string.keybox_group_identity, group.keyId),
+                    text = stringResource(R.string.keybox_group_identity, keybox.primaryKeyId ?: "-"),
                     style = MaterialTheme.typography.bodySmall,
                     fontFamily = FontFamily.Monospace,
                 )
@@ -350,7 +356,37 @@ private fun GroupCard(group: KeyGroup, expanded: Boolean, onToggle: (String) -> 
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.height(2.dp))
-                group.members.take(12).forEach { member -> MemberRow(member) }
+                MemberRow(keybox)
+            }
+        }
+    }
+}
+
+@Composable
+private fun RepeatedCard(repeated: List<RepeatedKey>) {
+    TonalCard {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.keybox_repeated_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                text = stringResource(R.string.keybox_repeated_note),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            repeated.forEach { key ->
+                Text(
+                    text = key.fileNames.joinToString("、"),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
             }
         }
     }

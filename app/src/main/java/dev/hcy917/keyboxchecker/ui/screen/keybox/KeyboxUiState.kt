@@ -1,7 +1,8 @@
 package dev.hcy917.keyboxchecker.ui.screen.keybox
 
 import androidx.compose.runtime.Immutable
-import dev.hcy917.keyboxchecker.keybox.KeyGroup
+import dev.hcy917.keyboxchecker.keybox.AnalyzedKeybox
+import dev.hcy917.keyboxchecker.keybox.RepeatedKey
 import dev.hcy917.keyboxchecker.keybox.RevocationSource
 import dev.hcy917.keyboxchecker.keybox.ScanProgress
 import dev.hcy917.keyboxchecker.keybox.ScanReport
@@ -9,8 +10,8 @@ import dev.hcy917.keyboxchecker.keybox.ScanReport
 /**
  * Everything the keybox screen renders.
  *
- * [report] already carries the grouped view, so the UI never has to regroup:
- * the classifier runs once per scan inside the repository.
+ * [report] already carries the per-file list and the repeated keys, so the UI
+ * never has to recompute them: the classifier runs once per scan.
  */
 @Immutable
 data class KeyboxUiState(
@@ -23,8 +24,11 @@ data class KeyboxUiState(
     val isScanning: Boolean = false,
     val progress: ScanProgress? = null,
     val report: ScanReport? = null,
-    val groups: List<KeyGroup> = emptyList(),
-    val expandedGroups: Set<String> = emptySet(),
+    /** One entry per file, never merged: the same key may appear twice here. */
+    val certificates: List<AnalyzedKeybox> = emptyList(),
+    /** Keys carried by more than one of the scanned files. */
+    val repeatedKeys: List<RepeatedKey> = emptyList(),
+    val expandedFiles: Set<String> = emptySet(),
     val outputDir: String = "",
     val revocationSource: RevocationSource = RevocationSource.NONE,
     val revocationEntries: Int = 0,
@@ -45,5 +49,15 @@ data class KeyboxActions(
     val onCancel: () -> Unit,
     val onRefreshRevocation: () -> Unit,
     val onSaveConfirmed: () -> Unit,
-    val onToggleGroup: (String) -> Unit,
+    val onToggleFile: (String) -> Unit,
 )
+
+/** The other scanned files that carry [keybox]'s key, if any. */
+fun KeyboxUiState.twinNames(keybox: AnalyzedKeybox): List<String> {
+    val keyId = keybox.primaryKeyId ?: return emptyList()
+    return repeatedKeys
+        .firstOrNull { it.keyId == keyId }
+        ?.fileNames
+        ?.filter { it != keybox.fileName }
+        .orEmpty()
+}

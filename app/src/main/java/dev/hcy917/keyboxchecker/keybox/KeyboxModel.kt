@@ -211,19 +211,17 @@ data class AnalyzedKeybox(
 enum class KeyboxSource { LOCAL_PATH, MANUAL }
 
 /**
- * A set of keyboxes that share one key identity. Device identifiers and other
- * trivially editable fields are deliberately excluded from the grouping key.
+ * Two keyboxes that carry the same key material.
+ *
+ * Files are listed one by one, never merged into a group, so a repeated key is
+ * reported as its own fact instead of hiding which file it came from. This is
+ * what the save step consults before writing anything to the library.
  */
-data class KeyGroup(
+data class RepeatedKey(
     val keyId: String,
-    val status: RevocationStatus,
-    val members: List<AnalyzedKeybox>,
-    val chainVariants: Int,
-    val identicalChains: Boolean,
+    val fileNames: List<String>,
 ) {
-    val memberCount: Int get() = members.size
-    val deviceIds: List<String> get() = members.mapNotNull { it.deviceId }.distinct()
-    val chainFingerprints: List<String> get() = members.map { it.chainFingerprint }.distinct()
+    val count: Int get() = fileNames.size
 }
 
 /** Fields the classifier intentionally ignores because they are user editable. */
@@ -255,8 +253,10 @@ data class ScanReport(
     val inputDescription: String,
     val generatedAtMillis: Long,
     val renderedAtIso: String,
+    /** Every confirmed keybox, one entry per file, worst status first. */
     val keys: List<AnalyzedKeybox>,
-    val groups: List<KeyGroup>,
+    /** Keys carried by more than one of these files; empty when all differ. */
+    val repeatedKeys: List<RepeatedKey>,
     val stats: ScanStats,
     val revocation: RevocationSnapshot,
 )

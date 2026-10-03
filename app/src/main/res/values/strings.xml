@@ -78,9 +78,9 @@
     <string name="keybox_progress_working">Working…</string>
     <string name="keybox_results_title">Results</string>
     <string name="keybox_no_results">No keybox has been analysed yet.</string>
-    <string name="keybox_group_members">%1$d file(s) share this key</string>
-    <string name="keybox_group_variants">%1$d certificate chain variant(s)</string>
-    <string name="keybox_group_devices">DeviceID: %1$s</string>
+    <string name="keybox_repeated_title">⚠️ Repeated certificates</string>
+    <string name="keybox_repeated_note">These files carry one and the same key; only one of them is saved.</string>
+    <string name="keybox_repeated_key">Same key as %1$s — only one copy is saved</string>
     <string name="keybox_group_identity">Key fingerprint (SHA-256 of the public key): %1$s</string>
     <string name="keybox_group_ignored">DeviceID, attestation properties and NumberOfKeyboxes are ignored when matching keys — only the key itself is compared.</string>
     <string name="keybox_status_revoked">Revoked</string>

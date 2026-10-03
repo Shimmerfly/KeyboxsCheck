@@ -1,78 +1,77 @@
 package dev.hcy917.keyboxchecker.keybox
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Grouping has to key on the key material alone. A keybox whose `DeviceID` was
- * edited must land in the same group as the untouched one — that is the whole
- * point of the comparison.
+ * The report lists one certificate per file, so the only thing the classifier
+ * still has to work out is which files carry the same key. That comparison has
+ * to key on the key material alone: a keybox whose `DeviceID` or chain was
+ * edited still holds the same key and must be reported as a repeat.
  */
 class KeyboxClassifierTest {
 
     @Test
-    fun `one key seen under two device ids is one group with a tampered label`() {
-        val groups = KeyboxClassifier.classify(
+    fun `one key seen in two files is one repeated key`() {
+        val repeated = KeyboxClassifier.repeatedKeys(
             listOf(
-                analyzed("a.xml", "KEY-1", deviceId = "ORIGINAL-SERIAL"),
                 analyzed("b.xml", "KEY-1", deviceId = "CLONED-SERIAL"),
+                analyzed("a.xml", "KEY-1", deviceId = "ORIGINAL-SERIAL"),
             ),
         )
-        assertEquals(1, groups.size)
-        assertEquals(2, groups[0].memberCount)
-        // DeviceID is reported for context but never decides grouping.
-        assertEquals(listOf("CLONED-SERIAL", "ORIGINAL-SERIAL"), groups[0].deviceIds.sorted())
+        assertEquals(1, repeated.size)
+        assertEquals("KEY-1", repeated[0].keyId)
+        assertEquals(2, repeated[0].count)
+        // DeviceID is reported for context but never decides identity.
+        assertEquals(listOf("a.xml", "b.xml"), repeated[0].fileNames)
     }
 
     @Test
-    fun `the same key reissued on a different chain is one group with two variants`() {
-        val groups = KeyboxClassifier.classify(
+    fun `the same key reissued on a different chain is still the same key`() {
+        val repeated = KeyboxClassifier.repeatedKeys(
             listOf(
                 analyzed("a.xml", "KEY-1", chainFingerprint = "CHAIN-A"),
                 analyzed("b.xml", "KEY-1", chainFingerprint = "CHAIN-B"),
             ),
         )
-        assertEquals(1, groups.size)
-        assertEquals(2, groups[0].chainVariants)
-        assertFalse(groups[0].identicalChains)
-        assertEquals(listOf("CHAIN-A", "CHAIN-B"), groups[0].chainFingerprints)
+        assertEquals(1, repeated.size)
+        assertEquals(listOf("a.xml", "b.xml"), repeated[0].fileNames)
     }
 
     @Test
-    fun `identical chains collapse to one variant`() {
-        val groups = KeyboxClassifier.classify(
+    fun `a file that appears once is not a repeat`() {
+        val repeated = KeyboxClassifier.repeatedKeys(
             listOf(
-                analyzed("a.xml", "KEY-1", deviceId = "A", chainFingerprint = "CHAIN"),
-                analyzed("b.xml", "KEY-1", deviceId = "B", chainFingerprint = "CHAIN"),
+                analyzed("only.xml", "KEY-1"),
+                analyzed("other.xml", "KEY-2"),
             ),
         )
-        assertEquals(1, groups[0].chainVariants)
-        assertTrue(groups[0].identicalChains)
+        assertTrue(repeated.isEmpty())
     }
 
     @Test
-    fun `distinct keys become distinct groups ordered by severity`() {
-        val groups = KeyboxClassifier.classify(
+    fun `repeats are ordered by how many files share the key`() {
+        val repeated = KeyboxClassifier.repeatedKeys(
             listOf(
-                analyzed("valid.xml", "KEY-VALID", status = RevocationStatus.VALID),
-                analyzed("revoked.xml", "KEY-REVOKED", status = RevocationStatus.REVOKED),
-                analyzed("suspended.xml", "KEY-SUSP", status = RevocationStatus.SUSPENDED),
+                analyzed("solo-a.xml", "KEY-SOLO-A"),
+                analyzed("twin-a.xml", "KEY-TWIN"),
+                analyzed("solo-b.xml", "KEY-SOLO-B"),
+                analyzed("twin-b.xml", "KEY-TWIN"),
+                analyzed("triple.xml", "KEY-TRIPLE"),
+                analyzed("triple-b.xml", "KEY-TRIPLE"),
+                analyzed("triple-c.xml", "KEY-TRIPLE"),
             ),
         )
-        assertEquals(3, groups.size)
-        assertEquals("KEY-REVOKED", groups[0].keyId)
-        assertEquals("KEY-SUSP", groups[1].keyId)
-        assertEquals("KEY-VALID", groups[2].keyId)
+        assertEquals(listOf("KEY-TRIPLE", "KEY-TWIN"), repeated.map { it.keyId })
     }
 
     @Test
-    fun `a file without keys is never grouped`() {
-        val empty = analyzed("broken.xml", "KEY-1").copy(keys = emptyList(), parseError = "XML 解析失败")
-        assertNull(empty.primaryKeyId)
-        assertTrue(KeyboxClassifier.classify(listOf(empty)).isEmpty())
+    fun `a file without keys never counts as a repeat`() {
+        val broken = analyzed("broken.xml", "KEY-1").copy(keys = emptyList(), parseError = "XML 解析失败")
+        assertNull(broken.primaryKeyId)
+        assertTrue(KeyboxClassifier.repeatedKeys(listOf(broken, broken)).isEmpty())
     }
 
     @Test

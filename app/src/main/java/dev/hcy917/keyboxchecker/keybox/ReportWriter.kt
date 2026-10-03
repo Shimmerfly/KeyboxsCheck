@@ -43,7 +43,7 @@ object ReportWriter {
             generatedAtMillis = nowMillis,
             renderedAtIso = iso(nowMillis),
             keys = confirmed,
-            groups = KeyboxClassifier.classify(confirmed),
+            repeatedKeys = KeyboxClassifier.repeatedKeys(confirmed),
             stats = KeyboxClassifier.stats(
                 filesScanned = filesScanned,
                 xmlFiles = xmlFiles,
@@ -90,32 +90,29 @@ object ReportWriter {
             },
         )
 
-        val groups = JSONArray()
-        for (group in report.groups) {
-            val members = JSONArray()
-            for (member in group.members) {
-                members.put(memberJson(member))
-            }
-            groups.put(
+        val certificates = JSONArray()
+        for (keybox in report.keys) {
+            certificates.put(memberJson(keybox))
+        }
+        root.put("certificates", certificates)
+
+        val repeated = JSONArray()
+        for (key in report.repeatedKeys) {
+            repeated.put(
                 JSONObject().apply {
-                    put("keyId", group.keyId)
-                    put("status", group.status.name)
-                    put("memberCount", group.memberCount)
-                    put("chainVariants", group.chainVariants)
-                    put("identicalChains", group.identicalChains)
-                    put("deviceIds", JSONArray(group.deviceIds))
-                    put("chainFingerprints", JSONArray(group.chainFingerprints))
-                    put("ignoredFields", JSONArray(IGNORED_IDENTITY_FIELDS))
-                    put("members", members)
+                    put("keyId", key.keyId)
+                    put("count", key.count)
+                    put("files", JSONArray(key.fileNames))
                 },
             )
         }
-        root.put("groups", groups)
+        root.put("repeatedKeys", repeated)
         return root.toString(2)
     }
 
     private fun memberJson(keybox: AnalyzedKeybox): JSONObject = JSONObject().apply {
         put("fileName", keybox.fileName)
+        put("keyId", keybox.primaryKeyId ?: JSONObject.NULL)
         put("deviceId", keybox.deviceId ?: JSONObject.NULL)
         put("contentSha256", keybox.contentSha256)
         put("chainFingerprint", keybox.chainFingerprint)
@@ -185,14 +182,14 @@ object ReportWriter {
         builder.append("| 非 keybox | ").append(report.stats.notKeybox).append(" |\n")
         builder.append("| 无法读取 | ").append(report.stats.unreadable).append(" |\n")
         builder.append("| 内容重复 | ").append(report.stats.duplicates).append(" |\n")
-        builder.append("| 密钥身份组 | ").append(report.groups.size).append(" |\n\n")
+        builder.append("| keybox 文件 | ").append(report.keys.size).append(" |\n\n")
 
-        val revoked = report.groups.count { it.status == RevocationStatus.REVOKED }
-        val suspended = report.groups.count { it.status == RevocationStatus.SUSPENDED }
-        val valid = report.groups.count { it.status == RevocationStatus.VALID }
-        val unknown = report.groups.count { it.status == RevocationStatus.UNKNOWN }
+        val revoked = report.keys.count { it.status == RevocationStatus.REVOKED }
+        val suspended = report.keys.count { it.status == RevocationStatus.SUSPENDED }
+        val valid = report.keys.count { it.status == RevocationStatus.VALID }
+        val unknown = report.keys.count { it.status == RevocationStatus.UNKNOWN }
         builder.append("### 吊销状态分布\n\n")
-        builder.append("| 状态 | 组数 |\n| --- | --- |\n")
+        builder.append("| 状态 | 文件数 |\n| --- | --- |\n")
         builder.append("| 已吊销 / REVOKED | ").append(revoked).append(" |\n")
         builder.append("| 已暂停 / SUSPENDED | ").append(suspended).append(" |\n")
         builder.append("| 未吊销 / VALID | ").append(valid).append(" |\n")
@@ -211,54 +208,80 @@ object ReportWriter {
         }
         builder.append('\n')
 
-        builder.append("## 密钥分组\n\n")
-        if (report.groups.isEmpty()) {
+        builder.append("## 密钥列表\n\n")
+        if (report.keys.isEmpty()) {
             builder.append("_没有解析出任何 keybox。_\n")
             return builder.toString()
         }
 
-        for ((position, group) in report.groups.withIndex()) {
-            builder.append("### ").append(position + 1).append(". ").append(statusLabel(group.status))
-            builder.append(" — `").append(group.keyId.take(32)).append("`\n\n")
-            builder.append("- 密钥指纹（SHA-256）：`").append(group.keyId).append("`\n")
-            builder.append("- 成员文件数：").append(group.memberCount).append("\n")
-            builder.append("- 证书链变体：").append(group.chainVariants)
-            if (group.chainVariants > 1) builder.append("（同一密钥存在多份不同证书链，可能已重新签发）")
-            builder.append("\n")
-            builder.append("- 设备 ID：")
-            if (group.deviceIds.isEmpty()) {
-                builder.append("_（未标注）_")
-            } else {
-                builder.append(group.deviceIds.joinToString("`, `", "`", "`"))
-            }
-            builder.append("\n")
-            builder.append("- 远程配置（RKP）：")
-            builder.append(if (group.members.all { it.remoteProvisioned }) "是" else "否")
-            builder.append("\n")
-            if (group.members.any { it.expired }) {
-                builder.append("- ⚠️ 组内存在证书已过期的成员\n")
-            }
-            builder.append("- 匹配时忽略的字段：")
-            builder.append(IGNORED_IDENTITY_FIELDS.joinToString("`, `", "`", "`"))
-            builder.append("\n\n")
-
-            builder.append("| 文件 | DeviceID | 吊销状态 | 链校验 | 链指纹 | 备注 |\n")
-            builder.append("| --- | --- | --- | --- | --- | --- |\n")
-            for (member in group.members) {
-                builder.append("| `").append(member.fileName).append("` | ")
-                builder.append(member.deviceId?.let { "`$it`" } ?: "-").append(" | ")
-                builder.append(member.status.name).append(" | ")
-                builder.append(chainLabel(member)).append(" | ")
-                builder.append(member.chainFingerprint.take(16).ifEmpty { "-" }).append(" | ")
-                builder.append(notes(member)).append(" |\n")
+        val repeats = report.repeatedKeys.associateBy { it.keyId }
+        if (repeats.isNotEmpty()) {
+            builder.append("### ⚠️ 雷同证书\n\n")
+            builder.append("下列文件互为同一个密钥，保存时只会保留其中一份：\n\n")
+            for (key in report.repeatedKeys) {
+                builder.append("- `").append(key.keyId).append("` — ")
+                builder.append(key.fileNames.joinToString("`, `", "`", "`"))
+                builder.append('\n')
             }
             builder.append('\n')
         }
 
+        builder.append("每个文件单独成节，不按密钥合并。")
+        builder.append("匹配时忽略的字段：")
+        builder.append(IGNORED_IDENTITY_FIELDS.joinToString("`, `", "`", "`"))
+        builder.append("——这些字段可以被任意编辑，不参与密钥比对。\n\n")
+        for ((position, keybox) in report.keys.withIndex()) {
+            builder.append("### ").append(position + 1).append(". ").append(statusLabel(keybox.status))
+            builder.append(" — `").append(keybox.fileName).append("`\n\n")
+            builder.append("- 密钥指纹（SHA-256）：`")
+            builder.append(keybox.primaryKeyId ?: "（未能识别密钥身份）")
+            builder.append("`\n")
+            builder.append("- DeviceID：")
+            builder.append(keybox.deviceId?.let { "`$it`" } ?: "_（未标注）_")
+            builder.append('\n')
+            builder.append("- 证书链：").append(chainLabel(keybox))
+            builder.append("（链指纹 `").append(keybox.chainFingerprint.take(16).ifEmpty { "-" }).append("`）\n")
+            builder.append("- 远程配置（RKP）：")
+            builder.append(if (keybox.remoteProvisioned) "是" else "否")
+            builder.append('\n')
+            builder.append("- 备注：").append(notes(keybox)).append('\n')
+            repeats[keybox.primaryKeyId]?.let { repeated ->
+                val twins = repeated.fileNames.filter { it != keybox.fileName }
+                if (twins.isNotEmpty()) {
+                    builder.append("- ⚠️ 与 ")
+                    builder.append(twins.joinToString("`, `", "`", "`"))
+                    builder.append(" 是同一个密钥，保存时只留一份\n")
+                }
+            }
+            builder.append('\n')
+
+            if (keybox.keys.size > 1) {
+                builder.append("| 密钥 | 算法 | 来源 | 状态 | 链校验 |\n")
+                builder.append("| --- | --- | --- | --- | --- |\n")
+                for (key in keybox.keys) {
+                    builder.append("| #").append(key.index + 1).append(" | ")
+                    builder.append(key.algorithm).append(" | ")
+                    builder.append(key.identitySource.name).append(" | ")
+                    builder.append(key.status.name).append(" | ")
+                    builder.append(
+                        when (key.chainValid) {
+                            true -> "通过"
+                            false -> "失效"
+                            null -> "未知"
+                        },
+                    ).append(" |\n")
+                }
+                builder.append('\n')
+            }
+        }
+
         builder.append("---\n\n")
         builder.append("> 说明：DeviceID 与 attestation 属性可被任意编辑，因此**不参与**密钥匹配；")
-        builder.append("仅密钥材料（私钥推导出的公钥指纹）决定分组。状态为 UNKNOWN 表示未能完成吊销查询；")
+        builder.append("密钥身份由密钥材料（私钥推导出的公钥指纹）决定，但列表按**文件**逐条给出，")
+        builder.append("同一个密钥出现在多个文件里时只在末尾互相标注为雷同。状态为 UNKNOWN 表示未能完成吊销查询；")
         builder.append("链中任一证书不在有效期内时，该 keybox 直接记为 REVOKED（已吊销）且不会被保存。\n")
+        builder.append("> 保存时会同时与本次扫描结果和本地已有的库比对：同一个密钥只写出第一份，")
+        builder.append("库里已经存在的密钥不会重复保存。\n")
         builder.append("> 检测项：证书有效期、私钥与叶证书匹配、链内逐级签名、链根公钥比对、证书张数、")
         builder.append("逐张证书吊销查询（KimmyXYC/KeyboxChecker 的方法，链根公钥来自 VisionR1/KeyAttestation）。\n")
         return builder.toString()

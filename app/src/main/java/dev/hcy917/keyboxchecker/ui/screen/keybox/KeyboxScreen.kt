@@ -43,7 +43,7 @@ fun KeyboxScreen() {
         onCancel = viewModel::onCancelScan,
         onRefreshRevocation = viewModel::onRefreshRevocation,
         onSaveConfirmed = viewModel::onSaveConfirmed,
-        onToggleGroup = viewModel::onToggleGroup,
+        onToggleFile = viewModel::onToggleFile,
     )
 
     val onBack = dropUnlessResumed { navigator.pop() }

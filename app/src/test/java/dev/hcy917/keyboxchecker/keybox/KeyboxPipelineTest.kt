@@ -62,34 +62,34 @@ class KeyboxPipelineTest {
         assertEquals(RevocationStatus.REVOKED, analyzed.status)
 
         val report = assemble(listOf(analyzed), revokedTable)
-        assertEquals(1, report.groups.size)
-        assertEquals(RevocationStatus.REVOKED, report.groups[0].status)
-        assertEquals(Der.sha256(leafPair.public.encoded), report.groups[0].keyId)
+        assertEquals(1, report.keys.size)
+        assertEquals(RevocationStatus.REVOKED, report.keys[0].status)
+        assertEquals(Der.sha256(leafPair.public.encoded), report.keys[0].primaryKeyId)
 
         val json = JSONObject(ReportWriter.toJson(report))
-        assertEquals("REVOKED", json.getJSONArray("groups").getJSONObject(0).getString("status"))
+        assertEquals("REVOKED", json.getJSONArray("certificates").getJSONObject(0).getString("status"))
 
         val markdown = ReportWriter.toMarkdown(report)
         assertTrue(markdown.contains("🔴 已吊销 REVOKED"))
         assertTrue(markdown.contains("吊销原因：KEY_COMPROMISE"))
-        assertTrue(markdown.contains("| 通过 |"))
+        assertTrue(markdown.contains("证书链：通过"))
     }
 
     @Test
-    fun `the same key under two device ids lands in one group`() {
+    fun `the same key under two device ids is listed twice and reported as a repeat`() {
         val first = scan(keyboxXml(deviceId = "ORIGINAL-SERIAL"), "first.xml", RevocationSnapshot.EMPTY)
         val second = scan(keyboxXml(deviceId = "CLONED-SERIAL"), "second.xml", RevocationSnapshot.EMPTY)
 
         val report = assemble(listOf(first, second), RevocationSnapshot.EMPTY)
 
-        assertEquals(1, report.groups.size)
-        val group = report.groups[0]
-        assertEquals(2, group.memberCount)
-        assertEquals(listOf("CLONED-SERIAL", "ORIGINAL-SERIAL"), group.deviceIds.sorted())
-        // Identical chains, so this is a clone rather than a re-issue.
-        assertEquals(1, group.chainVariants)
-        assertTrue(group.identicalChains)
+        // One entry per file: the edited DeviceID does not hide the second copy.
+        assertEquals(2, report.keys.size)
+        assertEquals(listOf("first.xml", "second.xml"), report.keys.map { it.fileName }.sorted())
         assertFalse(report.keys.any { it.duplicateOf != null })
+        // The two files differ in bytes, so the byte check misses them; the key
+        // comparison is what catches them.
+        assertEquals(1, report.repeatedKeys.size)
+        assertEquals(listOf("first.xml", "second.xml"), report.repeatedKeys[0].fileNames)
     }
 
     @Test
@@ -127,7 +127,7 @@ class KeyboxPipelineTest {
         val report = assemble(listOf(scan(keyboxXml(deviceId = "DEV-1"), "keybox.xml", usableTable)), usableTable, notKeybox = 1)
         assertEquals(1L, report.stats.confirmedKeyboxes.toLong())
         assertEquals(1L, report.stats.notKeybox.toLong())
-        assertEquals(1, report.groups.size)
+        assertEquals(1, report.keys.size)
     }
 
     @Test

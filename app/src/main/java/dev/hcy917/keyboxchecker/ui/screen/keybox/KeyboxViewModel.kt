@@ -78,11 +78,11 @@ class KeyboxViewModel : ViewModel() {
         _uiState.update { it.copy(localDeviceId = value) }
     }
 
-    fun onToggleGroup(keyId: String) {
+    fun onToggleFile(fileName: String) {
         _uiState.update { state ->
-            val expanded = state.expandedGroups.toMutableSet()
-            if (!expanded.add(keyId)) expanded.remove(keyId)
-            state.copy(expandedGroups = expanded)
+            val expanded = state.expandedFiles.toMutableSet()
+            if (!expanded.add(fileName)) expanded.remove(fileName)
+            state.copy(expandedFiles = expanded)
         }
     }
 
@@ -153,7 +153,8 @@ class KeyboxViewModel : ViewModel() {
                         is ScanEvent.Done -> _uiState.update {
                             it.copy(
                                 report = event.report,
-                                groups = event.report.groups,
+                                certificates = event.report.keys,
+                                repeatedKeys = event.report.repeatedKeys,
                                 progress = null,
                                 notes = scanNotes(event.report.stats),
                             )

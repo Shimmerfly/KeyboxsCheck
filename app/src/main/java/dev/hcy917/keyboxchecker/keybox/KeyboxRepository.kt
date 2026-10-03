@@ -207,8 +207,15 @@ class KeyboxRepository(
     }.getOrDefault(false)
 
     /**
-     * Writes every confirmed, non-duplicate, unexpired keybox plus the two
-     * report files.
+     * Writes every confirmed, unexpired keybox that is not already held, plus
+     * the report files.
+     *
+     * A keybox is judged by the key it carries, never by its bytes: two files
+     * whose editable `DeviceID` (or a stray space) differ are still the same
+     * certificate to the device, so only the first of them is written and the
+     * other is reported as a repeat. The same comparison is made against the
+     * library that is already on disk, so re-scanning a folder never grows the
+     * collection with copies of a key it already holds.
      *
      * Saved files are neutralised: they are renamed to `yyyyMMddR|N#####` (R for
      * a remotely provisioned keybox, N otherwise, five digits that are unique
@@ -228,27 +235,24 @@ class KeyboxRepository(
         val skipped = ArrayList<String>()
         val failed = ArrayList<String>()
         val deviceId = localDeviceId.trim()
-        val confirmed = report.keys.filter { it.isConfirmed }
 
         if (deviceId.isEmpty()) {
-            confirmed.forEach { skipped += "${it.fileName}（未填写本机 ID）" }
+            report.keys.forEach { skipped += "${it.fileName}（未填写本机 ID）" }
             return SaveResult(targetDir, saved, skipped, failed, emptyList())
         }
 
         val folder = File(targetDir, deviceFolder(deviceId))
         val taken = existingNames(targetDir)
+        val plan = SavePlanner.plan(
+            keys = report.keys,
+            availableDigests = capturedBytes.keys,
+            libraryKeys = libraryKeyIds(targetDir),
+        )
 
-        for (keybox in report.keys) {
-            if (!keybox.isConfirmed) {
-                skipped += "${keybox.fileName}（未确认为 keybox）"
-                continue
-            }
-            if (keybox.duplicateOf != null) {
-                skipped += "${keybox.fileName}（与 ${keybox.duplicateOf} 内容相同）"
-                continue
-            }
-            if (keybox.expired) {
-                skipped += "${keybox.fileName}（证书已过期，不保存）"
+        for (decision in plan) {
+            val keybox = decision.keybox
+            if (!decision.saveable) {
+                skipped += "${keybox.fileName}（${skipReason(decision)}）"
                 continue
             }
             val bytes = capturedBytes[keybox.contentSha256]
@@ -287,6 +291,49 @@ class KeyboxRepository(
             failed = failed,
             reportFiles = reportFiles,
         )
+    }
+
+    /** Why a planned file was not written, in the words of the notes list. */
+    private fun skipReason(decision: SavePlanner.Decision): String = when (decision.outcome) {
+        SavePlanner.Outcome.NOT_KEYBOX -> "未确认为 keybox"
+        SavePlanner.Outcome.CONTENT_DUPLICATE -> "与 ${decision.detail} 内容相同"
+        SavePlanner.Outcome.EXPIRED -> "证书已过期，不保存"
+        SavePlanner.Outcome.IN_LIBRARY -> "本地库中已有同一个密钥：${decision.detail}"
+        SavePlanner.Outcome.REPEATED_KEY -> "与 ${decision.detail} 是同一个密钥"
+        SavePlanner.Outcome.MISSING_CONTENT -> "内容已不在缓存中，请重新扫描后再保存"
+        SavePlanner.Outcome.SAVED -> "已保存"
+    }
+
+    /**
+     * Key ids the library already holds, mapped to the file that carries them.
+     *
+     * The saved files are re-read and re-analysed here instead of being
+     * remembered from the last save, so a key written by an older build, or a
+     * keybox copied into the folder by hand, is recognised just the same. Only
+     * the key identity is read: the revocation list is deliberately not
+     * consulted, so this stays offline and fast.
+     */
+    private fun libraryKeyIds(root: File): Map<String, String> {
+        if (!root.isDirectory) return emptyMap()
+        val ids = HashMap<String, String>()
+        val offline = RevocationSnapshot(emptyMap(), RevocationSource.NONE, 0L)
+        val analyzer = KeyboxAnalyzer(offline, nowMillis)
+        for (entry in SavedLibrary.list(root)) {
+            val file = File(root, entry.relativePath)
+            if (file.length() > MAX_FILE_BYTES) continue
+            val bytes = runCatching { file.readBytes() }.getOrNull() ?: continue
+            val text = decodeXml(bytes) ?: continue
+            val outcome = KeyboxParser.parse(text, entry.relativePath)
+            if (outcome !is ParseOutcome.Ok) continue
+            val keybox = analyzer.analyze(
+                entry.relativePath,
+                Der.sha256(bytes),
+                outcome.keybox,
+                KeyboxSource.LOCAL_PATH,
+            )
+            keybox.primaryKeyId?.let { ids.putIfAbsent(it, entry.relativePath) }
+        }
+        return ids
     }
 
     /** Writes `classification.json` and `report.md` into [targetDir]. */

@@ -32,7 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.hcy917.keyboxchecker.R
 import dev.hcy917.keyboxchecker.keybox.AnalyzedKeybox
-import dev.hcy917.keyboxchecker.keybox.KeyGroup
+import dev.hcy917.keyboxchecker.keybox.RepeatedKey
 import dev.hcy917.keyboxchecker.keybox.RevocationSource
 import dev.hcy917.keyboxchecker.keybox.RootStatus
 import top.yukonga.miuix.kmp.basic.BasicComponent
@@ -99,7 +99,7 @@ internal fun KeyboxScreenMiuix(
             item { RevocationCardMiuix(state, actions) }
             item { SectionTitleMiuix(stringResource(R.string.keybox_results_title)) }
 
-            if (state.groups.isEmpty()) {
+            if (state.certificates.isEmpty()) {
                 item {
                     MiuixCard(modifier = Modifier.fillMaxWidth()) {
                         MiuixText(
@@ -112,11 +112,16 @@ internal fun KeyboxScreenMiuix(
                 }
             }
 
-            items(state.groups, key = { it.keyId }) { group ->
-                GroupCardMiuix(
-                    group = group,
-                    expanded = state.expandedGroups.contains(group.keyId),
-                    onToggle = actions.onToggleGroup,
+            if (state.repeatedKeys.isNotEmpty()) {
+                item { RepeatedCardMiuix(state.repeatedKeys) }
+            }
+
+            items(state.certificates, key = { it.fileName }) { keybox ->
+                CertificateCardMiuix(
+                    keybox = keybox,
+                    twins = state.twinNames(keybox),
+                    expanded = state.expandedFiles.contains(keybox.fileName),
+                    onToggle = actions.onToggleFile,
                 )
             }
 
@@ -323,20 +328,18 @@ private fun RevocationCardMiuix(state: KeyboxUiState, actions: KeyboxActions) {
 }
 
 @Composable
-private fun GroupCardMiuix(group: KeyGroup, expanded: Boolean, onToggle: (String) -> Unit) {
-    val color = keyboxStatusColor(group.status)
-    val summary = buildString {
-        append(stringResource(R.string.keybox_group_members, group.memberCount))
-        if (group.chainVariants > 1) {
-            append(" · ")
-            append(stringResource(R.string.keybox_group_variants, group.chainVariants))
-        }
-    }
+private fun CertificateCardMiuix(
+    keybox: AnalyzedKeybox,
+    twins: List<String>,
+    expanded: Boolean,
+    onToggle: (String) -> Unit,
+) {
+    val color = keyboxStatusColor(keybox.status)
 
     MiuixCard(modifier = Modifier.fillMaxWidth()) {
         BasicComponent(
-            title = stringResource(keyboxStatusLabelRes(group.status)),
-            summary = summary,
+            title = keybox.fileName,
+            summary = stringResource(keyboxStatusLabelRes(keybox.status)),
             startAction = {
                 Box(
                     modifier = Modifier
@@ -348,7 +351,7 @@ private fun GroupCardMiuix(group: KeyGroup, expanded: Boolean, onToggle: (String
             },
             endActions = {
                 MiuixIcon(
-                    imageVector = if (group.status.severity >= 2) {
+                    imageVector = if (keybox.status.severity >= 2) {
                         Icons.Default.Warning
                     } else {
                         Icons.Default.CheckCircle
@@ -357,24 +360,24 @@ private fun GroupCardMiuix(group: KeyGroup, expanded: Boolean, onToggle: (String
                     contentDescription = null,
                 )
             },
-            onClick = { onToggle(group.keyId) },
+            onClick = { onToggle(keybox.fileName) },
         )
-        if (expanded) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                group.deviceIds.take(6).forEach { deviceId ->
-                    MiuixText(
-                        text = stringResource(R.string.keybox_group_devices, deviceId),
-                        fontSize = MiuixTheme.textStyles.body2.fontSize,
-                        color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
-                    )
-                }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            if (twins.isNotEmpty()) {
                 MiuixText(
-                    text = stringResource(R.string.keybox_group_identity, group.keyId),
+                    text = stringResource(R.string.keybox_repeated_key, twins.joinToString("、")),
+                    fontSize = MiuixTheme.textStyles.body2.fontSize,
+                    color = MiuixTheme.colorScheme.error,
+                )
+            }
+            if (expanded) {
+                MiuixText(
+                    text = stringResource(R.string.keybox_group_identity, keybox.primaryKeyId ?: "-"),
                     fontSize = MiuixTheme.textStyles.body2.fontSize,
                     color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                 )
@@ -383,7 +386,37 @@ private fun GroupCardMiuix(group: KeyGroup, expanded: Boolean, onToggle: (String
                     fontSize = MiuixTheme.textStyles.body2.fontSize,
                     color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                 )
-                group.members.take(12).forEach { member -> MemberRowsMiuix(member) }
+                MemberRowsMiuix(keybox)
+            }
+        }
+    }
+}
+
+@Composable
+private fun RepeatedCardMiuix(repeated: List<RepeatedKey>) {
+    MiuixCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            MiuixText(
+                text = stringResource(R.string.keybox_repeated_title),
+                fontSize = MiuixTheme.textStyles.title4.fontSize,
+                fontWeight = FontWeight.Medium,
+            )
+            MiuixText(
+                text = stringResource(R.string.keybox_repeated_note),
+                fontSize = MiuixTheme.textStyles.body2.fontSize,
+                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
+            )
+            repeated.forEach { key ->
+                MiuixText(
+                    text = key.fileNames.joinToString("、"),
+                    fontSize = MiuixTheme.textStyles.body2.fontSize,
+                    color = MiuixTheme.colorScheme.error,
+                )
             }
         }
     }
