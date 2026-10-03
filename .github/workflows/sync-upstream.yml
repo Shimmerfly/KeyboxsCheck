@@ -1,0 +1,96 @@
+name: Sync upstream template
+
+on:
+  schedule:
+    # Every day at 03:00 UTC.
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync from KernelSU-Style-UI-Kit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/chenaizhang/KernelSU-Style-UI-Kit.git
+          git fetch --no-tags upstream main
+
+      - name: Detect new upstream commits
+        id: detect
+        run: |
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "up_to_date=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "up_to_date=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Report that upstream is already merged
+        if: steps.detect.outputs.up_to_date == 'true'
+        run: |
+          {
+            echo '## Upstream is up to date'
+            echo
+            echo 'No new commits in `chenaizhang/KernelSU-Style-UI-Kit` since the last sync.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open a sync pull request
+        if: steps.detect.outputs.up_to_date == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          branch="chore/sync-upstream-$(date -u +%Y%m%d)"
+          git checkout -b "$branch"
+
+          if git merge --no-edit upstream/main; then
+            status='clean'
+          else
+            status='conflicted'
+            git add -A
+            git commit --no-edit -m "chore: sync upstream template (conflicts left unresolved on purpose)" || true
+          fi
+
+          git push --force-with-lease -u origin "$branch"
+
+          body=$(printf '%s\n' \
+            'Automated sync of new commits from `chenaizhang/KernelSU-Style-UI-Kit`.' \
+            '' \
+            "Merge status: **${status}**." \
+            '' \
+            'This repository adds the keybox engine and screens on top of the template, so review the diff before merging.')
+
+          if [ "$status" = 'conflicted' ]; then
+            body=$(printf '%s\n' "$body" '' 'The merge left conflicts committed as-is; resolve them in this pull request before merging.')
+          fi
+
+          gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "chore: sync upstream template ($(date -u +%Y-%m-%d))" \
+            --body "$body"
+
+          {
+            echo '## Sync pull request opened'
+            echo
+            echo "Branch: \`${branch}\` — merge status: **${status}**"
+          } >> "$GITHUB_STEP_SUMMARY"
