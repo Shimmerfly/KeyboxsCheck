@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.KernelSUStyleUIKit" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
-    </style>
+    <!-- windowLayoutInDisplayCutoutMode needs API 27, so it lives in values-night-v27. -->
+    <style name="Theme.KernelSUStyleUIKit" parent="android:Theme.Material.NoActionBar" />
 
 </resources>

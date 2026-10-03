@@ -62,8 +62,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -96,6 +94,8 @@ import dev.hcy917.keyboxchecker.ui.component.material.SegmentedSwitchItem
 import dev.hcy917.keyboxchecker.ui.component.material.TonalCard
 import dev.hcy917.keyboxchecker.ui.theme.ColorMode
 import dev.hcy917.keyboxchecker.ui.theme.keyColorOptions
+import dev.hcy917.keyboxchecker.ui.theme.MaterialYouFallbackSeed
+import dev.hcy917.keyboxchecker.ui.theme.dynamicColorSchemeOrNull
 
 @Composable
 fun ColorPaletteScreenMaterial(
@@ -351,24 +351,25 @@ private fun ThemePreviewCard(
     val screenHeight = configuration.screenHeightDp.toFloat()
     val screenRatio = screenWidth / screenHeight
     val dynamicColor = keyColor == 0
+    // Wallpaper colours only exist from Android 12; below that we seed a fixed palette.
+    val wallpaperScheme = if (dynamicColor) dynamicColorSchemeOrNull(context, isDark) else null
 
-    val colorScheme = if (dynamicColor) {
-        val baseScheme = if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    val colorScheme = if (wallpaperScheme != null) {
         rememberDynamicColorScheme(
             seedColor = Color.Unspecified,
             isDark = isDark,
             style = paletteStyle,
             specVersion = colorSpec,
-            primary = baseScheme.primary,
-            secondary = baseScheme.secondary,
-            tertiary = baseScheme.tertiary,
-            neutral = baseScheme.surface,
-            neutralVariant = baseScheme.surfaceVariant,
-            error = baseScheme.error
+            primary = wallpaperScheme.primary,
+            secondary = wallpaperScheme.secondary,
+            tertiary = wallpaperScheme.tertiary,
+            neutral = wallpaperScheme.surface,
+            neutralVariant = wallpaperScheme.surfaceVariant,
+            error = wallpaperScheme.error
         )
     } else {
         rememberDynamicColorScheme(
-            seedColor = Color(keyColor),
+            seedColor = if (dynamicColor) MaterialYouFallbackSeed else Color(keyColor),
             isDark = isDark,
             style = paletteStyle,
             specVersion = colorSpec,
@@ -488,23 +489,25 @@ private fun ColorButtonMaterial(
 ) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
-    val colorScheme = if (color == Color.Unspecified) {
-        val baseScheme = if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    val dynamicColor = color == Color.Unspecified
+    // Wallpaper colours only exist from Android 12; below that we seed a fixed palette.
+    val wallpaperScheme = if (dynamicColor) dynamicColorSchemeOrNull(context, isDark) else null
+    val colorScheme = if (wallpaperScheme != null) {
         rememberDynamicColorScheme(
             seedColor = Color.Unspecified,
             isDark = isDark,
             style = paletteStyle,
             specVersion = colorSpec,
-            primary = baseScheme.primary,
-            secondary = baseScheme.secondary,
-            tertiary = baseScheme.tertiary,
-            neutral = baseScheme.surface,
-            neutralVariant = baseScheme.surfaceVariant,
-            error = baseScheme.error
+            primary = wallpaperScheme.primary,
+            secondary = wallpaperScheme.secondary,
+            tertiary = wallpaperScheme.tertiary,
+            neutral = wallpaperScheme.surface,
+            neutralVariant = wallpaperScheme.surfaceVariant,
+            error = wallpaperScheme.error
         )
     } else {
         rememberDynamicColorScheme(
-            seedColor = color,
+            seedColor = if (dynamicColor) MaterialYouFallbackSeed else color,
             isDark = isDark,
             style = paletteStyle,
             specVersion = colorSpec,

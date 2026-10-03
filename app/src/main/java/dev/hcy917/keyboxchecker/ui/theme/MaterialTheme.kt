@@ -4,8 +4,6 @@ import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MotionScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
@@ -25,25 +23,26 @@ fun MaterialTemplateTheme(
     val dynamicColor = appSettings.keyColor == 0
     val colorStyle = appSettings.paletteStyle
     val colorSpec = appSettings.colorSpec
+    // Wallpaper colours only exist from Android 12; below that we seed a fixed palette.
+    val wallpaperScheme = if (dynamicColor) dynamicColorSchemeOrNull(context, darkTheme) else null
 
-    val colorScheme = if (dynamicColor) {
-        val baseScheme = if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    val colorScheme = if (wallpaperScheme != null) {
         rememberDynamicColorScheme(
             seedColor = Color.Unspecified,
             isDark = darkTheme,
             isAmoled = amoledMode,
             style = colorStyle,
             specVersion = colorSpec,
-            primary = baseScheme.primary,
-            secondary = baseScheme.secondary,
-            tertiary = baseScheme.tertiary,
-            neutral = baseScheme.surface,
-            neutralVariant = baseScheme.surfaceVariant,
-            error = baseScheme.error
+            primary = wallpaperScheme.primary,
+            secondary = wallpaperScheme.secondary,
+            tertiary = wallpaperScheme.tertiary,
+            neutral = wallpaperScheme.surface,
+            neutralVariant = wallpaperScheme.surfaceVariant,
+            error = wallpaperScheme.error
         )
     } else {
         rememberDynamicColorScheme(
-            seedColor = Color(appSettings.keyColor),
+            seedColor = if (dynamicColor) MaterialYouFallbackSeed else Color(appSettings.keyColor),
             isDark = darkTheme,
             isAmoled = amoledMode,
             style = colorStyle,
