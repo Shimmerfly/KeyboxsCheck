@@ -85,7 +85,6 @@ class KeyboxPipelineTest {
         assertEquals(1, report.groups.size)
         val group = report.groups[0]
         assertEquals(2, group.memberCount)
-        assertTrue(group.hasTamperedDeviceId)
         assertEquals(listOf("CLONED-SERIAL", "ORIGINAL-SERIAL"), group.deviceIds.sorted())
         // Identical chains, so this is a clone rather than a re-issue.
         assertEquals(1, group.chainVariants)

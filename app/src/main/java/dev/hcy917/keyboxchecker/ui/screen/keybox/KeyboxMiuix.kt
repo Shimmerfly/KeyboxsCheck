@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.dp
 import dev.hcy917.keyboxchecker.R
 import dev.hcy917.keyboxchecker.keybox.AnalyzedKeybox
 import dev.hcy917.keyboxchecker.keybox.KeyGroup
-import dev.hcy917.keyboxchecker.keybox.KeyboxSource
 import dev.hcy917.keyboxchecker.keybox.RevocationSource
+import dev.hcy917.keyboxchecker.keybox.RootStatus
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Card as MiuixCard
 import top.yukonga.miuix.kmp.basic.Icon as MiuixIcon
@@ -87,9 +87,8 @@ internal fun KeyboxScreenMiuix(
         ) {
             item { Spacer(Modifier.height(0.dp)) }
             item { InputCardMiuix(state, actions) }
-            item { TelegramCardMiuix(state, actions) }
 
-            if (state.isScanning || state.isImporting) {
+            if (state.isScanning) {
                 item { BusyCardMiuix(state) }
             }
 
@@ -170,12 +169,24 @@ private fun InputCardMiuix(state: KeyboxUiState, actions: KeyboxActions) {
                     color = MiuixTheme.colorScheme.primary,
                 )
             }
+            MiuixTextField(
+                value = state.localDeviceId,
+                onValueChange = actions.onLocalDeviceIdChanged,
+                modifier = Modifier.fillMaxWidth(),
+                label = stringResource(R.string.keybox_local_id_label),
+                singleLine = true,
+            )
+            MiuixText(
+                text = stringResource(R.string.keybox_local_id_note),
+                fontSize = MiuixTheme.textStyles.body2.fontSize,
+                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 MiuixTextButton(
                     text = stringResource(R.string.keybox_pick_directory),
                     onClick = actions.onPickDirectory,
                 )
-                if (state.isScanning || state.isImporting) {
+                if (state.isScanning) {
                     MiuixTextButton(
                         text = stringResource(R.string.keybox_cancel),
                         onClick = actions.onCancel,
@@ -191,53 +202,6 @@ private fun InputCardMiuix(state: KeyboxUiState, actions: KeyboxActions) {
     }
 }
 
-@Composable
-private fun TelegramCardMiuix(state: KeyboxUiState, actions: KeyboxActions) {
-    MiuixCard(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            MiuixText(
-                text = stringResource(R.string.keybox_telegram_title),
-                fontSize = MiuixTheme.textStyles.headline1.fontSize,
-                fontWeight = FontWeight.Medium,
-                color = MiuixTheme.colorScheme.onSurface,
-            )
-            MiuixText(
-                text = stringResource(R.string.keybox_telegram_note),
-                fontSize = MiuixTheme.textStyles.body2.fontSize,
-                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
-            )
-            MiuixTextField(
-                value = state.tgBotToken,
-                onValueChange = actions.onBotTokenChanged,
-                modifier = Modifier.fillMaxWidth(),
-                label = stringResource(R.string.keybox_bot_token),
-                singleLine = true,
-            )
-            MiuixTextField(
-                value = state.tgChannel,
-                onValueChange = actions.onChannelChanged,
-                modifier = Modifier.fillMaxWidth(),
-                label = stringResource(R.string.keybox_channel),
-                singleLine = true,
-            )
-            MiuixTextButton(
-                text = stringResource(R.string.keybox_import),
-                onClick = actions.onImportFromTelegram,
-                enabled = !state.isImporting && !state.isScanning,
-            )
-            MiuixText(
-                text = stringResource(R.string.keybox_privacy_note),
-                fontSize = MiuixTheme.textStyles.body2.fontSize,
-                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
-            )
-        }
-    }
-}
 
 @Composable
 private fun BusyCardMiuix(state: KeyboxUiState) {
@@ -413,13 +377,7 @@ private fun GroupCardMiuix(group: KeyGroup, expanded: Boolean, onToggle: (String
 @Composable
 private fun MemberRowsMiuix(member: AnalyzedKeybox) {
     val key = member.keys.firstOrNull()
-    val sourceLabel = stringResource(
-        if (member.source == KeyboxSource.TELEGRAM) {
-            R.string.keybox_source_telegram
-        } else {
-            R.string.keybox_source_local
-        },
-    )
+    val sourceLabel = stringResource(R.string.keybox_source_local)
     val chainLabel = stringResource(keyboxChainLabelRes(key?.chainValid))
     val meta = buildString {
         append(sourceLabel)
@@ -460,31 +418,49 @@ private fun MemberRowsMiuix(member: AnalyzedKeybox) {
                     color = keyboxStatusColor(key.status),
                 )
             }
+            MiuixText(
+                text = stringResource(keyboxRootStatusRes(key.rootStatus)),
+                fontSize = MiuixTheme.textStyles.body2.fontSize,
+                color = if (key.rootStatus == RootStatus.UNKNOWN) {
+                    MiuixTheme.colorScheme.error
+                } else {
+                    MiuixTheme.colorScheme.onSurfaceVariantSummary
+                },
+            )
             key.chainRoot?.let { root ->
-                if (key.rootRecognized) {
-                    MiuixText(
-                        text = stringResource(R.string.keybox_root_recognized, root),
-                        fontSize = MiuixTheme.textStyles.body2.fontSize,
-                        color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
-                    )
-                }
+                MiuixText(
+                    text = stringResource(R.string.keybox_root_recognized, root),
+                    fontSize = MiuixTheme.textStyles.body2.fontSize,
+                    color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
+                )
+            }
+            if (key.remoteProvisioned) {
+                MiuixText(
+                    text = stringResource(R.string.keybox_rkp),
+                    fontSize = MiuixTheme.textStyles.body2.fontSize,
+                    color = MiuixTheme.colorScheme.primary,
+                )
+            }
+            if (key.privateKeyMatchesLeaf == false) {
+                MiuixText(
+                    text = stringResource(R.string.keybox_private_key_mismatch),
+                    fontSize = MiuixTheme.textStyles.body2.fontSize,
+                    color = MiuixTheme.colorScheme.error,
+                )
+            }
+            if (key.tooManyCertificates) {
+                MiuixText(
+                    text = stringResource(R.string.keybox_too_many_certificates),
+                    fontSize = MiuixTheme.textStyles.body2.fontSize,
+                    color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
+                )
             }
         }
-        member.deviceIdMatchesLeafSerial?.let { matches ->
+        if (member.expired) {
             MiuixText(
-                text = stringResource(
-                    if (matches) {
-                        R.string.keybox_device_id_matches
-                    } else {
-                        R.string.keybox_device_id_tampered
-                    },
-                ),
+                text = stringResource(R.string.keybox_expired),
                 fontSize = MiuixTheme.textStyles.body2.fontSize,
-                color = if (matches) {
-                    MiuixTheme.colorScheme.onSurfaceVariantSummary
-                } else {
-                    MiuixTheme.colorScheme.error
-                },
+                color = MiuixTheme.colorScheme.error,
             )
         }
     }
@@ -513,7 +489,7 @@ private fun SaveCardMiuix(state: KeyboxUiState, actions: KeyboxActions) {
             MiuixTextButton(
                 text = stringResource(R.string.keybox_save),
                 onClick = actions.onSaveConfirmed,
-                enabled = state.report != null && !state.isScanning && !state.isImporting,
+                enabled = state.report != null && !state.isScanning,
             )
         }
     }

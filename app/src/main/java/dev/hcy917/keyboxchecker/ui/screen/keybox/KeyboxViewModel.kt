@@ -4,9 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.hcy917.keyboxchecker.keybox.AnalyzedKeybox
 import dev.hcy917.keyboxchecker.keybox.KeyboxRepository
-import dev.hcy917.keyboxchecker.keybox.ReportWriter
 import dev.hcy917.keyboxchecker.keybox.RevocationSnapshot
 import dev.hcy917.keyboxchecker.keybox.ScanEvent
 import dev.hcy917.keyboxchecker.keybox.ScanStats
@@ -23,12 +21,11 @@ import java.io.File
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
- * Drives one keybox scan.
+ * Drives one keybox scan and the "save confirmed" step.
  *
- * The ViewModel owns two independent result sets — the local scan and the
- * Telegram channel — and recombines them through [ReportWriter] so both sources
- * end up in one classification. The Telegram bot token is written to private
- * SharedPreferences only; it never reaches a report, a log or version control.
+ * The local device id is stored in private SharedPreferences and is the
+ * `DeviceID` written into every saved keybox, so a collection gathered from any
+ * number of sources comes out uniform.
  */
 class KeyboxViewModel : ViewModel() {
 
@@ -42,17 +39,9 @@ class KeyboxViewModel : ViewModel() {
 
     private var revocation: RevocationSnapshot = RevocationSnapshot.EMPTY
     private var scanJob: Job? = null
-    private var importJob: Job? = null
 
     /** Set when the user picks a directory through the Storage Access Framework. */
     private var treeUri: Uri? = null
-
-    private var localKeys: List<AnalyzedKeybox> = emptyList()
-    private var localStats = ScanStats()
-    private var localDescription = ""
-    private var telegramKeys: List<AnalyzedKeybox> = emptyList()
-    private var telegramDocuments = 0
-    private var telegramErrors = 0
 
     init {
         loadRevocation(force = false)
@@ -79,14 +68,9 @@ class KeyboxViewModel : ViewModel() {
         }
     }
 
-    fun onBotTokenChanged(value: String) {
-        prefs.edit().putString(KEY_BOT_TOKEN, value).apply()
-        _uiState.update { it.copy(tgBotToken = value) }
-    }
-
-    fun onChannelChanged(value: String) {
-        prefs.edit().putString(KEY_CHANNEL, value).apply()
-        _uiState.update { it.copy(tgChannel = value) }
+    fun onLocalDeviceIdChanged(value: String) {
+        prefs.edit().putString(KEY_LOCAL_DEVICE_ID, value).apply()
+        _uiState.update { it.copy(localDeviceId = value) }
     }
 
     fun onToggleGroup(keyId: String) {
@@ -99,8 +83,7 @@ class KeyboxViewModel : ViewModel() {
 
     fun onCancelScan() {
         scanJob?.cancel()
-        importJob?.cancel()
-        _uiState.update { it.copy(isScanning = false, isImporting = false, progress = null) }
+        _uiState.update { it.copy(isScanning = false, progress = null) }
     }
 
     fun onRefreshRevocation() {
@@ -126,7 +109,6 @@ class KeyboxViewModel : ViewModel() {
             val snapshot = ensureRevocation()
             val root = if (target == null) File(path) else null
             val description = root?.absolutePath ?: "SAF:${target}"
-            localDescription = description
             try {
                 val events = if (target != null) {
                     repository.scanTree(target, description, snapshot)
@@ -138,14 +120,13 @@ class KeyboxViewModel : ViewModel() {
                         is ScanEvent.Progress ->
                             _uiState.update { it.copy(progress = event.progress) }
 
-                        is ScanEvent.Done -> {
-                            localKeys = event.report.keys
-                            localStats = event.report.stats
-                            // A fresh local scan invalidates the previous channel import.
-                            telegramKeys = emptyList()
-                            telegramDocuments = 0
-                            telegramErrors = 0
-                            rebuild(notes = scanNotes(event.report.stats))
+                        is ScanEvent.Done -> _uiState.update {
+                            it.copy(
+                                report = event.report,
+                                groups = event.report.groups,
+                                progress = null,
+                                notes = scanNotes(event.report.stats),
+                            )
                         }
                     }
                 }
@@ -159,59 +140,24 @@ class KeyboxViewModel : ViewModel() {
         }
     }
 
-    // ----------------------------------------------------------------- telegram
-
-    fun onImportFromTelegram() {
-        if (_uiState.value.isImporting) return
-        val token = _uiState.value.tgBotToken.trim()
-        val channel = _uiState.value.tgChannel.trim()
-        if (token.isEmpty()) {
-            setMessage("请先填写 Telegram Bot Token")
-            return
-        }
-        if (channel.isEmpty()) {
-            setMessage("请先填写频道 ID 或用户名（私有频道请用 -100 开头的数字 ID）")
-            return
-        }
-
-        importJob = viewModelScope.launch {
-            _uiState.update { it.copy(isImporting = true, message = null) }
-            val snapshot = ensureRevocation()
-            val offset = prefs.getString(KEY_UPDATE_OFFSET, null)?.toLongOrNull()
-            try {
-                val result = repository.importFromTelegram(token, channel, snapshot, offset) { name ->
-                    _uiState.update {
-                        it.copy(progress = dev.hcy917.keyboxchecker.keybox.ScanProgress(0, 0, name, "正在拉取频道文件"))
-                    }
-                }
-                result.nextOffset?.let { prefs.edit().putString(KEY_UPDATE_OFFSET, it.toString()).apply() }
-                telegramKeys = result.analyzed
-                telegramDocuments += result.documentsFound
-                telegramErrors += result.errors.size
-                rebuild(notes = result.errors)
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (error: Exception) {
-                setMessage(error.message ?: "从频道导入失败")
-            } finally {
-                _uiState.update { it.copy(isImporting = false, progress = null) }
-            }
-        }
-    }
-
     // -------------------------------------------------------------------- saving
 
     fun onSaveConfirmed() {
-        val report = _uiState.value.report
+        val state = _uiState.value
+        val report = state.report
         if (report == null) {
-            setMessage("请先扫描目录或从频道导入后再保存")
+            setMessage("请先扫描目录后再保存")
+            return
+        }
+        if (state.localDeviceId.isBlank()) {
+            setMessage("请先填写本机 ID，保存时会写入 keybox 的 DeviceID")
             return
         }
         viewModelScope.launch {
-            val directory = File(
-                _uiState.value.outputDir.ifBlank { repository.defaultOutputDir().absolutePath },
-            )
-            val result = withContext(Dispatchers.IO) { repository.saveConfirmed(report, directory) }
+            val directory = File(state.outputDir.ifBlank { repository.defaultOutputDir().absolutePath })
+            val result = withContext(Dispatchers.IO) {
+                repository.saveConfirmed(report, directory, state.localDeviceId)
+            }
             val notes = buildList {
                 add("输出目录：${result.directory.absolutePath}")
                 if (result.saved.isEmpty()) add("没有写入任何文件")
@@ -230,8 +176,7 @@ class KeyboxViewModel : ViewModel() {
         val stored = prefs.getString(KEY_OUTPUT_DIR, null)
         return KeyboxUiState(
             path = prefs.getString(KEY_PATH, "").orEmpty(),
-            tgBotToken = prefs.getString(KEY_BOT_TOKEN, "").orEmpty(),
-            tgChannel = prefs.getString(KEY_CHANNEL, "").orEmpty(),
+            localDeviceId = prefs.getString(KEY_LOCAL_DEVICE_ID, "").orEmpty(),
             outputDir = stored ?: runCatching { repository.defaultOutputDir().absolutePath }.getOrDefault(""),
         )
     }
@@ -263,41 +208,6 @@ class KeyboxViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Recombines both result sets into one report. Rebuilding from the union is
-     * what makes local files and channel files comparable: grouping, duplicate
-     * detection and chain variants are all recomputed across the two sources.
-     */
-    private fun rebuild(notes: List<String>, message: String? = null) {
-        val report = ReportWriter.assemble(
-            inputDescription = describeInput(),
-            analyzed = localKeys + telegramKeys,
-            revocation = revocation,
-            filesScanned = localStats.filesScanned + telegramDocuments,
-            xmlFiles = localStats.xmlFiles + telegramDocuments,
-            notKeybox = localStats.notKeybox,
-            unreadable = localStats.unreadable + telegramErrors,
-        )
-        _uiState.update {
-            it.copy(
-                report = report,
-                groups = report.groups,
-                progress = null,
-                message = message ?: it.message,
-                notes = notes,
-            )
-        }
-    }
-
-    private fun describeInput(): String {
-        val parts = ArrayList<String>(2)
-        if (localDescription.isNotBlank()) parts += localDescription
-        if (telegramDocuments > 0 || telegramKeys.isNotEmpty()) {
-            parts += "Telegram:${_uiState.value.tgChannel.trim().ifEmpty { "?" }}"
-        }
-        return parts.joinToString(" + ").ifEmpty { "未指定输入" }
-    }
-
     private fun scanNotes(stats: ScanStats): List<String> = buildList {
         add("候选文件 ${stats.filesScanned} 个，其中 XML ${stats.xmlFiles} 个")
         add("确认为 keybox ${stats.confirmedKeyboxes} 个")
@@ -315,8 +225,6 @@ class KeyboxViewModel : ViewModel() {
         const val KEY_PATH = "keybox_path"
         const val KEY_TREE_URI = "keybox_tree_uri"
         const val KEY_OUTPUT_DIR = "keybox_output_dir"
-        const val KEY_BOT_TOKEN = "tg_bot_token"
-        const val KEY_CHANNEL = "tg_channel_id"
-        const val KEY_UPDATE_OFFSET = "tg_update_offset"
+        const val KEY_LOCAL_DEVICE_ID = "keybox_local_device_id"
     }
 }

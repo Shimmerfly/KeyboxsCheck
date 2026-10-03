@@ -104,7 +104,6 @@ object ReportWriter {
                     put("chainVariants", group.chainVariants)
                     put("identicalChains", group.identicalChains)
                     put("deviceIds", JSONArray(group.deviceIds))
-                    put("hasTamperedDeviceId", group.hasTamperedDeviceId)
                     put("chainFingerprints", JSONArray(group.chainFingerprints))
                     put("ignoredFields", JSONArray(IGNORED_IDENTITY_FIELDS))
                     put("members", members)
@@ -124,7 +123,8 @@ object ReportWriter {
         put("status", keybox.status.name)
         put("duplicateOf", keybox.duplicateOf ?: JSONObject.NULL)
         put("parseError", keybox.parseError ?: JSONObject.NULL)
-        put("deviceIdMatchesLeafSerial", keybox.deviceIdMatchesLeafSerial ?: JSONObject.NULL)
+        put("remoteProvisioned", keybox.remoteProvisioned)
+        put("expired", keybox.expired)
 
         val keys = JSONArray()
         for (key in keybox.keys) {
@@ -155,7 +155,12 @@ object ReportWriter {
                     put("chainValid", key.chainValid ?: JSONObject.NULL)
                     put("chainError", key.chainError ?: JSONObject.NULL)
                     put("chainRoot", key.chainRoot ?: JSONObject.NULL)
-                    put("rootRecognized", key.rootRecognized)
+                    put("rootStatus", key.rootStatus.name)
+                    put("remoteProvisioned", key.remoteProvisioned)
+                    put("privateKeyMatchesLeaf", key.privateKeyMatchesLeaf ?: JSONObject.NULL)
+                    put("expired", key.expired)
+                    put("expiredCertificates", JSONArray(key.expiredCertificates))
+                    put("tooManyCertificates", key.tooManyCertificates)
                     put("certificates", certificates)
                 },
             )
@@ -227,9 +232,11 @@ object ReportWriter {
                 builder.append(group.deviceIds.joinToString("`, `", "`", "`"))
             }
             builder.append("\n")
-            if (group.hasTamperedDeviceId) {
-                builder.append("- ⚠️ 同一密钥下出现 ").append(group.deviceIds.size)
-                builder.append(" 个不同 DeviceID，DeviceID 不参与匹配\n")
+            builder.append("- 远程配置（RKP）：")
+            builder.append(if (group.members.all { it.remoteProvisioned }) "是" else "否")
+            builder.append("\n")
+            if (group.members.any { it.expired }) {
+                builder.append("- ⚠️ 组内存在证书已过期的成员\n")
             }
             builder.append("- 匹配时忽略的字段：")
             builder.append(IGNORED_IDENTITY_FIELDS.joinToString("`, `", "`", "`"))
@@ -251,6 +258,8 @@ object ReportWriter {
         builder.append("---\n\n")
         builder.append("> 说明：DeviceID 与 attestation 属性可被任意编辑，因此**不参与**密钥匹配；")
         builder.append("仅密钥材料（私钥推导出的公钥指纹）决定分组。状态为 UNKNOWN 表示未能完成吊销查询。\n")
+        builder.append("> 检测项：证书有效期、私钥与叶证书匹配、链内逐级签名、链根公钥比对、证书张数、")
+        builder.append("逐张证书吊销查询（KimmyXYC/KeyboxChecker 的方法，链根公钥来自 VisionR1/KeyAttestation）。\n")
         return builder.toString()
     }
 
@@ -259,6 +268,17 @@ object ReportWriter {
         RevocationStatus.SUSPENDED -> "🟠 已暂停 SUSPENDED"
         RevocationStatus.VALID -> "🟢 未吊销 VALID"
         RevocationStatus.UNKNOWN -> "⚪ 未知 UNKNOWN"
+    }
+
+    /** How the chain terminates, in the vocabulary of the pinned key list. */
+    private fun rootLabel(key: AnalyzedKey): String = when (key.rootStatus) {
+        RootStatus.NULL -> "链根：未知（无证书）"
+        RootStatus.FAILED -> "链根：读取失败"
+        RootStatus.AOSP -> "链根：AOSP 软件证明根"
+        RootStatus.GOOGLE -> "链根：Google 硬件证明根"
+        RootStatus.GOOGLE_RKP -> "链根：Google RKP 根（CN=Key Attestation CA1）"
+        RootStatus.KNOX -> "链根：Samsung Knox 根"
+        RootStatus.UNKNOWN -> "链根：⛔ 未被识别为已知证明根"
     }
 
     private fun chainLabel(member: AnalyzedKeybox): String = when {
@@ -272,17 +292,20 @@ object ReportWriter {
         val parts = ArrayList<String>(5)
         member.duplicateOf?.let { parts += "内容重复于 `$it`" }
         member.parseError?.let { parts += it }
-        member.deviceIdMatchesLeafSerial?.let { matches ->
-            parts += if (matches) {
-                "DeviceID 与叶子证书序列号一致"
-            } else {
-                "DeviceID 与叶子证书序列号不一致（该字段在签发后被修改过）"
+        if (member.expired) {
+            member.keys.flatMap { it.expiredCertificates }.distinct().sorted().let { indexes ->
+                parts += if (indexes.isEmpty()) "证书已过期" else "证书已过期（第 ${indexes.joinToString("、") { (it + 1).toString() }} 张）"
             }
         }
         member.keys.mapNotNull { it.identityError }.distinct().forEach { parts += it }
         member.keys.mapNotNull { it.chainError }.distinct().forEach { parts += it }
         member.keys.mapNotNull { it.revocationReason }.distinct()
             .forEach { parts += "吊销原因：$it" }
+        member.keys.map { rootLabel(it) }.distinct().forEach { parts += it }
+        member.keys.mapNotNull { key ->
+            key.privateKeyMatchesLeaf?.takeIf { !it }?.let { "私钥与叶子证书不匹配" }
+        }.distinct().forEach { parts += it }
+        if (member.keys.any { it.tooManyCertificates }) parts += "证书链超过 3 张"
         return parts.joinToString("；").ifBlank { "-" }
     }
 

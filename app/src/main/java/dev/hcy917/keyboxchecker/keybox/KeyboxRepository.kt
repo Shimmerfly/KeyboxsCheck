@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
-import dev.hcy917.keyboxchecker.data.network.TelegramApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -17,6 +16,10 @@ import okhttp3.OkHttpClient
 import java.io.File
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import kotlin.random.Random
 
 /** What a scan emits: progress while walking, then the finished report. */
 sealed interface ScanEvent {
@@ -33,21 +36,12 @@ data class SaveResult(
     val reportFiles: List<File>,
 )
 
-/** Outcome of one Telegram channel poll. */
-data class TelegramImport(
-    val analyzed: List<AnalyzedKeybox>,
-    val documentsFound: Int,
-    val downloaded: Int,
-    val errors: List<String>,
-    val nextOffset: Long?,
-)
-
 /**
  * The only layer allowed to touch `android.*`.
  *
  * Everything about *deciding* what a keybox is lives in the pure-JVM engine
- * next to this file; this class only enumerates files, reads bytes, talks to
- * Telegram and writes results back to storage.
+ * next to this file; this class only enumerates files, reads bytes and writes
+ * results back to storage.
  */
 class KeyboxRepository(
     private val context: Context,
@@ -160,77 +154,6 @@ class KeyboxRepository(
         )
     }
 
-    // ---------------------------------------------------------------- telegram
-
-    /**
-     * Pulls the `.xml` documents the bot can see in [channel] and analyses them
-     * with the same engine as a local scan, so both sets land in one report.
-     */
-    suspend fun importFromTelegram(
-        botToken: String,
-        channel: String,
-        revocation: RevocationSnapshot,
-        offset: Long?,
-        onDocument: (String) -> Unit = {},
-    ): TelegramImport = withContext(Dispatchers.IO) {
-        val api = TelegramApi(okHttpClient, botToken)
-        val batch = try {
-            api.pollChannel(channel, offset)
-        } catch (error: Exception) {
-            return@withContext TelegramImport(
-                analyzed = emptyList(),
-                documentsFound = 0,
-                downloaded = 0,
-                errors = listOf(error.message ?: "拉取频道消息失败"),
-                nextOffset = offset,
-            )
-        }
-
-        val analyzer = KeyboxAnalyzer(revocation, nowMillis)
-        val analyzed = ArrayList<AnalyzedKeybox>()
-        val errors = ArrayList<String>()
-        val seen = HashSet<String>()
-        var downloaded = 0
-
-        for (document in batch.documents) {
-            currentCoroutineContext().ensureActive()
-            if (!seen.add(document.fileUniqueId)) continue
-            onDocument(document.fileName)
-
-            val bytes = try {
-                api.downloadDocument(document)
-            } catch (error: Exception) {
-                errors += "${document.fileName}：${error.message ?: "下载失败"}"
-                continue
-            }
-            downloaded++
-
-            val text = decodeXml(bytes)
-            if (text == null) {
-                errors += "${document.fileName}：无法解码文本内容"
-                continue
-            }
-            when (val outcome = KeyboxParser.parse(text, document.fileName)) {
-                is ParseOutcome.Ok -> {
-                    val digest = Der.sha256(bytes)
-                    val result = analyzer.analyze(document.fileName, digest, outcome.keybox, KeyboxSource.TELEGRAM)
-                    analyzed += result
-                    if (result.isConfirmed) capture(digest, bytes)
-                }
-
-                is ParseOutcome.NotKeybox -> errors += "${document.fileName}：${outcome.reason}"
-            }
-        }
-
-        TelegramImport(
-            analyzed = analyzed,
-            documentsFound = batch.documents.size,
-            downloaded = downloaded,
-            errors = errors,
-            nextOffset = batch.nextOffset,
-        )
-    }
-
     // ------------------------------------------------------------------- saving
 
     /** `getExternalFilesDir` when available, otherwise the private files dir. */
@@ -246,38 +169,69 @@ class KeyboxRepository(
     }.getOrDefault(false)
 
     /**
-     * Writes every confirmed, non-duplicate keybox plus the two report files.
+     * Writes every confirmed, non-duplicate, unexpired keybox plus the two
+     * report files.
+     *
+     * Saved files are neutralised: they are renamed to `yyyyMMddR|N#####` (R for
+     * a remotely provisioned keybox, N otherwise, five digits that are unique
+     * within the day) and their `DeviceID` is replaced with [localDeviceId], so
+     * a collection pulled from several sources looks uniform and carries no
+     * source device identity.
      *
      * Nothing is dropped silently: files we cannot write and files we skip are
      * both reported back so the UI can show them.
      */
-    fun saveConfirmed(report: ScanReport, targetDir: File): SaveResult {
+    fun saveConfirmed(
+        report: ScanReport,
+        targetDir: File,
+        localDeviceId: String,
+    ): SaveResult {
         val saved = ArrayList<String>()
         val skipped = ArrayList<String>()
         val failed = ArrayList<String>()
+        val deviceId = localDeviceId.trim()
+        val confirmed = report.keys.filter { it.isConfirmed }
+
+        if (deviceId.isEmpty()) {
+            confirmed.forEach { skipped += "${it.fileName}（未填写本机 ID）" }
+            return SaveResult(targetDir, saved, skipped, failed, emptyList())
+        }
+
+        val folder = File(targetDir, deviceFolder(deviceId))
+        val taken = existingNames(targetDir)
 
         for (keybox in report.keys) {
-            val relative = "${deviceFolder(keybox.deviceId)}/${safeFileName(keybox.fileName)}"
             if (!keybox.isConfirmed) {
-                skipped += "$relative（未确认为 keybox）"
+                skipped += "${keybox.fileName}（未确认为 keybox）"
                 continue
             }
             if (keybox.duplicateOf != null) {
-                skipped += "$relative（与 ${keybox.duplicateOf} 内容相同）"
+                skipped += "${keybox.fileName}（与 ${keybox.duplicateOf} 内容相同）"
+                continue
+            }
+            if (keybox.expired) {
+                skipped += "${keybox.fileName}（证书已过期，不保存）"
                 continue
             }
             val bytes = capturedBytes[keybox.contentSha256]
             if (bytes == null) {
-                skipped += "$relative（内容已不在缓存中，请重新扫描后再保存）"
+                skipped += "${keybox.fileName}（内容已不在缓存中，请重新扫描后再保存）"
                 continue
             }
-            val destination = uniqueDestination(File(targetDir, relative), keybox.primaryKeyId)
+            val rewritten = rewriteDeviceId(bytes, deviceId)
+            if (rewritten == null) {
+                skipped += "${keybox.fileName}（无法改写 DeviceID）"
+                continue
+            }
+            val name = nextKeyboxName(taken, keybox.remoteProvisioned, nowMillis())
+            val destination = File(folder, "$name.xml")
             try {
                 destination.parentFile?.mkdirs()
-                destination.writeBytes(bytes)
+                destination.writeBytes(rewritten)
+                taken += "$name.xml"
                 saved += destination.relativeTo(targetDir).path
             } catch (error: Exception) {
-                failed += "$relative（${error.message ?: "写入失败"}）"
+                failed += "${keybox.fileName}（${error.message ?: "写入失败"}）"
             }
         }
 
@@ -433,18 +387,76 @@ class KeyboxRepository(
         return text?.takeIf { it.isNotBlank() }
     }
 
-    private fun uniqueDestination(base: File, keyId: String?): File {
-        if (!base.exists()) return base
-        val suffix = keyId?.take(8) ?: "dup"
-        val dot = base.name.lastIndexOf('.')
-        val stem = if (dot > 0) base.name.substring(0, dot) else base.name
-        val extension = if (dot > 0) base.name.substring(dot) else ""
-        var index = 0
+    /** Every file name already present under [targetDir], lower-cased, depth ≤ 2. */
+    private fun existingNames(targetDir: File): MutableSet<String> {
+        val names = HashSet<String>()
+        val stack = ArrayDeque<Pair<File, Int>>()
+        stack += targetDir to 0
+        while (stack.isNotEmpty()) {
+            val (directory, depth) = stack.removeLast()
+            val children = directory.listFiles() ?: continue
+            for (child in children) {
+                if (child.isDirectory) {
+                    if (depth < 2) stack += child to (depth + 1)
+                } else {
+                    names += child.name.lowercase(Locale.US)
+                }
+            }
+        }
+        return names
+    }
+
+    /**
+     * `yyyyMMdd` + `R` (remotely provisioned) or `N` + five digits, e.g.
+     * `20261003R12345`.
+     *
+     * The digits are drawn at random and re-drawn while the result collides with
+     * anything already saved that day, so a batch of keyboxes never overwrites an
+     * earlier one.
+     */
+    private fun nextKeyboxName(
+        taken: MutableSet<String>,
+        remoteProvisioned: Boolean,
+        nowMillis: Long,
+    ): String {
+        val date = SimpleDateFormat("yyyyMMdd", Locale.US).format(Date(nowMillis))
+        val letter = if (remoteProvisioned) "R" else "N"
+        repeat(MAX_NAME_ATTEMPTS) {
+            val digits = Random.nextInt(100_000).toString().padStart(5, '0')
+            val name = "$date$letter$digits"
+            if ("$name.xml" !in taken) return name
+        }
+        // Exhausting 100000 random draws means the day is almost full; fall back
+        // to a linear probe so the loop always terminates.
+        var counter = 0
         while (true) {
-            val extra = if (index == 0) "-$suffix" else "-$suffix-$index"
-            val candidate = File(base.parentFile, "$stem$extra$extension")
-            if (!candidate.exists()) return candidate
-            index++
+            val name = "$date$letter" + counter.toString().padStart(5, '0')
+            if ("$name.xml" !in taken) return name
+            counter++
+        }
+    }
+
+    /** Returns the keybox with its `DeviceID` replaced, still UTF-8 XML. */
+    private fun rewriteDeviceId(bytes: ByteArray, deviceId: String): ByteArray? {
+        val text = decodeXml(bytes) ?: return null
+        return rewriteDeviceIdIn(text, deviceId).toByteArray(StandardCharsets.UTF_8)
+    }
+
+    private fun rewriteDeviceIdIn(xml: String, deviceId: String): String {
+        if (DEVICE_ID_ATTRIBUTE.containsMatchIn(xml)) {
+            return DEVICE_ID_ATTRIBUTE.replace(xml) { match ->
+                match.groupValues[1] + "=\"" + deviceId + "\""
+            }
+        }
+        if (DEVICE_ID_ELEMENT.containsMatchIn(xml)) {
+            return DEVICE_ID_ELEMENT.replace(xml) { match ->
+                val prefix = match.groupValues[1]
+                "<${prefix}DeviceID>$deviceId</${prefix}DeviceID>"
+            }
+        }
+        // No identifier at all: give every <Keybox> the attribute.
+        return KEYBOX_ELEMENT.replace(xml) { match ->
+            "<" + match.groupValues[1] + "Keybox DeviceID=\"" + deviceId + "\"" + match.groupValues[2]
         }
     }
 
@@ -453,11 +465,22 @@ class KeyboxRepository(
         const val MAX_FILE_BYTES = 4L * 1024L * 1024L
         const val MAX_CAPTURED_BYTES = 64L * 1024L * 1024L
         const val MAX_DEPTH = 16
+        const val MAX_NAME_ATTEMPTS = 500
         const val REVOCATION_CACHE_NAME = "revocation.json"
         const val OUTPUT_DIR_NAME = "keyboxes"
         const val PHASE_ENUMERATING = "正在枚举文件"
         const val PHASE_SCANNING = "正在解析 keybox"
         const val PHASE_FINISHED = "分析完成"
+
+        val DEVICE_ID_ATTRIBUTE =
+            Regex("""((?:[\w.-]+:)?(?:DeviceID|DeviceId))\s*=\s*"[^"]*"""", RegexOption.IGNORE_CASE)
+
+        val DEVICE_ID_ELEMENT = Regex(
+            "<((?:[\\w.-]+:)?)(?:DeviceID|DeviceId)\\s*>[^<]*</\\1(?:DeviceID|DeviceId)\\s*>",
+            setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL),
+        )
+
+        val KEYBOX_ELEMENT = Regex("<((?:[\\w.-]+:)?)Keybox(\\s[^>]*|/?>)", RegexOption.IGNORE_CASE)
 
         const val UTF8_BOM_0: Byte = 0xEF.toByte()
         const val UTF8_BOM_1: Byte = 0xBB.toByte()

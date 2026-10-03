@@ -1,17 +1,17 @@
 package dev.hcy917.keyboxchecker.keybox
 
-import java.security.cert.X509Certificate
-
 /**
- * Readable rendering of X.500 names and recognition of Google's attestation roots.
+ * Readable rendering of X.500 names.
  *
  * Real keyboxes do not carry common names. Google's attestation roots are
  * identified by their `serialNumber` attribute — the Keymaster hardware
  * attestation root is `serialNumber=f92009e853b6b045` — and
  * `X500Principal.getName()` renders those as raw DER blobs such as
- * `2.5.4.5=#131066393230303965383533623662303435`. Matching subject strings
- * against CN fragments alone therefore never recognises a genuine chain, and it
- * happily accepts any self-signed root an attacker generated locally.
+ * `2.5.4.5=#131066393230303965383533623662303435`. Names are decoded here so a
+ * report reads `serialNumber=f92009e853b6b045` instead.
+ *
+ * Deciding *which* root a chain ends in is [RootKeys]' job: it compares pinned
+ * public keys, the way both reference projects do.
  */
 object CertificateNames {
 
@@ -30,29 +30,6 @@ object CertificateNames {
         "2.5.4.42" to "givenName",
         "0.9.2342.19200300.100.1.25" to "DC",
         "1.2.840.113549.1.9.1" to "emailAddress",
-    )
-
-    /**
-     * Roots Google uses to sign attestation chains.
-     *
-     * `F92009E853B6B045` is the `serialNumber` of the Keymaster/TEE hardware
-     * attestation root, which is how the entire Android keybox ecosystem
-     * identifies it.
-     */
-    private val ROOT_SERIALS = setOf(
-        "F92009E853B6B045",
-    )
-
-    /** Name fragments that only appear in Google-issued roots. */
-    private val ROOT_MARKERS = listOf(
-        "GOOGLE HARDWARE ATTESTATION ROOT",
-        "GOOGLE ATTESTATION ROOT",
-        "GOOGLE ATTESTATION CA",
-        "ANDROID KEYSTORE ROOT",
-        "GTS ROOT R1",
-        "GTS ROOT R2",
-        "GTS ROOT R3",
-        "GTS ROOT R4",
     )
 
     /** One `oid=value` pair of a distinguished name. */
@@ -86,32 +63,6 @@ object CertificateNames {
         val attributes = attributes(name)
         if (attributes.isEmpty()) return name
         return attributes.joinToString(", ") { "${it.name}=${it.value}" }
-    }
-
-    /**
-     * True when the certificate identifies itself as a Google attestation root.
-     *
-     * A locally generated self-signed root passes every signature check inside a
-     * keybox, so chain validation must recognise the issuer by identity instead.
-     */
-    fun isGoogleAttestationRoot(certificate: X509Certificate): Boolean {
-        val attributes = runCatching { attributes(certificate.subjectX500Principal.name) }
-            .getOrDefault(emptyList())
-        val serialNumbers = attributes
-            .filter { it.oid == "2.5.4.5" }
-            .map { it.value.uppercase() }
-        if (serialNumbers.any { it in ROOT_SERIALS }) return true
-
-        val readable = runCatching { readable(certificate.subjectX500Principal.name) }
-            .getOrDefault("")
-            .uppercase()
-        if (ROOT_MARKERS.any { readable.contains(it) }) return true
-
-        val looksGoogle = readable.contains("GOOGLE") || readable.contains("GTS ROOT")
-        val looksAttestation = readable.contains("ATTESTATION") ||
-            readable.contains("KEYSTORE") ||
-            readable.contains("KEYMASTER")
-        return looksGoogle && looksAttestation
     }
 
     private fun parseAttribute(raw: String): Attribute? {

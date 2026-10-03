@@ -1,28 +1,53 @@
 # KeyboxsCheck
 
 一个用于审计 Android 密钥证明 **keybox** 的 Android 应用：扫描所有可访问的
-keybox，对照 Google 的证明吊销列表检查每个密钥，并按**密钥身份**分组 —— 因此
-只在可篡改字段上有差异的克隆 keybox 会归到同一组。
+keybox，按两个参考项目的方式逐项检查，并按**密钥身份**分组 —— 因此克隆的
+keybox 会归到同一组。
 
 基于 [KernelSU Style UI Kit](https://github.com/chenaizhang/KernelSU-Style-UI-Kit)
-模板，参考 [KeyAttestation](https://github.com/VisionR1/KeyAttestation)。
+模板。检查项沿用 [KimmyXYC/KeyboxChecker](https://github.com/KimmyXYC/KeyboxChecker)
+的做法；链根识别使用 [VisionR1/KeyAttestation](https://github.com/VisionR1/KeyAttestation)
+钉住的根公钥，其中包括 RKP（远程配置）检测。
 
 ## 功能
 
 1. **扫描**：递归扫描绝对路径目录，或通过 SAF 授权的目录，找出所有 `*.xml`。
 2. **解析**：把看起来像 keybox 的 XML 判定为「确认」（可解析的 XML + 至少一个
    `<Key>` + 可解析为 X.509 的证书链）或「非 keybox」。
-3. **吊销检查**：把链中每张证书对照
+3. **检查**：对每个确认的 keybox 跑 KeyboxChecker 的六项规则：
+
+   | 检查项 | 规则 |
+   | --- | --- |
+   | 有效期 | 每张证书都必须落在自身 `notBefore`/`notAfter` 区间内 |
+   | 私钥 ↔ 叶证书 | 私钥推导出的公钥必须等于叶证书的公钥 |
+   | 链链接 | 每张证书的签发者必须等于下一张的主体，且签名必须验证通过 |
+   | 链根 | 最后一张证书必须匹配某个钉住的根 |
+   | 证书条数 | 超过 3 张会被标记 |
+   | 吊销 | 每张证书的序列号都会在 Google 公开列表中查询 |
+
+4. **识别链根**：与 KeyAttestation 一样钉住已知根证书的 SubjectPublicKeyInfo ——
+   Google 硬件证明根（RSA 4096）、**Google RKP 根**（`CN=Key Attestation CA1`，
+   P-384）、AOSP 软件根（EC 与 RSA）、以及三星 Knox SAK v1 / v2 / SAK-M v1。
+   其它一律报告为未知根，因此本地自建的根不可能冒充 Google 根。
+5. **RKP 检测**：满足任一信号即判定为 RKP —— 链终止于钉住的 RKP 根，或叶证书
+   携带 `ProvisioningInfo` 扩展（`1.3.6.1.4.1.11129.2.1.30`）。
+6. **吊销检查**：把链中每张证书对照
    `https://android.googleapis.com/attestation/status`，取最严重的结果：
-   `REVOKED`、`SUSPENDED`、`VALID` 或 `UNKNOWN`。
-4. **从 Telegram 导入**：用你配置的 Bot 轮询频道，拉取其中所有 `.xml`，与本地
-   结果合并成同一份报告比对。
-5. **按密钥身份分组**：密钥身份取自私钥推导出的 SubjectPublicKeyInfo 的
+   `REVOKED`、`SUSPENDED`、`VALID` 或 `UNKNOWN`。公开列表混用十进制与十六进制
+   序列号，两种读法都会被索引。列表不可用时全部报告为 `UNKNOWN`，**不会**误报
+   为未吊销。
+7. **按密钥身份分组**：密钥身份取自私钥推导出的 SubjectPublicKeyInfo 的
    SHA-256（失败时退化到 leaf 证书，再退化到原始 PEM 字节）。`DeviceID` 等克隆
-   者可以随意修改的字段**不参与**匹配，只作为「差异字段」列出。
-6. **保存**：把每个确认的 keybox 保存到
-   `<输出目录>/<设备ID或unknown>/<原文件名>.xml`，同时生成
-   `classification.json` 与 `report.md`。
+   者可以随意修改的字段**不参与**匹配。
+8. **保存**仍然有效的已确认 keybox：
+
+   - 已过期的 keybox（链中任一证书不在有效期内）不保存，改为列入「跳过」；
+   - `DeviceID` 会被改写成**你自己的设备 ID**（在 keybox 页面填写），因此保存下来
+     的 keybox 带的是你的身份而不是卖家的；
+   - 文件名统一为 `yyyyMMdd` + `R`/`N` + 5 位随机数字，例如
+     `20261003R12345.xml` —— `R` 表示 RKP keybox，`N` 表示其它密钥；随机部分会在
+     当天已保存的文件中查重，重复则重新抽取；
+   - 同时生成 `classification.json` 与 `report.md`。
 
 ## 环境要求
 
@@ -30,15 +55,7 @@ keybox，对照 Google 的证明吊销列表检查每个密钥，并按**密钥�
 - 不需要 root。读取任意绝对路径是可选项，用 `MANAGE_EXTERNAL_STORAGE`；默认走 SAF。
 - 联网获取吊销列表。无网络时使用 24 小时缓存；完全没有缓存时全部报告为
   `UNKNOWN`，**不会**误报为未吊销。
-
-## Telegram 配置
-
-1. 用 [@BotFather](https://t.me/BotFather) 创建 Bot，复制 token。
-2. **把 Bot 加入该频道**。Telegram 只对 Bot 已加入的频道下发 `channel_post`
-   更新，建议直接设为管理员。
-3. 私有频道请填数字 id（`-100…`），公开频道也可以填 `@用户名`。
-4. 在 App 的 keybox 页面填入 token 与频道。token 只存于应用私有
-   `SharedPreferences`，不会写进报告、日志或版本控制。
+- 你自己的设备 ID，在 keybox 页面填写，仅在保存时使用。
 
 ## 构建
 
@@ -76,6 +93,7 @@ export ORG_GRADLE_PROJECT_KEY_PASSWORD=…
 | `.github/workflows/build.yml` | push / PR 到 `main` | 跑 `:app:testDebugUnitTest`，再跑 `:app:assembleDebug` 与 `:app:lintDebug`，上传 APK、测试报告与 lint 报告 |
 | `.github/workflows/release.yml` | 推送 `v*` tag | 构建已签名的 release APK 并发布 GitHub Release |
 | `.github/workflows/sync-upstream.yml` | 每日 03:00 UTC | 合并上游 UI 模板的新提交并创建 PR |
+| `.github/workflows/lint-baseline.yml` | 手动 | 上游模板变动后重新生成 `app/lint-baseline.xml` |
 
 release 工作流需要四个仓库 Secret：`KEYSTORE_FILE`（base64 编码的签名文件）、
 `KEYSTORE_PASSWORD`、`KEY_ALIAS`、`KEY_PASSWORD`。签名是尽力而为：没有 Secret
@@ -83,8 +101,9 @@ release 工作流需要四个仓库 Secret：`KEYSTORE_FILE`（base64 编码的�
 
 ## 隐私与范围
 
-- Telegram 凭据只保存在设备上的应用私有存储中。
-- 无遥测。仅有的网络请求是你自己提供的 Telegram API 与 Google 公开吊销列表。
+- 无遥测、无账号。仅有的网络请求是 Google 公开吊销列表；上游模板同步只在 CI 中运行。
+- 与你的 keybox 有关的一切都不会离开设备：保存的文件、分类 JSON 与报告都写在
+  你选择的输出目录里。
 - 本项目与 Google 无关，也未被其认可。请只对你自己拥有或获授权检查的 keybox
   使用；keybox 是标识设备证明身份的秘密材料。
 

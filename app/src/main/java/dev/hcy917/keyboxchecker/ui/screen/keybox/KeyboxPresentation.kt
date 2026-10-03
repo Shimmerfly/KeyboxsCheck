@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import dev.hcy917.keyboxchecker.R
 import dev.hcy917.keyboxchecker.keybox.RevocationSource
 import dev.hcy917.keyboxchecker.keybox.RevocationStatus
+import dev.hcy917.keyboxchecker.keybox.RootStatus
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -43,6 +44,17 @@ internal fun keyboxRevocationSourceLabelRes(source: RevocationSource): Int = whe
     RevocationSource.NETWORK -> R.string.keybox_revocation_source_network
     RevocationSource.CACHE -> R.string.keybox_revocation_source_cache
     RevocationSource.NONE -> R.string.keybox_revocation_source_none
+}
+
+/** Which pinned root a chain terminates in, in the words of the reference projects. */
+internal fun keyboxRootStatusRes(status: RootStatus): Int = when (status) {
+    RootStatus.NULL -> R.string.keybox_root_status_none
+    RootStatus.FAILED -> R.string.keybox_root_status_failed
+    RootStatus.AOSP -> R.string.keybox_root_status_aosp
+    RootStatus.GOOGLE -> R.string.keybox_root_status_google
+    RootStatus.GOOGLE_RKP -> R.string.keybox_root_status_rkp
+    RootStatus.KNOX -> R.string.keybox_root_status_knox
+    RootStatus.UNKNOWN -> R.string.keybox_root_status_unknown
 }
 
 internal fun keyboxShortHex(value: String, length: Int = 16): String =

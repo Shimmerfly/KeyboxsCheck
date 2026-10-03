@@ -122,7 +122,6 @@ class ReportWriterTest {
         assertEquals(2, report.groups.size)
         val shared = report.groups.first { it.keyId == "SAME" }
         assertEquals(2, shared.memberCount)
-        assertTrue(shared.hasTamperedDeviceId)
         assertEquals(listOf("CLONED", "ORIGINAL"), shared.deviceIds.sorted())
     }
 
@@ -270,7 +269,7 @@ class ReportWriterTest {
         assertTrue(markdown.contains("🔴 已吊销 REVOKED"))
         assertTrue(markdown.contains("`a.xml`"))
         assertTrue(markdown.contains("`b.xml`"))
-        assertTrue(markdown.contains("DeviceID 不参与匹配"))
+        assertTrue(markdown.contains("因此**不参与**密钥匹配"))
         assertTrue(markdown.contains("匹配时忽略的字段"))
     }
 

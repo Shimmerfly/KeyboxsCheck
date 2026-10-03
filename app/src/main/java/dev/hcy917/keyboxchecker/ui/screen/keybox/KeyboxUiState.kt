@@ -16,10 +16,9 @@ import dev.hcy917.keyboxchecker.keybox.ScanReport
 data class KeyboxUiState(
     val path: String = "",
     val pickedTreeLabel: String? = null,
-    val tgBotToken: String = "",
-    val tgChannel: String = "",
+    /** Written into every saved keybox as its `DeviceID`. */
+    val localDeviceId: String = "",
     val isScanning: Boolean = false,
-    val isImporting: Boolean = false,
     val progress: ScanProgress? = null,
     val report: ScanReport? = null,
     val groups: List<KeyGroup> = emptyList(),
@@ -38,11 +37,9 @@ data class KeyboxUiState(
 data class KeyboxActions(
     val onPathChanged: (String) -> Unit,
     val onPickDirectory: () -> Unit,
+    val onLocalDeviceIdChanged: (String) -> Unit,
     val onScan: () -> Unit,
     val onCancel: () -> Unit,
-    val onBotTokenChanged: (String) -> Unit,
-    val onChannelChanged: (String) -> Unit,
-    val onImportFromTelegram: () -> Unit,
     val onRefreshRevocation: () -> Unit,
     val onSaveConfirmed: () -> Unit,
     val onToggleGroup: (String) -> Unit,

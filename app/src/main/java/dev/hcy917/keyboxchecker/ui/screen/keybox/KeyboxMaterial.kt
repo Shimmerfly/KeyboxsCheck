@@ -40,9 +40,9 @@ import androidx.compose.ui.unit.dp
 import dev.hcy917.keyboxchecker.R
 import dev.hcy917.keyboxchecker.keybox.AnalyzedKeybox
 import dev.hcy917.keyboxchecker.keybox.KeyGroup
-import dev.hcy917.keyboxchecker.keybox.KeyboxSource
 import dev.hcy917.keyboxchecker.keybox.RevocationSource
 import dev.hcy917.keyboxchecker.keybox.RevocationStatus
+import dev.hcy917.keyboxchecker.keybox.RootStatus
 import dev.hcy917.keyboxchecker.ui.component.material.TonalCard
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,9 +72,8 @@ internal fun KeyboxScreenMaterial(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item { InputCard(state, actions) }
-            item { TelegramCard(state, actions) }
 
-            if (state.isScanning || state.isImporting) {
+            if (state.isScanning) {
                 item { BusyCard(state) }
             }
 
@@ -150,11 +149,20 @@ private fun InputCard(state: KeyboxUiState, actions: KeyboxActions) {
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
+            OutlinedTextField(
+                value = state.localDeviceId,
+                onValueChange = actions.onLocalDeviceIdChanged,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(stringResource(R.string.keybox_local_id_label)) },
+                placeholder = { Text(stringResource(R.string.keybox_local_id_hint)) },
+                supportingText = { Text(stringResource(R.string.keybox_local_id_note)) },
+                singleLine = true,
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = actions.onPickDirectory) {
                     Text(stringResource(R.string.keybox_pick_directory))
                 }
-                if (state.isScanning || state.isImporting) {
+                if (state.isScanning) {
                     OutlinedButton(onClick = actions.onCancel) {
                         Text(stringResource(R.string.keybox_cancel))
                     }
@@ -168,55 +176,6 @@ private fun InputCard(state: KeyboxUiState, actions: KeyboxActions) {
     }
 }
 
-@Composable
-private fun TelegramCard(state: KeyboxUiState, actions: KeyboxActions) {
-    TonalCard {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Text(
-                text = stringResource(R.string.keybox_telegram_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = stringResource(R.string.keybox_telegram_note),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            OutlinedTextField(
-                value = state.tgBotToken,
-                onValueChange = actions.onBotTokenChanged,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.keybox_bot_token)) },
-                singleLine = true,
-            )
-            OutlinedTextField(
-                value = state.tgChannel,
-                onValueChange = actions.onChannelChanged,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.keybox_channel)) },
-                singleLine = true,
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(
-                    onClick = actions.onImportFromTelegram,
-                    enabled = !state.isImporting && !state.isScanning,
-                ) {
-                    Text(stringResource(R.string.keybox_import))
-                }
-            }
-            Text(
-                text = stringResource(R.string.keybox_privacy_note),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
-}
 
 @Composable
 private fun BusyCard(state: KeyboxUiState) {
@@ -386,13 +345,7 @@ private fun GroupCard(group: KeyGroup, expanded: Boolean, onToggle: (String) -> 
 @Composable
 private fun MemberRow(member: AnalyzedKeybox) {
     val key = member.keys.firstOrNull()
-    val sourceLabel = stringResource(
-        if (member.source == KeyboxSource.TELEGRAM) {
-            R.string.keybox_source_telegram
-        } else {
-            R.string.keybox_source_local
-        },
-    )
+    val sourceLabel = stringResource(R.string.keybox_source_local)
     val chainLabel = stringResource(keyboxChainLabelRes(key?.chainValid))
     val meta = buildString {
         append(sourceLabel)
@@ -446,32 +399,50 @@ private fun MemberRow(member: AnalyzedKeybox) {
                     color = keyboxStatusColor(key.status),
                 )
             }
+            Text(
+                text = stringResource(keyboxRootStatusRes(key.rootStatus)),
+                style = MaterialTheme.typography.bodySmall,
+                color = if (key.rootStatus == RootStatus.UNKNOWN) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+            )
             key.chainRoot?.let { root ->
-                if (key.rootRecognized) {
-                    Text(
-                        text = stringResource(R.string.keybox_root_recognized, root),
-                        style = MaterialTheme.typography.bodySmall,
-                        fontFamily = FontFamily.Monospace,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                Text(
+                    text = stringResource(R.string.keybox_root_recognized, root),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (key.remoteProvisioned) {
+                Text(
+                    text = stringResource(R.string.keybox_rkp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+            if (key.privateKeyMatchesLeaf == false) {
+                Text(
+                    text = stringResource(R.string.keybox_private_key_mismatch),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+            if (key.tooManyCertificates) {
+                Text(
+                    text = stringResource(R.string.keybox_too_many_certificates),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
-        member.deviceIdMatchesLeafSerial?.let { matches ->
+        if (member.expired) {
             Text(
-                text = stringResource(
-                    if (matches) {
-                        R.string.keybox_device_id_matches
-                    } else {
-                        R.string.keybox_device_id_tampered
-                    },
-                ),
+                text = stringResource(R.string.keybox_expired),
                 style = MaterialTheme.typography.bodySmall,
-                color = if (matches) {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                } else {
-                    MaterialTheme.colorScheme.error
-                },
+                color = MaterialTheme.colorScheme.error,
             )
         }
     }
@@ -497,7 +468,7 @@ private fun SaveCard(state: KeyboxUiState, actions: KeyboxActions) {
             )
             Button(
                 onClick = actions.onSaveConfirmed,
-                enabled = state.report != null && !state.isScanning && !state.isImporting,
+                enabled = state.report != null && !state.isScanning,
             ) {
                 Text(stringResource(R.string.keybox_save))
             }

@@ -75,11 +75,6 @@
     <string name="keybox_picked">Selected: %1$s</string>
     <string name="keybox_scan">Scan</string>
     <string name="keybox_cancel">Cancel</string>
-    <string name="keybox_telegram_title">Telegram channel</string>
-    <string name="keybox_telegram_note">The bot must be a member of the channel (administrator recommended), otherwise Telegram does not return its posts. Use the numeric -100… id for private channels.</string>
-    <string name="keybox_bot_token">Bot token</string>
-    <string name="keybox_channel">Channel id or @username</string>
-    <string name="keybox_import">Import from channel</string>
     <string name="keybox_progress_working">Working…</string>
     <string name="keybox_results_title">Results</string>
     <string name="keybox_no_results">No keybox has been analysed yet.</string>
@@ -105,10 +100,20 @@
     <string name="keybox_output_dir">Output directory</string>
     <string name="keybox_save">Save confirmed keyboxes</string>
     <string name="keybox_notes">Details</string>
-    <string name="keybox_source_telegram">Telegram</string>
     <string name="keybox_source_local">Local</string>
-    <string name="keybox_privacy_note">The bot token is stored only in private app preferences; it is never written to a report or a log.</string>
-        <string name="keybox_device_id_matches">DeviceID matches the leaf certificate serial</string>
-    <string name="keybox_device_id_tampered">DeviceID does not match the leaf certificate serial — the field was edited after issuance</string>
     <string name="keybox_root_recognized">Chain root: %1$s</string>
+    <string name="keybox_local_id_label">DeviceID written to saved keyboxes</string>
+    <string name="keybox_local_id_hint">e.g. the id of this phone</string>
+    <string name="keybox_local_id_note">Every saved keybox gets this value as its DeviceID.</string>
+    <string name="keybox_root_status_none">Chain root: none</string>
+    <string name="keybox_root_status_failed">Chain root: unreadable</string>
+    <string name="keybox_root_status_aosp">Chain root: AOSP software attestation root</string>
+    <string name="keybox_root_status_google">Chain root: Google hardware attestation root</string>
+    <string name="keybox_root_status_rkp">Chain root: Google RKP root (CN=Key Attestation CA1)</string>
+    <string name="keybox_root_status_knox">Chain root: Samsung Knox attestation root</string>
+    <string name="keybox_root_status_unknown">Chain root: NOT a known attestation root</string>
+    <string name="keybox_rkp">Remotely provisioned (RKP)</string>
+    <string name="keybox_private_key_mismatch">The private key does not match the leaf certificate</string>
+    <string name="keybox_too_many_certificates">More than 3 certificates in the chain</string>
+    <string name="keybox_expired">A certificate in this chain has expired — it will not be saved</string>
 </resources>

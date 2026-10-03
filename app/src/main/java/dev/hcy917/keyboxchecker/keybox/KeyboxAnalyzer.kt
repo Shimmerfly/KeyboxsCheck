@@ -5,13 +5,22 @@ import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 
 /**
- * Turns a parsed [Keybox] into revocation and identity facts.
+ * Turns a parsed [Keybox] into validity and identity facts.
  *
- * Two rules drive the whole design:
- *  * identity is derived from the key material, never from the `DeviceID`
- *    or the attestation properties, because those are trivially editable;
- *  * a key whose status could not be checked is reported as
- *    [RevocationStatus.UNKNOWN], never as clean.
+ * The checks follow KimmyXYC/KeyboxChecker (`app/event.py`, `keybox_check`):
+ *
+ *  1. every certificate is inside its validity period;
+ *  2. the private key belongs to the leaf certificate;
+ *  3. each chain link verifies — the child's issuer is the parent's subject and
+ *     the parent's public key validates the child's signature;
+ *  4. the root is identified against pinned public keys
+ *     ([RootKeys], from VisionR1/KeyAttestation);
+ *  5. a chain longer than three certificates is flagged;
+ *  6. the serial number of every certificate is looked up in Google's
+ *     revocation list, and the most severe hit decides the status.
+ *
+ * Identity hashing is unchanged and stays independent of these checks: grouping
+ * must compare the key itself, never the editable `DeviceID`.
  */
 class KeyboxAnalyzer(
     private val revocation: RevocationSnapshot,
@@ -25,27 +34,14 @@ class KeyboxAnalyzer(
         source: KeyboxSource,
     ): AnalyzedKeybox {
         val analyzedKeys = keybox.keys.map { analyzeKey(it) }
-        val deviceId = keybox.deviceId?.trim()?.ifBlank { null }
         return AnalyzedKeybox(
             fileName = fileName,
             contentSha256 = contentSha256,
-            deviceId = deviceId,
+            deviceId = keybox.deviceId?.trim()?.ifBlank { null },
             keys = analyzedKeys,
             chainFingerprint = fingerprintOf(analyzedKeys),
             source = source,
-            deviceIdMatchesLeafSerial = matchesLeafSerial(deviceId, analyzedKeys),
         )
-    }
-
-    /**
-     * Google stamps the leaf certificate's serial number into `DeviceID`, but
-     * `DeviceID` is a plain XML attribute and therefore the easiest field in a
-     * keybox to edit. A mismatch is reported instead of being ignored.
-     */
-    private fun matchesLeafSerial(deviceId: String?, keys: List<AnalyzedKey>): Boolean? {
-        if (deviceId == null) return null
-        val leafSerial = keys.firstOrNull()?.certificates?.firstOrNull()?.serialHex ?: return null
-        return RevocationKeys.normalize(deviceId) == RevocationKeys.normalize(leafSerial)
     }
 
     fun failure(fileName: String, contentSha256: String, reason: String, source: KeyboxSource) =
@@ -63,7 +59,9 @@ class KeyboxAnalyzer(
         val certificates = parseChain(key.chainPem)
         val identity = resolveIdentity(key, certificates)
         val chain = verifyChain(certificates)
+        val expiry = checkExpiry(certificates)
         val revocationMatch = worstRevocation(certificates)
+        val rootStatus = RootKeys.identify(certificates.lastOrNull())
 
         val status = when {
             certificates.isEmpty() -> RevocationStatus.UNKNOWN
@@ -82,8 +80,14 @@ class KeyboxAnalyzer(
             revocationReason = revocationMatch?.reason,
             chainValid = chain.valid,
             chainError = chain.error,
-            chainRoot = chain.root,
-            rootRecognized = chain.rootRecognized,
+            chainRoot = certificates.lastOrNull()
+                ?.let { CertificateNames.readable(it.subjectX500Principal.name) },
+            rootStatus = rootStatus,
+            remoteProvisioned = RootKeys.isRemoteProvisioned(rootStatus, certificates.firstOrNull()),
+            privateKeyMatchesLeaf = matchesLeaf(key, certificates),
+            expired = expiry.expired.isNotEmpty(),
+            expiredCertificates = expiry.expired,
+            tooManyCertificates = certificates.size >= MAX_CERTIFICATES,
             certificates = certificates.mapIndexed { index, certificate -> certificate.describe(index) },
         )
     }
@@ -150,7 +154,8 @@ class KeyboxAnalyzer(
 
     /**
      * Keyboxes normally list the leaf first, but a few list the root first.
-     * Normalise so index 0 is always the leaf.
+     * Normalise so index 0 is always the leaf, which is what the per-link check
+     * below assumes.
      */
     private fun orderLeafFirst(certificates: List<X509Certificate>): List<X509Certificate> {
         if (certificates.size < 2) return certificates
@@ -161,13 +166,9 @@ class KeyboxAnalyzer(
         return if (firstIsCaIssuerOfLast && !lastIsIssuerOfFirst) certificates.reversed() else certificates
     }
 
-    private class ChainResult(
-        val valid: Boolean?,
-        val error: String?,
-        val root: String? = null,
-        val rootRecognized: Boolean = false,
-    )
+    private class ChainResult(val valid: Boolean?, val error: String?)
 
+    /** Steps 3 of the check list: issuer/subject match plus signature verification. */
     private fun verifyChain(certificates: List<X509Certificate>): ChainResult {
         if (certificates.isEmpty()) return ChainResult(null, "没有可用证书")
         for (index in 0 until certificates.size - 1) {
@@ -176,7 +177,7 @@ class KeyboxAnalyzer(
             if (child.issuerX500Principal != parent.subjectX500Principal) {
                 return ChainResult(
                     false,
-                    "证书链断裂：${CertificateNames.readable(child.subjectX500Principal.name)} 的签发者不匹配",
+                    "证书链断裂：第 ${index + 1} 张的签发者与第 ${index + 2} 张的主体不一致",
                 )
             }
             // X509Certificate.verify returns Unit, so success is signalled by the
@@ -189,32 +190,33 @@ class KeyboxAnalyzer(
                 )
             }
         }
-
-        val tail = certificates.last()
-        val root = CertificateNames.readable(tail.subjectX500Principal.name)
-        val selfIssued = tail.subjectX500Principal == tail.issuerX500Principal
-        val selfSigned = selfIssued && runCatching { tail.verify(tail.publicKey) }.isSuccess
-        val recognized = CertificateNames.isGoogleAttestationRoot(tail)
-
-        return when {
-            recognized -> ChainResult(true, null, root, true)
-            // A locally generated self-signed root satisfies every signature check
-            // inside a keybox, so "self-signed" alone is not evidence of anything.
-            selfSigned -> ChainResult(
-                null,
-                "链尾自签名但未被识别为 Google 证明根（$root）——自建根证书不能证明设备身份",
-                root,
-                false,
-            )
-            else -> ChainResult(
-                null,
-                "链内链接校验通过，但根证书未被识别为 Google 证明根：$root",
-                root,
-                false,
-            )
-        }
+        return ChainResult(true, null)
     }
 
+    private class Expiry(val expired: List<Int>)
+
+    /** Step 1: every certificate must be inside its validity period. */
+    private fun checkExpiry(certificates: List<X509Certificate>): Expiry {
+        val now = nowMillis()
+        val expired = ArrayList<Int>(2)
+        certificates.forEachIndexed { index, certificate ->
+            val valid = certificate.notBefore.time <= now && now <= certificate.notAfter.time
+            if (!valid) expired += index
+        }
+        return Expiry(expired)
+    }
+
+    /** Step 2: the private key must belong to the leaf certificate. */
+    private fun matchesLeaf(key: KeyboxKey, certificates: List<X509Certificate>): Boolean? {
+        val leaf = certificates.firstOrNull() ?: return null
+        val pem = key.privateKeyPem ?: return null
+        val block = Pem.decodeFirst(pem) ?: return null
+        val spki = Der.publicKeyInfoOfPrivateKey(block.der, key.algorithm, block.label) ?: return null
+        val leafSpki = runCatching { leaf.publicKey.encoded }.getOrNull() ?: return null
+        return spki.contentEquals(leafSpki)
+    }
+
+    /** Step 6: the most severe revocation hit anywhere in the chain. */
     private fun worstRevocation(certificates: List<X509Certificate>): RevocationEntry? {
         if (!revocation.isUsable) return null
         var worst: RevocationEntry? = null
@@ -242,4 +244,8 @@ class KeyboxAnalyzer(
         return Der.sha256(serials.joinToString("|").toByteArray(Charsets.UTF_8))
     }
 
+    private companion object {
+        /** KeyboxChecker warns from four certificates onwards. */
+        const val MAX_CERTIFICATES = 4
+    }
 }

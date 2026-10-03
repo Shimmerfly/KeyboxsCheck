@@ -162,12 +162,22 @@ data class AnalyzedKey(
     val status: RevocationStatus,
     val matchedSerial: String? = null,
     val revocationReason: String? = null,
+    /** Link verification along the chain, the way KeyboxChecker performs it. */
     val chainValid: Boolean?,
     val chainError: String? = null,
     /** Readable subject of the chain's root certificate. */
     val chainRoot: String? = null,
-    /** True when the root is a Google attestation root, not merely self-signed. */
-    val rootRecognized: Boolean = false,
+    /** Which pinned attestation root terminates the chain. */
+    val rootStatus: RootStatus = RootStatus.NULL,
+    /** Remote Key Provisioning: pinned RKP root, or the ProvisioningInfo extension. */
+    val remoteProvisioned: Boolean = false,
+    /** Whether the private key really belongs to the leaf certificate. */
+    val privateKeyMatchesLeaf: Boolean? = null,
+    /** True when any certificate of the chain is outside its validity period. */
+    val expired: Boolean = false,
+    val expiredCertificates: List<Int> = emptyList(),
+    /** KeyboxChecker flags chains carrying more than three certificates. */
+    val tooManyCertificates: Boolean = false,
     val certificates: List<CertificateInfo> = emptyList(),
 ) {
     val isRevoked: Boolean get() = status == RevocationStatus.REVOKED
@@ -184,21 +194,21 @@ data class AnalyzedKeybox(
     val parseError: String? = null,
     /** Set when another file in the same scan has byte-identical content. */
     val duplicateOf: String? = null,
-    /**
-     * Whether `DeviceID` equals the leaf certificate's serial number.
-     *
-     * Google keyboxes are built that way, so `false` means the attribute was
-     * edited after issuance. Null when there was nothing to compare.
-     */
-    val deviceIdMatchesLeafSerial: Boolean? = null,
 ) {
     val primaryKeyId: String? get() = keys.firstOrNull()?.keyId
     val status: RevocationStatus
         get() = keys.maxByOrNull { it.status.severity }?.status ?: RevocationStatus.UNKNOWN
     val isConfirmed: Boolean get() = parseError == null && keys.isNotEmpty()
+
+    /** True when every key of this keybox was remotely provisioned. */
+    val remoteProvisioned: Boolean
+        get() = keys.isNotEmpty() && keys.all { it.remoteProvisioned }
+
+    /** True when any certificate of any chain is outside its validity period. */
+    val expired: Boolean get() = keys.any { it.expired }
 }
 
-enum class KeyboxSource { LOCAL_PATH, TELEGRAM, MANUAL }
+enum class KeyboxSource { LOCAL_PATH, MANUAL }
 
 /**
  * A set of keyboxes that share one key identity. Device identifiers and other
@@ -213,7 +223,6 @@ data class KeyGroup(
 ) {
     val memberCount: Int get() = members.size
     val deviceIds: List<String> get() = members.mapNotNull { it.deviceId }.distinct()
-    val hasTamperedDeviceId: Boolean get() = deviceIds.size > 1
     val chainFingerprints: List<String> get() = members.map { it.chainFingerprint }.distinct()
 }
 

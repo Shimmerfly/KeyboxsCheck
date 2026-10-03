@@ -30,11 +30,9 @@ fun KeyboxScreen() {
     val actions = KeyboxActions(
         onPathChanged = viewModel::onPathChanged,
         onPickDirectory = { pickDirectory.launch(null) },
+        onLocalDeviceIdChanged = viewModel::onLocalDeviceIdChanged,
         onScan = viewModel::onScan,
         onCancel = viewModel::onCancelScan,
-        onBotTokenChanged = viewModel::onBotTokenChanged,
-        onChannelChanged = viewModel::onChannelChanged,
-        onImportFromTelegram = viewModel::onImportFromTelegram,
         onRefreshRevocation = viewModel::onRefreshRevocation,
         onSaveConfirmed = viewModel::onSaveConfirmed,
         onToggleGroup = viewModel::onToggleGroup,

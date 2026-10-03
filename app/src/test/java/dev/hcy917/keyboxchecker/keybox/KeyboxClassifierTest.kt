@@ -23,7 +23,7 @@ class KeyboxClassifierTest {
         )
         assertEquals(1, groups.size)
         assertEquals(2, groups[0].memberCount)
-        assertTrue(groups[0].hasTamperedDeviceId)
+        // DeviceID is reported for context but never decides grouping.
         assertEquals(listOf("CLONED-SERIAL", "ORIGINAL-SERIAL"), groups[0].deviceIds.sorted())
     }
 

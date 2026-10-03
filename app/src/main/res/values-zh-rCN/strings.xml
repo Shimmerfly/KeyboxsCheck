@@ -72,11 +72,6 @@
     <string name="keybox_picked">已选择：%1$s</string>
     <string name="keybox_scan">开始扫描</string>
     <string name="keybox_cancel">取消</string>
-    <string name="keybox_telegram_title">Telegram 频道</string>
-    <string name="keybox_telegram_note">Bot 必须是该频道的成员（建议设为管理员），否则 Telegram 不会返回该频道的消息。私有频道请使用 -100 开头的数字 ID。</string>
-    <string name="keybox_bot_token">Bot Token</string>
-    <string name="keybox_channel">频道 ID 或 @用户名</string>
-    <string name="keybox_import">从频道导入</string>
     <string name="keybox_progress_working">处理中…</string>
     <string name="keybox_results_title">结果</string>
     <string name="keybox_no_results">尚未分析任何 keybox。</string>
@@ -102,10 +97,20 @@
     <string name="keybox_output_dir">输出目录</string>
     <string name="keybox_save">保存确认的 keybox</string>
     <string name="keybox_notes">详情</string>
-    <string name="keybox_source_telegram">Telegram</string>
     <string name="keybox_source_local">本地</string>
-    <string name="keybox_privacy_note">Bot Token 仅保存在应用私有配置中，绝不会写入报告或日志。</string>
-        <string name="keybox_device_id_matches">DeviceID 与叶子证书序列号一致</string>
-    <string name="keybox_device_id_tampered">DeviceID 与叶子证书序列号不一致 —— 该字段在签发后被修改过</string>
     <string name="keybox_root_recognized">链根：%1$s</string>
+    <string name="keybox_local_id_label">写入已保存 keybox 的 DeviceID</string>
+    <string name="keybox_local_id_hint">例如本机 ID</string>
+    <string name="keybox_local_id_note">保存时会把该值写入每个 keybox 的 DeviceID。</string>
+    <string name="keybox_root_status_none">链根：无</string>
+    <string name="keybox_root_status_failed">链根：读取失败</string>
+    <string name="keybox_root_status_aosp">链根：AOSP 软件证明根</string>
+    <string name="keybox_root_status_google">链根：Google 硬件证明根</string>
+    <string name="keybox_root_status_rkp">链根：Google RKP 根（CN=Key Attestation CA1）</string>
+    <string name="keybox_root_status_knox">链根：Samsung Knox 证明根</string>
+    <string name="keybox_root_status_unknown">链根：不是已知证明根</string>
+    <string name="keybox_rkp">远程配置（RKP）</string>
+    <string name="keybox_private_key_mismatch">私钥与叶子证书不匹配</string>
+    <string name="keybox_too_many_certificates">证书链超过 3 张</string>
+    <string name="keybox_expired">链中证书已过期 —— 不会保存</string>
 </resources>
