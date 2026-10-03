@@ -62,31 +62,47 @@ data class RevocationSnapshot(
 /**
  * Normalisation of certificate serial numbers.
  *
- * Google publishes serials as uppercase hex without leading zeros, while
- * `X509Certificate.serialNumber` is an arbitrary-precision integer and
- * hand-written keyboxes sometimes pad or lowercase the value. All candidate
- * spellings are indexed so a lookup never misses on formatting alone.
+ * The published status list is not written in one encoding: measured against the
+ * live list, 780 of 1759 entries are lowercase hex (`c35747a084470c3135aeefe2b8d40cd6`,
+ * the 128-bit serials of hardware attestation certificates) while the remaining
+ * 979 are plain decimal (`224403031710863989`). A certificate serial is an
+ * arbitrary-precision integer, so every lookup tries both readings — hex and
+ * decimal — plus padded and trimmed spellings, and never misses on formatting
+ * alone.
  */
 object RevocationKeys {
-    fun normalize(hex: String): String = hex.trim()
+    /** Strips decoration (`0x`, `:`, spaces, dashes) and upper-cases the result. */
+    fun canonical(raw: String): String = raw.trim()
         .removePrefix("0x")
         .removePrefix("0X")
+        .filterNot { it == ':' || it == ' ' || it == '-' || it == '_' }
         .uppercase()
-        .trimStart('0')
-        .ifEmpty { "0" }
 
-    fun candidates(serial: java.math.BigInteger): List<String> {
-        val raw = serial.toString(16).uppercase().trimStart('0').ifEmpty { "0" }
-        val candidates = LinkedHashSet<String>(4)
-        candidates += raw
-        candidates += raw.padStart(32, '0')
-        candidates += raw.padStart(40, '0')
-        candidates += serial.toString(16).uppercase()
-        return candidates.toList()
+    /** Canonical form with leading zeros removed, for hex-keyed entries. */
+    fun normalize(raw: String): String = canonical(raw).trimStart('0').ifEmpty { "0" }
+
+    /** Decimal reading, or null when the value contains non-digits. */
+    fun decimal(raw: String): String? {
+        val canonical = canonical(raw)
+        if (canonical.isEmpty() || !canonical.all { it in '0'..'9' }) return null
+        return canonical.trimStart('0').ifEmpty { "0" }
     }
 
-    /** Canonical key used when the value is already a hex string (e.g. from JSON). */
-    fun canonical(hex: String): String = normalize(hex)
+    /** Every spelling a serial could have been published under. */
+    fun candidates(serial: java.math.BigInteger?): List<String> {
+        if (serial == null) return emptyList()
+        val hex = serial.toString(16).uppercase()
+        val trimmed = hex.trimStart('0').ifEmpty { "0" }
+        val decimal = serial.toString(10)
+        return LinkedHashSet<String>(6).apply {
+            add(trimmed)
+            add(hex)
+            add(decimal)
+            add(hex.padStart(32, '0'))
+            add(hex.padStart(40, '0'))
+            add(decimal.trimStart('0').ifEmpty { "0" })
+        }.toList()
+    }
 }
 
 // ------------------------------------------------------------------ parsing
@@ -140,6 +156,10 @@ data class AnalyzedKey(
     val revocationReason: String? = null,
     val chainValid: Boolean?,
     val chainError: String? = null,
+    /** Readable subject of the chain's root certificate. */
+    val chainRoot: String? = null,
+    /** True when the root is a Google attestation root, not merely self-signed. */
+    val rootRecognized: Boolean = false,
     val certificates: List<CertificateInfo> = emptyList(),
 ) {
     val isRevoked: Boolean get() = status == RevocationStatus.REVOKED
@@ -156,6 +176,13 @@ data class AnalyzedKeybox(
     val parseError: String? = null,
     /** Set when another file in the same scan has byte-identical content. */
     val duplicateOf: String? = null,
+    /**
+     * Whether `DeviceID` equals the leaf certificate's serial number.
+     *
+     * Google keyboxes are built that way, so `false` means the attribute was
+     * edited after issuance. Null when there was nothing to compare.
+     */
+    val deviceIdMatchesLeafSerial: Boolean? = null,
 ) {
     val primaryKeyId: String? get() = keys.firstOrNull()?.keyId
     val status: RevocationStatus

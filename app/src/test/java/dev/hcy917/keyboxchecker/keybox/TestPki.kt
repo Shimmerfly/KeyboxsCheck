@@ -58,6 +58,8 @@ object TestPki {
         serial: BigInteger,
         notBeforeMillis: Long = NOT_BEFORE,
         notAfterMillis: Long = NOT_AFTER,
+        subjectDer: ByteArray? = null,
+        issuerDer: ByteArray? = null,
     ): ByteArray {
         val rsa = issuerKey.algorithm.equals("RSA", ignoreCase = true)
         val algorithm = if (rsa) {
@@ -69,9 +71,9 @@ object TestPki {
             Der.encodeTlv(TAG_EXPLICIT_0, Der.int(2)), // version: v3
             Der.integer(serial),
             algorithm,
-            name(issuerCommonName),
+            issuerDer ?: name(issuerCommonName),
             Der.seq(utcTime(notBeforeMillis), utcTime(notAfterMillis)),
-            name(subjectCommonName),
+            subjectDer ?: name(subjectCommonName),
             Der.spkiOf(subjectKey),
         )
         val signer = Signature.getInstance(if (rsa) "SHA256withRSA" else "SHA256withECDSA")
@@ -79,6 +81,25 @@ object TestPki {
         signer.update(tbs)
         return Der.seq(tbs, algorithm, Der.bitString(signer.sign()))
     }
+
+    /**
+     * Raw DER `Name` built from `oid=value` pairs.
+     *
+     * Google's attestation roots identify themselves through the `serialNumber`
+     * attribute (`2.5.4.5`) and carry no common name at all, so tests need to
+     * build subjects that [certificate] cannot express.
+     */
+    fun derName(vararg attributes: Pair<String, String>): ByteArray = Der.seq(
+        *attributes.map { (oid, value) ->
+            Der.encodeTlv(
+                TAG_SET,
+                Der.seq(
+                    Der.oid(oid),
+                    Der.encodeTlv(TAG_UTF8_STRING, value.toByteArray(Charsets.UTF_8)),
+                ),
+            )
+        }.toTypedArray(),
+    )
 
     /** Self-signed certificate for [pair] carrying [commonName]. */
     fun selfSigned(pair: KeyPair, commonName: String, serial: Long = 1L): ByteArray =

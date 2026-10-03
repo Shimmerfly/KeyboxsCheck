@@ -15,9 +15,13 @@ fun interface HttpTextFetcher {
  * Reader for the Google attestation revocation list:
  * `https://android.googleapis.com/attestation/status`.
  *
- * The response is a JSON object of `{ "<serial hex>": { "status": ..., "reason": ... } }`.
- * Serial formatting varies, so every entry is indexed under its normalised form and
- * lookups try several spellings of the certificate serial.
+ * The response is a JSON object of `{ "<serial>": { "status": ..., "reason": ... } }`.
+ *
+ * Serial formatting varies far more than the documentation suggests. Measured
+ * against the live document, 780 of 1759 entries are lowercase 128-bit hex
+ * (`c35747a084470c3135aeefe2b8d40cd6`) and 979 are plain decimal
+ * (`224403031710863989`). Every entry is therefore indexed under its canonical,
+ * trimmed and decimal spellings, and lookups try all of them.
  */
 object RevocationList {
 
@@ -40,9 +44,13 @@ object RevocationList {
                 reason = entry.optString("reason").takeIf { it.isNotBlank() && it != "null" },
                 expires = entry.optString("expires").takeIf { it.isNotBlank() && it != "null" },
             )
+            // Indexed under every spelling a lookup might produce for a serial:
+            // canonical, leading-zero trimmed, as-written and decimal.
             result[RevocationKeys.canonical(serial)] = record
+            result[RevocationKeys.normalize(serial)] = record
             result[serial.trim()] = record
             result[serial.trim().uppercase()] = record
+            RevocationKeys.decimal(serial)?.let { result[it] = record }
         }
         return result
     }

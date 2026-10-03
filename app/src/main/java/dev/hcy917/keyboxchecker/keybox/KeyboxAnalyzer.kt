@@ -25,14 +25,27 @@ class KeyboxAnalyzer(
         source: KeyboxSource,
     ): AnalyzedKeybox {
         val analyzedKeys = keybox.keys.map { analyzeKey(it) }
+        val deviceId = keybox.deviceId?.trim()?.ifBlank { null }
         return AnalyzedKeybox(
             fileName = fileName,
             contentSha256 = contentSha256,
-            deviceId = keybox.deviceId?.trim()?.ifBlank { null },
+            deviceId = deviceId,
             keys = analyzedKeys,
             chainFingerprint = fingerprintOf(analyzedKeys),
             source = source,
+            deviceIdMatchesLeafSerial = matchesLeafSerial(deviceId, analyzedKeys),
         )
+    }
+
+    /**
+     * Google stamps the leaf certificate's serial number into `DeviceID`, but
+     * `DeviceID` is a plain XML attribute and therefore the easiest field in a
+     * keybox to edit. A mismatch is reported instead of being ignored.
+     */
+    private fun matchesLeafSerial(deviceId: String?, keys: List<AnalyzedKey>): Boolean? {
+        if (deviceId == null) return null
+        val leafSerial = keys.firstOrNull()?.certificates?.firstOrNull()?.serialHex ?: return null
+        return RevocationKeys.normalize(deviceId) == RevocationKeys.normalize(leafSerial)
     }
 
     fun failure(fileName: String, contentSha256: String, reason: String, source: KeyboxSource) =
@@ -69,6 +82,8 @@ class KeyboxAnalyzer(
             revocationReason = revocationMatch?.reason,
             chainValid = chain.valid,
             chainError = chain.error,
+            chainRoot = chain.root,
+            rootRecognized = chain.rootRecognized,
             certificates = certificates.mapIndexed { index, certificate -> certificate.describe(index) },
         )
     }
@@ -146,44 +161,58 @@ class KeyboxAnalyzer(
         return if (firstIsCaIssuerOfLast && !lastIsIssuerOfFirst) certificates.reversed() else certificates
     }
 
-    private class ChainResult(val valid: Boolean?, val error: String?)
+    private class ChainResult(
+        val valid: Boolean?,
+        val error: String?,
+        val root: String? = null,
+        val rootRecognized: Boolean = false,
+    )
 
     private fun verifyChain(certificates: List<X509Certificate>): ChainResult {
         if (certificates.isEmpty()) return ChainResult(null, "没有可用证书")
-        var allLinksVerified = true
         for (index in 0 until certificates.size - 1) {
             val child = certificates[index]
             val parent = certificates[index + 1]
             if (child.issuerX500Principal != parent.subjectX500Principal) {
-                return ChainResult(false, "证书链断裂：${child.subjectX500Principal.name} 的签发者不匹配")
+                return ChainResult(
+                    false,
+                    "证书链断裂：${CertificateNames.readable(child.subjectX500Principal.name)} 的签发者不匹配",
+                )
             }
             // X509Certificate.verify returns Unit, so success is signalled by the
             // absence of a thrown exception rather than by a value.
             val failure = runCatching { child.verify(parent.publicKey) }.exceptionOrNull()
             if (failure != null) {
-                allLinksVerified = false
-                return ChainResult(false, "证书签名校验未通过（第 ${index + 1} 级）：${failure.message}")
+                return ChainResult(
+                    false,
+                    "证书签名校验未通过（第 ${index + 1} 级）：${failure.message}",
+                )
             }
         }
 
         val tail = certificates.last()
+        val root = CertificateNames.readable(tail.subjectX500Principal.name)
         val selfIssued = tail.subjectX500Principal == tail.issuerX500Principal
         val selfSigned = selfIssued && runCatching { tail.verify(tail.publicKey) }.isSuccess
+        val recognized = CertificateNames.isGoogleAttestationRoot(tail)
 
         return when {
-            selfSigned -> ChainResult(true, null)
-            isKnownAttestationRoot(tail) -> ChainResult(allLinksVerified, null)
+            recognized -> ChainResult(true, null, root, true)
+            // A locally generated self-signed root satisfies every signature check
+            // inside a keybox, so "self-signed" alone is not evidence of anything.
+            selfSigned -> ChainResult(
+                null,
+                "链尾自签名但未被识别为 Google 证明根（$root）——自建根证书不能证明设备身份",
+                root,
+                false,
+            )
             else -> ChainResult(
                 null,
-                "链内链接校验通过，但根证书未被识别为 Google 证明根：${tail.subjectX500Principal.name}",
+                "链内链接校验通过，但根证书未被识别为 Google 证明根：$root",
+                root,
+                false,
             )
         }
-    }
-
-    /** Subject CN fragments of the roots Google uses for key attestation. */
-    private fun isKnownAttestationRoot(certificate: X509Certificate): Boolean {
-        val subject = certificate.subjectX500Principal.name.uppercase()
-        return KNOWN_ROOT_MARKERS.any { subject.contains(it) }
     }
 
     private fun worstRevocation(certificates: List<X509Certificate>): RevocationEntry? {
@@ -198,8 +227,8 @@ class KeyboxAnalyzer(
 
     private fun X509Certificate.describe(index: Int) = CertificateInfo(
         index = index,
-        subject = subjectX500Principal.name,
-        issuer = issuerX500Principal.name,
+        subject = CertificateNames.readable(subjectX500Principal.name),
+        issuer = CertificateNames.readable(issuerX500Principal.name),
         serialHex = serialNumber.toString(16).uppercase(),
         notBefore = notBefore.time,
         notAfter = notAfter.time,
@@ -213,15 +242,4 @@ class KeyboxAnalyzer(
         return Der.sha256(serials.joinToString("|").toByteArray(Charsets.UTF_8))
     }
 
-    private companion object {
-        val KNOWN_ROOT_MARKERS = listOf(
-            "GOOGLE HARDWARE ATTESTATION ROOT",
-            "GOOGLE ATTESTATION CA1",
-            "GOOGLE ATTESTATION ROOT",
-            "GTS ROOT R1",
-            "GTS ROOT R2",
-            "GTS ROOT R3",
-            "GTS ROOT R4",
-        )
-    }
 }

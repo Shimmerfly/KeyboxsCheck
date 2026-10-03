@@ -124,6 +124,7 @@ object ReportWriter {
         put("status", keybox.status.name)
         put("duplicateOf", keybox.duplicateOf ?: JSONObject.NULL)
         put("parseError", keybox.parseError ?: JSONObject.NULL)
+        put("deviceIdMatchesLeafSerial", keybox.deviceIdMatchesLeafSerial ?: JSONObject.NULL)
 
         val keys = JSONArray()
         for (key in keybox.keys) {
@@ -153,6 +154,8 @@ object ReportWriter {
                     put("revocationReason", key.revocationReason ?: JSONObject.NULL)
                     put("chainValid", key.chainValid ?: JSONObject.NULL)
                     put("chainError", key.chainError ?: JSONObject.NULL)
+                    put("chainRoot", key.chainRoot ?: JSONObject.NULL)
+                    put("rootRecognized", key.rootRecognized)
                     put("certificates", certificates)
                 },
             )
@@ -266,9 +269,16 @@ object ReportWriter {
     }
 
     private fun notes(member: AnalyzedKeybox): String {
-        val parts = ArrayList<String>(3)
+        val parts = ArrayList<String>(5)
         member.duplicateOf?.let { parts += "内容重复于 `$it`" }
         member.parseError?.let { parts += it }
+        member.deviceIdMatchesLeafSerial?.let { matches ->
+            parts += if (matches) {
+                "DeviceID 与叶子证书序列号一致"
+            } else {
+                "DeviceID 与叶子证书序列号不一致（该字段在签发后被修改过）"
+            }
+        }
         member.keys.mapNotNull { it.identityError }.distinct().forEach { parts += it }
         member.keys.mapNotNull { it.chainError }.distinct().forEach { parts += it }
         member.keys.mapNotNull { it.revocationReason }.distinct()
