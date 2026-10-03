@@ -33,4 +33,9 @@ sealed interface Route : NavKey, Parcelable {
     @Parcelize
     @Serializable
     data object Permissions : Route
+
+    /** Keybox scanning, revocation lookup and key identity classification. */
+    @Parcelize
+    @Serializable
+    data object Keybox : Route
 }

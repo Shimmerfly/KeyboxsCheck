@@ -16,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
@@ -25,7 +26,6 @@ import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
@@ -67,7 +67,7 @@ fun HomePagerMaterial(
             WarningCard(stringResource(R.string.home_sample_notification))
             PermissionCard(permissionState, actions.onPermissionsClick)
             InfoCard(systemInfo = state.systemInfo)
-            TelegramConfigCard(state = state, actions = actions)
+            KeyboxEntryCard(onClick = actions.onKeyboxClick)
             ExampleLinkCard(onOpenUrl = actions.onOpenUrl)
             Spacer(Modifier.height(bottomInnerPadding))
         }
@@ -239,33 +239,34 @@ private fun InfoCard(systemInfo: SystemInfo) {
 }
 
 @Composable
-private fun TelegramConfigCard(state: HomeUiState, actions: HomeActions) {
-    TonalCard {
-        Column(
+private fun KeyboxEntryCard(onClick: () -> Unit) {
+    TonalCard(onClick = onClick) {
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = "Telegram 配置",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
             )
-            OutlinedTextField(
-                value = state.tgBotToken,
-                onValueChange = actions.onTgBotTokenChanged,
-                label = { Text("Bot Token") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            OutlinedTextField(
-                value = state.tgChannelId,
-                onValueChange = actions.onTgChannelIdChanged,
-                label = { Text("Channel ID / Username") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.keybox_section),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    text = stringResource(R.string.keybox_home_summary),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
         }
     }
 }

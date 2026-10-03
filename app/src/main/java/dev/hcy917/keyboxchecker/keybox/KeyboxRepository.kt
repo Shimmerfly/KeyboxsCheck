@@ -85,7 +85,7 @@ class KeyboxRepository(
         inputDescription: String,
         revocation: RevocationSnapshot,
     ): Flow<ScanEvent> = flow {
-        emit(ScanEvent.Progress(ScanProgress(total = 0, phase = PHASE_ENUMERATING)))
+        emit(ScanEvent.Progress(ScanProgress(0, 0, "", PHASE_ENUMERATING)))
         val candidates = collectFiles(root)
         emitAll(scanCandidates(candidates, inputDescription, revocation, KeyboxSource.LOCAL_PATH))
     }.flowOn(Dispatchers.IO)
@@ -96,7 +96,7 @@ class KeyboxRepository(
         inputDescription: String,
         revocation: RevocationSnapshot,
     ): Flow<ScanEvent> = flow {
-        emit(ScanEvent.Progress(total = 0, phase = PHASE_ENUMERATING))
+        emit(ScanEvent.Progress(ScanProgress(0, 0, "", PHASE_ENUMERATING)))
         val candidates = collectDocuments(treeUri)
         emitAll(scanCandidates(candidates, inputDescription, revocation, KeyboxSource.LOCAL_PATH))
     }.flowOn(Dispatchers.IO)
@@ -300,13 +300,15 @@ class KeyboxRepository(
     /** Writes `classification.json` and `report.md` into [targetDir]. */
     fun exportReport(report: ScanReport, targetDir: File): List<File> {
         targetDir.mkdirs()
-        val stamp = ReportWriter.suggestedFileName("classification", "json", report.generatedAtMillis)
         val json = File(targetDir, "classification.json")
         val markdown = File(targetDir, "report.md")
         json.writeText(ReportWriter.toJson(report), Charsets.UTF_8)
         markdown.writeText(ReportWriter.toMarkdown(report), Charsets.UTF_8)
         // Keep a timestamped copy of the JSON so successive scans do not clobber each other.
-        val archived = File(targetDir, "classification-$stamp.json")
+        val archived = File(
+            targetDir,
+            ReportWriter.suggestedFileName("classification", "json", report.generatedAtMillis),
+        )
         if (archived.absolutePath != json.absolutePath) {
             runCatching { archived.writeText(ReportWriter.toJson(report), Charsets.UTF_8) }
         }

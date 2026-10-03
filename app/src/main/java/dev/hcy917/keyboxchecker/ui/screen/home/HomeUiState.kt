@@ -5,8 +5,6 @@ import dev.hcy917.keyboxchecker.ui.util.LatestVersionInfo
 
 @Immutable
 data class HomeUiState(
-    val tgBotToken: String = "",
-    val tgChannelId: String = "",
     val checkUpdateEnabled: Boolean,
     val latestVersionInfo: LatestVersionInfo,
     val currentAppVersionCode: Long,
@@ -16,7 +14,6 @@ data class HomeUiState(
 @Immutable
 data class HomeActions(
     val onPermissionsClick: () -> Unit,
+    val onKeyboxClick: () -> Unit,
     val onOpenUrl: (String) -> Unit,
-    val onTgBotTokenChanged: (String) -> Unit,
-    val onTgChannelIdChanged: (String) -> Unit,
 )

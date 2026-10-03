@@ -58,6 +58,7 @@ import dev.hcy917.keyboxchecker.ui.component.bottombar.rememberMainPagerState
 import dev.hcy917.keyboxchecker.ui.navigation3.LocalNavigator
 import dev.hcy917.keyboxchecker.ui.navigation3.Navigator
 import dev.hcy917.keyboxchecker.ui.navigation3.Route
+import dev.hcy917.keyboxchecker.ui.screen.keybox.KeyboxScreen
 import dev.hcy917.keyboxchecker.ui.navigation3.rememberNavigator
 import dev.hcy917.keyboxchecker.ui.screen.about.AboutScreen
 import dev.hcy917.keyboxchecker.ui.screen.colorpalette.ColorPaletteScreen
@@ -147,6 +148,7 @@ class MainActivity : ComponentActivity() {
                                 entry<Route.About> { AboutScreen() }
                                 entry<Route.ColorPalette> { ColorPaletteScreen() }
                                 entry<Route.Permissions> { PermissionScreen() }
+                                entry<Route.Keybox> { KeyboxScreen() }
                                 entry<Route.Home> { mainScreenEntry() }
                                 entry<Route.Settings> { mainScreenEntry() }
                             }
