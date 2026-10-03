@@ -173,12 +173,20 @@ object Der {
         }
     }
 
-    /** Fixed-width big-endian unsigned encoding, zero padded on the left. */
+    /**
+     * Fixed-width big-endian unsigned encoding, zero padded on the left.
+     *
+     * `BigInteger.toByteArray()` prepends a sign byte whenever the top bit is
+     * set, so that byte has to be dropped here rather than kept: a 256-bit EC
+     * coordinate would otherwise need 33 bytes and never fit into a 32-byte
+     * field.
+     */
     fun fixedUnsigned(value: BigInteger, size: Int): ByteArray {
+        val raw = value.toByteArray()
+        val magnitude = if (raw.size > 1 && raw[0] == 0.toByte()) raw.copyOfRange(1, raw.size) else raw
+        require(magnitude.size <= size) { "Value needs ${magnitude.size} bytes, only $size available" }
         val out = ByteArray(size)
-        val raw = unsignedBytes(value)
-        require(raw.size <= size) { "Value needs ${raw.size} bytes, only $size available" }
-        raw.copyInto(out, size - raw.size)
+        magnitude.copyInto(out, size - magnitude.size)
         return out
     }
 
@@ -276,8 +284,9 @@ object Der {
     }.getOrNull()
 
     /** Locates the named-curve OID inside a SEC1 ECPrivateKey structure. */
-    fun findEcCurveOid(der: ByteArray, top: Tlv = parseTlv(der)): String? = runCatching {
-        val parts = children(der, top)
+    fun findEcCurveOid(der: ByteArray, top: Tlv? = null): String? = runCatching {
+        val root = top ?: parseTlv(der)
+        val parts = children(der, root)
         val parameters = parts.firstOrNull { it.tag == TAG_CONTEXT_0 } ?: return null
         val oidTlv = find(der, children(der, parameters), TAG_OID) ?: return null
         decodeOid(der, oidTlv)
@@ -289,8 +298,9 @@ object Der {
      * (`A1 .. 03 .. 00 04 ..`), but the bare implicit form (`81 .. 00 04 ..`)
      * is accepted too.
      */
-    fun sec1PublicPoint(der: ByteArray, top: Tlv = parseTlv(der)): ByteArray? = runCatching {
-        val parts = children(der, top)
+    fun sec1PublicPoint(der: ByteArray, top: Tlv? = null): ByteArray? = runCatching {
+        val root = top ?: parseTlv(der)
+        val parts = children(der, root)
         val publicKey = parts.firstOrNull { it.tag == TAG_CONTEXT_1 || it.tag == TAG_CONTEXT_1_IMPLICIT }
             ?: return null
         val body = when (publicKey.tag) {
@@ -305,18 +315,18 @@ object Der {
     }.getOrNull()
 
     /** SubjectPublicKeyInfo for an EC private key stored in SEC1 form. */
-    fun ecPublicKeyInfo(sec1Der: ByteArray): ByteArray? {
+    fun ecPublicKeyInfo(sec1Der: ByteArray): ByteArray? = runCatching {
         val curveOid = findEcCurveOid(sec1Der) ?: return null
         val point = sec1PublicPoint(sec1Der) ?: return null
-        return ecPublicKeyInfo(curveOid, point)
-    }
+        ecPublicKeyInfo(curveOid, point)
+    }.getOrNull()
 
     fun ecPublicKeyInfo(curveOid: String, uncompressedPoint: ByteArray): ByteArray =
         seq(seq(oid(OID_EC_PUBLIC_KEY), oid(curveOid)), bitString(uncompressedPoint))
 
     fun rsaPublicKeyInfo(modulus: BigInteger, publicExponent: BigInteger): ByteArray = seq(
         seq(oid(OID_RSA_ENCRYPTION), nullValue()),
-        bitString(encodeTlv(TAG_SEQUENCE, unsignedBytes(modulus) + unsignedBytes(publicExponent))),
+        bitString(seq(integer(modulus), integer(publicExponent))),
     )
 
     /** Extracts SubjectPublicKeyInfo from a PKCS#1 RSAPrivateKey body. */
@@ -341,7 +351,10 @@ object Der {
      *   element; "ecdsa" and "rsa" are the only ones used in practice.
      * @return SPKI bytes, or null when the key cannot be interpreted.
      */
-    fun publicKeyInfoOfPrivateKey(der: ByteArray, algorithm: String?, pemLabel: String? = null): ByteArray? {
+    fun publicKeyInfoOfPrivateKey(der: ByteArray, algorithm: String?, pemLabel: String? = null): ByteArray? =
+        runCatching { derivePublicKeyInfo(der, algorithm, pemLabel) }.getOrNull()
+
+    private fun derivePublicKeyInfo(der: ByteArray, algorithm: String?, pemLabel: String?): ByteArray? {
         val declared = classifyPrivateKey(pemLabel)
         val encoding = if (declared != PrivateKeyEncoding.UNKNOWN) declared else detectEncoding(der, algorithm)
         val normalized = if (encoding == PrivateKeyEncoding.PKCS8) der else toPkcs8(der, encoding)

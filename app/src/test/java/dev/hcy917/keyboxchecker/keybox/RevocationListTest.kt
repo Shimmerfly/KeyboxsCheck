@@ -89,7 +89,7 @@ class RevocationListTest {
     @Test
     fun `a successful fetch is served from the network and cached`() {
         val cache = File(temporaryFolder.newFolder(), "revocation.json")
-        val snapshot = loader(cache) { sampleJson }.load()
+        val snapshot = loader(cache, HttpTextFetcher { sampleJson }).load()
         assertEquals(RevocationSource.NETWORK, snapshot.source)
         assertNull(snapshot.error)
         assertEquals(RevocationStatus.REVOKED, snapshot.lookup(BigInteger("ABCD", 16))?.status)
@@ -113,7 +113,7 @@ class RevocationListTest {
         val cache = File(temporaryFolder.newFolder(), "revocation.json")
         cache.writeText("""{"entries":{"AAAA":{"status":"REVOKED"}},"expires":"2000-01-01T00:00:00Z"}""")
         cache.setLastModified(System.currentTimeMillis())
-        val snapshot = loader(cache) { sampleJson }.load()
+        val snapshot = loader(cache, HttpTextFetcher { sampleJson }).load()
         assertEquals(RevocationSource.NETWORK, snapshot.source)
         assertEquals(RevocationStatus.REVOKED, snapshot.lookup(BigInteger("ABCD", 16))?.status)
     }
@@ -151,7 +151,7 @@ class RevocationListTest {
     fun `an empty cache file is ignored`() {
         val cache = File(temporaryFolder.newFolder(), "revocation.json")
         cache.writeText("""{"entries":{}}""")
-        val snapshot = loader(cache) { sampleJson }.load()
+        val snapshot = loader(cache, HttpTextFetcher { sampleJson }).load()
         assertEquals(RevocationSource.NETWORK, snapshot.source)
     }
 }

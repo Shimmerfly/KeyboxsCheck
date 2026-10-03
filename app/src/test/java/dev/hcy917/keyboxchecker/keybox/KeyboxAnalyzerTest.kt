@@ -51,7 +51,7 @@ class KeyboxAnalyzerTest {
         assertEquals(IdentitySource.PRIVATE_KEY, analyzed.keys[0].identitySource)
         assertEquals(Der.sha256(leafPair.public.encoded), analyzed.keys[0].keyId)
         assertEquals(RevocationStatus.VALID, analyzed.keys[0].status)
-        assertEquals(Boolean.TRUE, analyzed.keys[0].chainValid)
+        assertEquals(java.lang.Boolean.TRUE, analyzed.keys[0].chainValid)
         assertNull(analyzed.keys[0].chainError)
         assertEquals(2, analyzed.keys[0].certificates.size)
         assertTrue(analyzed.chainFingerprint.isNotEmpty())
@@ -83,7 +83,7 @@ class KeyboxAnalyzerTest {
         val key = analyze(keybox(), RevocationSnapshot.EMPTY).keys[0]
         assertEquals(RevocationStatus.UNKNOWN, key.status)
         assertFalse(key.isRevoked)
-        assertEquals(Boolean.TRUE, key.chainValid)
+        assertEquals(java.lang.Boolean.TRUE, key.chainValid)
     }
 
     @Test
@@ -121,7 +121,7 @@ class KeyboxAnalyzerTest {
         )
         val key = analyze(keybox(chain = listOf(leafPem, strangerPem))).keys[0]
 
-        assertEquals(Boolean.FALSE, key.chainValid)
+        assertEquals(java.lang.Boolean.FALSE, key.chainValid)
         assertNotNull(key.chainError)
     }
 
@@ -129,7 +129,7 @@ class KeyboxAnalyzerTest {
     fun `a root-first chain is reordered before verification`() {
         val key = analyze(keybox(chain = listOf(rootPem, leafPem))).keys[0]
 
-        assertEquals(Boolean.TRUE, key.chainValid)
+        assertEquals(java.lang.Boolean.TRUE, key.chainValid)
         assertTrue(key.certificates[0].subject.contains("Keybox Leaf"))
         assertTrue(key.certificates[1].subject.contains(TestPki.GOOGLE_ROOT_CN))
     }

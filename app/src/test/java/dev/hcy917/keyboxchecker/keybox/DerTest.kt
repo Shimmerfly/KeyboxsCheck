@@ -50,7 +50,8 @@ class DerTest {
         assertEquals(Der.TAG_OCTET_STRING, tlv.tag)
         assertTrue("length=${tlv.length}", tlv.length == 200)
         assertTrue("headerLength=${tlv.headerLength}", tlv.headerLength == 3)
-        assertEquals(1 + 3 + 200, tlv.totalLength)
+        // totalLength is header + content: the tag byte is already inside headerLength.
+        assertEquals(3 + 200, tlv.totalLength)
     }
 
     @Test
