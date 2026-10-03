@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
+import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -34,6 +35,12 @@ data class SaveResult(
     val skipped: List<String>,
     val failed: List<String>,
     val reportFiles: List<File>,
+)
+
+/** Outcome of deleting saved keyboxes from the library. */
+data class DeleteResult(
+    val deleted: List<String>,
+    val failed: List<String>,
 )
 
 /**
@@ -73,27 +80,58 @@ class KeyboxRepository(
 
     // -------------------------------------------------------------------- scan
 
+    /**
+     * Scans any mix of targets in one pass.
+     *
+     * A single keybox is as valid an input as a whole tree, so the three ways of
+     * naming files — a granted SAF tree, plain paths (directories or individual
+     * files) and individually picked SAF documents — are unioned rather than
+     * treated as alternatives. Duplicates across the three are left alone: the
+     * classifier already collapses byte-identical content.
+     */
+    fun scan(
+        treeUri: Uri?,
+        paths: List<String>,
+        documents: List<Uri>,
+        inputDescription: String,
+        revocation: RevocationSnapshot,
+    ): Flow<ScanEvent> = flow {
+        emit(ScanEvent.Progress(ScanProgress(0, 0, "", PHASE_ENUMERATING)))
+        val candidates = ArrayList<Candidate>()
+        treeUri?.let { candidates += collectDocuments(it) }
+        for (path in paths) {
+            val trimmed = path.trim()
+            if (trimmed.isNotEmpty()) candidates += collectFiles(File(trimmed))
+        }
+        for (uri in documents) candidates += documentCandidate(uri)
+        emitAll(scanCandidates(candidates, inputDescription, revocation, KeyboxSource.LOCAL_PATH))
+    }.flowOn(Dispatchers.IO)
+
     /** Scans an absolute path. Used with the MANAGE_EXTERNAL_STORAGE grant. */
     fun scanPath(
         root: File,
         inputDescription: String,
         revocation: RevocationSnapshot,
-    ): Flow<ScanEvent> = flow {
-        emit(ScanEvent.Progress(ScanProgress(0, 0, "", PHASE_ENUMERATING)))
-        val candidates = collectFiles(root)
-        emitAll(scanCandidates(candidates, inputDescription, revocation, KeyboxSource.LOCAL_PATH))
-    }.flowOn(Dispatchers.IO)
+    ): Flow<ScanEvent> = scan(
+        treeUri = null,
+        paths = listOf(root.absolutePath),
+        documents = emptyList(),
+        inputDescription = inputDescription,
+        revocation = revocation,
+    )
 
     /** Scans a directory the user picked through the Storage Access Framework. */
     fun scanTree(
         treeUri: Uri,
         inputDescription: String,
         revocation: RevocationSnapshot,
-    ): Flow<ScanEvent> = flow {
-        emit(ScanEvent.Progress(ScanProgress(0, 0, "", PHASE_ENUMERATING)))
-        val candidates = collectDocuments(treeUri)
-        emitAll(scanCandidates(candidates, inputDescription, revocation, KeyboxSource.LOCAL_PATH))
-    }.flowOn(Dispatchers.IO)
+    ): Flow<ScanEvent> = scan(
+        treeUri = treeUri,
+        paths = emptyList(),
+        documents = emptyList(),
+        inputDescription = inputDescription,
+        revocation = revocation,
+    )
 
     private fun scanCandidates(
         candidates: List<Candidate>,
@@ -355,6 +393,83 @@ class KeyboxRepository(
         }
     }.getOrNull()
 
+    private fun documentCandidate(uri: Uri): Candidate =
+        Candidate(documentLabel(uri)) { readDocument(uri) }
+
+    /** The name a picked SAF document shows in the results table. */
+    fun documentLabel(uri: Uri): String = displayNameOf(uri)
+        ?: uri.lastPathSegment?.substringAfterLast('/')?.takeIf { it.isNotBlank() }
+        ?: uri.toString()
+
+    private fun displayNameOf(uri: Uri): String? = runCatching {
+        context.contentResolver
+            .query(uri, arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME), null, null, null)
+            ?.use { rows -> if (rows.moveToFirst()) rows.getString(0) else null }
+    }.getOrNull()
+
+    // ------------------------------------------------------------------ library
+
+    /** The keyboxes already written by "save confirmed", newest first. */
+    fun listSaved(): List<SavedKeybox> = SavedLibrary.list(defaultOutputDir())
+
+    /** Relative paths the archive of [keyboxes] should carry. */
+    fun savedArchiveEntries(keyboxes: List<SavedKeybox>): List<String> =
+        SavedArchive.entries(defaultOutputDir(), keyboxes)
+
+    fun savedArchiveName(): String = SavedArchive.suggestedName(nowMillis())
+
+    /** Packs the library into a document the user chose through the SAF. */
+    fun exportArchive(entries: List<String>, uri: Uri): Int {
+        val stream = context.contentResolver.openOutputStream(uri)
+            ?: throw IllegalStateException("无法写入所选位置")
+        return stream.use { SavedArchive.write(defaultOutputDir(), entries, it) }
+    }
+
+    /**
+     * Packs the library into the app cache so it can be handed to another app
+     * through a `content://` uri. The cache is the only place a `FileProvider`
+     * path is declared for, and the OS clears it on its own schedule.
+     */
+    fun cacheArchive(entries: List<String>, name: String): File {
+        val directory = File(context.cacheDir, EXPORT_DIR_NAME).apply { mkdirs() }
+        val file = File(directory, name)
+        file.outputStream().use { SavedArchive.write(defaultOutputDir(), entries, it) }
+        return file
+    }
+
+    /** The `content://` uri other apps can read [file] from. */
+    fun shareUri(file: File): Uri = FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.fileprovider",
+        file,
+    )
+
+    /**
+     * Deletes saved keyboxes and prunes the device folders they leave empty, so
+     * a library that has had everything revoked deleted does not keep a trail of
+     * empty directories behind.
+     */
+    fun deleteSaved(relativePaths: List<String>): DeleteResult {
+        val root = defaultOutputDir()
+        val deleted = ArrayList<String>()
+        val failed = ArrayList<String>()
+        for (relative in relativePaths.distinct()) {
+            val file = File(root, relative)
+            val removed = runCatching { file.delete() }.getOrDefault(false)
+            if (removed) {
+                deleted += relative
+                file.parentFile?.let { parent ->
+                    if (parent != root && parent.list()?.isEmpty() == true) {
+                        runCatching { parent.delete() }
+                    }
+                }
+            } else {
+                failed += relative
+            }
+        }
+        return DeleteResult(deleted, failed)
+    }
+
     // ----------------------------------------------------------------- helpers
 
     @Synchronized
@@ -468,6 +583,7 @@ class KeyboxRepository(
         const val MAX_NAME_ATTEMPTS = 500
         const val REVOCATION_CACHE_NAME = "revocation.json"
         const val OUTPUT_DIR_NAME = "keyboxes"
+        const val EXPORT_DIR_NAME = "exports"
         const val PHASE_ENUMERATING = "正在枚举文件"
         const val PHASE_SCANNING = "正在解析 keybox"
         const val PHASE_FINISHED = "分析完成"

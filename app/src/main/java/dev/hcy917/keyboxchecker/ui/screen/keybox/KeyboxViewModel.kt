@@ -43,6 +43,9 @@ class KeyboxViewModel : ViewModel() {
     /** Set when the user picks a directory through the Storage Access Framework. */
     private var treeUri: Uri? = null
 
+    /** Files picked one by one through the document picker, in pick order. */
+    private var documentUris: List<Uri> = emptyList()
+
     init {
         loadRevocation(force = false)
     }
@@ -50,14 +53,16 @@ class KeyboxViewModel : ViewModel() {
     // ------------------------------------------------------------------ intents
 
     fun onPathChanged(value: String) {
-        // Typing a path abandons a previously picked tree.
+        // Typing a path abandons whatever was picked before.
         treeUri = null
+        documentUris = emptyList()
         prefs.edit().putString(KEY_PATH, value).apply()
-        _uiState.update { it.copy(path = value, pickedTreeLabel = null) }
+        _uiState.update { it.copy(path = value, pickedTreeLabel = null, pickedFileNames = emptyList()) }
     }
 
     fun onTreePicked(uri: Uri) {
         treeUri = uri
+        documentUris = emptyList()
         val persisted = repository.takePersistable(uri)
         prefs.edit().putString(KEY_TREE_URI, uri.toString()).apply()
         _uiState.update {
@@ -93,12 +98,31 @@ class KeyboxViewModel : ViewModel() {
 
     // --------------------------------------------------------------------- scan
 
+    /**
+     * Individually picked files are remembered as uris, not as labels, so a
+     * single keybox can be checked without granting access to the folder that
+     * happens to contain it.
+     */
+    fun onFilesPicked(uris: List<Uri>) {
+        if (uris.isEmpty()) return
+        documentUris = uris
+        treeUri = null
+        _uiState.update {
+            it.copy(
+                pickedTreeLabel = null,
+                pickedFileNames = uris.map { uri -> repository.documentLabel(uri) },
+                message = null,
+            )
+        }
+    }
+
     fun onScan() {
         if (_uiState.value.isScanning) return
         val target = treeUri
         val path = _uiState.value.path.trim()
-        if (target == null && path.isEmpty()) {
-            setMessage("请先输入目录路径，或通过「选择目录」授权一个目录")
+        val documents = documentUris
+        if (target == null && path.isEmpty() && documents.isEmpty()) {
+            setMessage("请先输入目录路径，或通过「选择目录」「选择文件」指定要检测的内容")
             return
         }
 
@@ -107,14 +131,20 @@ class KeyboxViewModel : ViewModel() {
                 it.copy(isScanning = true, message = null, notes = emptyList(), progress = null)
             }
             val snapshot = ensureRevocation()
-            val root = if (target == null) File(path) else null
-            val description = root?.absolutePath ?: "SAF:${target}"
+            val root = if (target == null && documents.isEmpty() && path.isNotEmpty()) File(path) else null
+            val description = when {
+                root != null -> root.absolutePath
+                target != null -> "SAF:${target}"
+                else -> "已选择 %d 个文件".format(documents.size)
+            }
             try {
-                val events = if (target != null) {
-                    repository.scanTree(target, description, snapshot)
-                } else {
-                    repository.scanPath(root!!, description, snapshot)
-                }
+                val events = repository.scan(
+                    treeUri = target,
+                    paths = if (root != null) listOf(root.absolutePath) else emptyList(),
+                    documents = documents,
+                    inputDescription = description,
+                    revocation = snapshot,
+                )
                 events.collect { event ->
                     when (event) {
                         is ScanEvent.Progress ->

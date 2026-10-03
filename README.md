@@ -13,7 +13,9 @@ its remote-provisioning (RKP) detection.
 ## What it does
 
 1. **Scan** an absolute directory path or a directory granted through the
-   Storage Access Framework, recursively, for `*.xml` files.
+   Storage Access Framework, recursively, for `*.xml` files — or pick one or
+   more individual keyboxes with "Select files", without granting access to the
+   folder that holds them.
 2. **Parse** every XML that looks like a keybox and classify it as *confirmed*
    (parseable XML + at least one `<Key>` + an X.509-parseable certificate chain)
    or *not a keybox*.
@@ -60,6 +62,20 @@ its remote-provisioning (RKP) detection.
      the random part re-drawn until it does not collide with a file already
      saved that day;
    - next to them the app writes `classification.json` and `report.md`.
+9. **Browse what you saved** in the *Saved* section of the bottom bar
+   (`Home → Saved → Settings`). Each entry is labelled by date, kind and serial —
+   `3 Oct 2026 Local 58052` — where the stored `R`/`N` marker decides whether it
+   reads *RKP* or *Local*; the file on disk keeps its original name. The section
+   carries three collection-wide actions:
+
+   - **Check revocation** treats the whole library as one scan and writes the
+     verdict of every file back into the list, so revoked ones turn red;
+   - **Delete all revoked** removes only the files a check has confirmed as
+     `REVOKED` or `SUSPENDED`, behind a confirmation dialog — nothing is deleted
+     before a check has run;
+   - **Export** packs every keybox together with `classification.json` and
+     `report.md` into one zip, either to a location you choose or straight into
+     the system share sheet.
 
 ## Requirements
 

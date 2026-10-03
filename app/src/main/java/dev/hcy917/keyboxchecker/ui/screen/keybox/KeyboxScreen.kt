@@ -27,9 +27,17 @@ fun KeyboxScreen() {
         ActivityResultContracts.OpenDocumentTree(),
     ) { uri -> if (uri != null) viewModel.onTreePicked(uri) }
 
+    // A single keybox is as valid an input as a whole tree, so files can be
+    // picked one by one — possibly several at once — without granting access to
+    // the folder that holds them.
+    val pickFiles = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenMultipleDocuments(),
+    ) { uris -> viewModel.onFilesPicked(uris) }
+
     val actions = KeyboxActions(
         onPathChanged = viewModel::onPathChanged,
         onPickDirectory = { pickDirectory.launch(null) },
+        onPickFiles = { pickFiles.launch(arrayOf("*/*")) },
         onLocalDeviceIdChanged = viewModel::onLocalDeviceIdChanged,
         onScan = viewModel::onScan,
         onCancel = viewModel::onCancelScan,

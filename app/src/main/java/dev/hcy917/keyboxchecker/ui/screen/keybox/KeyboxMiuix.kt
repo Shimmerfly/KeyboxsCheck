@@ -169,6 +169,17 @@ private fun InputCardMiuix(state: KeyboxUiState, actions: KeyboxActions) {
                     color = MiuixTheme.colorScheme.primary,
                 )
             }
+            if (state.pickedFileNames.isNotEmpty()) {
+                MiuixText(
+                    text = stringResource(
+                        R.string.keybox_picked_files,
+                        state.pickedFileNames.size,
+                        state.pickedFileNames.joinToString("、"),
+                    ),
+                    fontSize = MiuixTheme.textStyles.body2.fontSize,
+                    color = MiuixTheme.colorScheme.primary,
+                )
+            }
             MiuixTextField(
                 value = state.localDeviceId,
                 onValueChange = actions.onLocalDeviceIdChanged,
@@ -185,6 +196,10 @@ private fun InputCardMiuix(state: KeyboxUiState, actions: KeyboxActions) {
                 MiuixTextButton(
                     text = stringResource(R.string.keybox_pick_directory),
                     onClick = actions.onPickDirectory,
+                )
+                MiuixTextButton(
+                    text = stringResource(R.string.keybox_pick_files),
+                    onClick = actions.onPickFiles,
                 )
                 if (state.isScanning) {
                     MiuixTextButton(

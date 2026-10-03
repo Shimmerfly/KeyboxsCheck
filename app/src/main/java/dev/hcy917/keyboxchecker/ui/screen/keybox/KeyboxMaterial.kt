@@ -149,6 +149,17 @@ private fun InputCard(state: KeyboxUiState, actions: KeyboxActions) {
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
+            if (state.pickedFileNames.isNotEmpty()) {
+                Text(
+                    text = stringResource(
+                        R.string.keybox_picked_files,
+                        state.pickedFileNames.size,
+                        state.pickedFileNames.joinToString("、"),
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
             OutlinedTextField(
                 value = state.localDeviceId,
                 onValueChange = actions.onLocalDeviceIdChanged,
@@ -161,6 +172,9 @@ private fun InputCard(state: KeyboxUiState, actions: KeyboxActions) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = actions.onPickDirectory) {
                     Text(stringResource(R.string.keybox_pick_directory))
+                }
+                OutlinedButton(onClick = actions.onPickFiles) {
+                    Text(stringResource(R.string.keybox_pick_files))
                 }
                 if (state.isScanning) {
                     OutlinedButton(onClick = actions.onCancel) {

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.Cottage
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
@@ -119,5 +120,6 @@ enum class BottomBarDestination(
     val icon: ImageVector,
 ) {
     Home(R.string.home, Icons.Rounded.Cottage),
+    Saved(R.string.saved_section, Icons.Rounded.Bookmark),
     Setting(R.string.settings, Icons.Rounded.Settings)
 }

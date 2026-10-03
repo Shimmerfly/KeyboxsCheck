@@ -64,6 +64,7 @@ import dev.hcy917.keyboxchecker.ui.navigation3.rememberNavigator
 import dev.hcy917.keyboxchecker.ui.screen.about.AboutScreen
 import dev.hcy917.keyboxchecker.ui.screen.colorpalette.ColorPaletteScreen
 import dev.hcy917.keyboxchecker.ui.screen.home.HomePager
+import dev.hcy917.keyboxchecker.ui.screen.saved.SavedPager
 import dev.hcy917.keyboxchecker.ui.screen.permission.PermissionScreen
 import dev.hcy917.keyboxchecker.ui.screen.settings.SettingPager
 import dev.hcy917.keyboxchecker.ui.theme.TemplateTheme
@@ -233,7 +234,8 @@ fun MainScreen(
                     val isCurrentPage = page == settledPage
                     when (page) {
                         0 -> if (isCurrentPage || contentReady) HomePager(navController, bottomInnerPadding, isCurrentPage)
-                        1 -> if (isCurrentPage || contentReady) SettingPager(navController, bottomInnerPadding)
+                        1 -> if (isCurrentPage || contentReady) SavedPager(bottomInnerPadding, isCurrentPage)
+                        2 -> if (isCurrentPage || contentReady) SettingPager(navController, bottomInnerPadding)
                     }
                 }
             }

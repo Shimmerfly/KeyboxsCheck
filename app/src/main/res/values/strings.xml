@@ -116,4 +116,42 @@
     <string name="keybox_private_key_mismatch">The private key does not match the leaf certificate</string>
     <string name="keybox_too_many_certificates">More than 3 certificates in the chain</string>
     <string name="keybox_expired">A certificate in this chain has expired — it will not be saved</string>
+    <!-- Saved section -->
+    <string name="saved_section">Saved</string>
+    <string name="saved_library_title">Saved keyboxes</string>
+    <string name="saved_actions_title">Actions</string>
+    <string name="saved_count">%1$d keybox(es) saved</string>
+    <string name="saved_total_size">%1$s in total</string>
+    <string name="saved_library_folder">Library folder</string>
+    <string name="saved_last_check">Revocation list: %1$s · %2$d entries · %3$s</string>
+    <string name="saved_check">Check revocation</string>
+    <string name="saved_checking">Checking…</string>
+    <string name="saved_delete_revoked">Delete all revoked</string>
+    <string name="saved_delete_confirm_title">Delete revoked keyboxes?</string>
+    <string name="saved_delete_confirm_text">This deletes %1$d saved file(s) that are revoked or suspended. It cannot be undone.</string>
+    <string name="saved_delete_confirm_ok">Delete</string>
+    <string name="saved_export">Export zip</string>
+    <string name="saved_share">Share</string>
+    <string name="saved_share_chooser">Share saved keyboxes</string>
+    <string name="saved_empty">Nothing saved yet. Confirmed keyboxes appear here after you save them on the Keybox Check page.</string>
+    <string name="saved_unnamed">Name not recognised</string>
+    <string name="saved_status_not_checked">Not checked yet</string>
+    <string name="saved_revoked_ready">%1$d file(s) can be deleted.</string>
+    <string name="saved_check_done">Checked %1$d file(s).</string>
+    <string name="saved_check_revoked">%1$d of them are revoked or suspended.</string>
+    <string name="saved_check_failed">The revocation check failed.</string>
+    <string name="saved_deleted">Deleted %1$d file(s).</string>
+    <string name="saved_delete_failed">Could not delete %1$s</string>
+    <string name="saved_nothing_to_delete">Nothing to delete — run a check first.</string>
+    <string name="saved_nothing_to_export">Nothing to export.</string>
+    <string name="saved_exported">Wrote %1$d file(s) to the chosen location.</string>
+    <string name="saved_export_failed">The export failed.</string>
+    <string name="saved_dismiss">Dismiss</string>
+    <string name="saved_date_pattern">d MMM yyyy</string>
+    <string name="saved_kind_local">Local</string>
+    <string name="saved_kind_rkp">RKP</string>
+    <string name="saved_name_format">%1$s %2$s %3$s</string>
+    <string name="keybox_picked_files">Selected %1$d file(s): %2$s</string>
+    <string name="keybox_pick_files">Select files</string>
+
 </resources>

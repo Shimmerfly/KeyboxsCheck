@@ -16,6 +16,8 @@ import dev.hcy917.keyboxchecker.keybox.ScanReport
 data class KeyboxUiState(
     val path: String = "",
     val pickedTreeLabel: String? = null,
+    /** Names of the individually picked files, when that is how input was given. */
+    val pickedFileNames: List<String> = emptyList(),
     /** Written into every saved keybox as its `DeviceID`. */
     val localDeviceId: String = "",
     val isScanning: Boolean = false,
@@ -37,6 +39,7 @@ data class KeyboxUiState(
 data class KeyboxActions(
     val onPathChanged: (String) -> Unit,
     val onPickDirectory: () -> Unit,
+    val onPickFiles: () -> Unit,
     val onLocalDeviceIdChanged: (String) -> Unit,
     val onScan: () -> Unit,
     val onCancel: () -> Unit,
