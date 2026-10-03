@@ -110,7 +110,7 @@ androidComponents {
 
 base {
     archivesName.set(
-        "KernelSUStyleUIKit_${managerVersionName}_${managerVersionCode}"
+        "KeyboxsCheck_${managerVersionName}_${managerVersionCode}"
     )
 }
 
