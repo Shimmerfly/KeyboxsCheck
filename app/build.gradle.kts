@@ -26,7 +26,7 @@ apksign {
 }
 
 android {
-    namespace = "com.example.kernelsustyleuikit"
+    namespace = "dev.hcy917.keyboxchecker"
     val isPrBuild = project.findProperty("IS_PR_BUILD")?.toString()?.toBoolean() ?: false
 
     buildTypes {
@@ -71,7 +71,7 @@ android {
     buildToolsVersion = androidBuildToolsVersion
 
     defaultConfig {
-        applicationId = "com.example.kernelsustyleuikit"
+        applicationId = "dev.hcy917.keyboxchecker"
         minSdk = androidMinSdkVersion
         targetSdk = androidTargetSdkVersion
         versionCode = managerVersionCode
