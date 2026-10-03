@@ -47,7 +47,7 @@ jobs:
           app/build/test-results/testDebugUnitTest
 
   build:
-    name: Debug build and lint
+    name: Debug and release build, lint
     runs-on: ubuntu-latest
     needs: test
 
@@ -69,14 +69,27 @@ jobs:
     - name: Assemble debug APK
       run: ./gradlew --no-daemon :app:assembleDebug
 
+    # The release variant is built on every push so a shrinker regression is
+    # caught here instead of on a tag. Without KEYSTORE_* the apksign plugin
+    # falls back to the debug signature, which keeps this step green.
+    - name: Assemble release APK
+      run: ./gradlew --no-daemon :app:assembleRelease
+
     - name: Lint
       run: ./gradlew --no-daemon :app:lintDebug
 
-    - name: Upload APK
+    - name: Upload debug APK
       uses: actions/upload-artifact@v4
       with:
         name: app-debug
         path: app/build/outputs/apk/debug/app-debug.apk
+
+    - name: Upload release APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-release-unsigned-debugkey
+        path: app/build/outputs/apk/release/*.apk
+        if-no-files-found: error
 
     - name: Upload lint report
       if: always()
