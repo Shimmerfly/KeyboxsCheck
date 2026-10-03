@@ -1,0 +1,47 @@
+name: Lint baseline
+
+# Regenerates app/lint-baseline.xml.
+#
+# The upstream UI kit template carries lint findings that predate this project:
+# a blur effect that needs API 33 while minSdk is 31, and untranslated template
+# strings across 40+ locales. Those are recorded in the baseline so that lint
+# still fails the build when NEW issues are introduced.
+#
+# Run this manually after syncing upstream commits and commit the refreshed
+# app/lint-baseline.xml.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    name: Regenerate lint baseline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Update baseline
+        run: ./gradlew --no-daemon :app:updateLintBaseline
+
+      - name: Upload baseline
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-baseline
+          path: app/lint-baseline.xml
+          if-no-files-found: error
