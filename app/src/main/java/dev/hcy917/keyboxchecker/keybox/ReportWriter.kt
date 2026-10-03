@@ -71,7 +71,7 @@ object ReportWriter {
             JSONObject().apply {
                 put("source", report.revocation.source.name)
                 put("usable", report.revocation.isUsable)
-                put("entryCount", report.revocation.entries.size)
+                put("entryCount", report.revocation.entryCount)
                 put("fetchedAtMillis", report.revocation.fetchedAtMillis)
                 put("expires", report.revocation.expires ?: JSONObject.NULL)
                 put("error", report.revocation.error ?: JSONObject.NULL)
@@ -195,7 +195,7 @@ object ReportWriter {
 
         builder.append("### 吊销列表来源\n\n")
         builder.append("- 来源：`").append(report.revocation.source.name).append("`\n")
-        builder.append("- 条目数：").append(report.revocation.entries.size).append("\n")
+        builder.append("- 条目数：").append(report.revocation.entryCount).append("\n")
         if (report.revocation.fetchedAtMillis > 0) {
             builder.append("- 抓取时间：`").append(iso(report.revocation.fetchedAtMillis)).append("`\n")
         }

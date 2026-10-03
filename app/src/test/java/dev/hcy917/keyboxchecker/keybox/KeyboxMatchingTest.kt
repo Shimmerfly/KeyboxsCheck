@@ -99,6 +99,15 @@ class KeyboxMatchingTest {
         assertEquals("0", RevocationKeys.normalize("0000"))
     }
 
+    @Test
+    fun `the reported entry count is the published count not the index size`() {
+        // One published serial, indexed under several spellings.
+        val snapshot = table("""{"entries":{"0000ABCD":{"status":"REVOKED"}}}""")
+
+        assertTrue(snapshot.entries.size > 1)
+        assertEquals(1, snapshot.entryCount)
+    }
+
     // ---------------------------------------------------- end-to-end matching
 
     @Test

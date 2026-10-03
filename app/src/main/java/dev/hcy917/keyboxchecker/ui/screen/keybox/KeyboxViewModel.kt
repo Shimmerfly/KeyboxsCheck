@@ -254,7 +254,7 @@ class KeyboxViewModel : ViewModel() {
         _uiState.update {
             it.copy(
                 revocationSource = snapshot.source,
-                revocationEntries = snapshot.entries.size,
+                revocationEntries = snapshot.entryCount,
                 revocationFetchedAt = snapshot.fetchedAtMillis,
                 revocationExpires = snapshot.expires,
                 revocationError = snapshot.error,

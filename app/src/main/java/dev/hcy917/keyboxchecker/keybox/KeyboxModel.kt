@@ -45,6 +45,14 @@ data class RevocationSnapshot(
 ) {
     val isUsable: Boolean get() = source != RevocationSource.NONE
 
+    /**
+     * Number of distinct published entries.
+     *
+     * [entries] is a lookup index that holds several spellings of every serial,
+     * so its size overstates what the publisher actually listed.
+     */
+    val entryCount: Int get() = entries.values.toSet().size
+
     fun lookup(serial: java.math.BigInteger?): RevocationEntry? {
         if (serial == null) return null
         return RevocationKeys.candidates(serial).firstNotNullOfOrNull { entries[it] }
