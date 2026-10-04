@@ -241,6 +241,16 @@ class KeyboxRepository(
             return SaveResult(targetDir, saved, skipped, failed, emptyList())
         }
 
+        // Nothing is saved on a status nobody could establish. Without the list
+        // every key reads as UNKNOWN, and writing "I could not check this" into
+        // the library is worse than writing nothing at all.
+        if (!report.revocation.isUsable) {
+            report.keys.forEach {
+                skipped += "${it.fileName}（吊销列表不可用，无法确认是否已被吊销，暂不保存）"
+            }
+            return SaveResult(targetDir, saved, skipped, failed, emptyList())
+        }
+
         val folder = File(targetDir, deviceFolder(deviceId))
         val taken = existingNames(targetDir)
         val plan = SavePlanner.plan(
@@ -298,6 +308,11 @@ class KeyboxRepository(
         SavePlanner.Outcome.NOT_KEYBOX -> "未确认为 keybox"
         SavePlanner.Outcome.CONTENT_DUPLICATE -> "与 ${decision.detail} 内容相同"
         SavePlanner.Outcome.EXPIRED -> "证书已过期，不保存"
+        SavePlanner.Outcome.REVOKED ->
+            decision.detail?.let { "已被吊销（$it），不保存" } ?: "已被吊销，不保存"
+        SavePlanner.Outcome.SUSPENDED ->
+            decision.detail?.let { "已被暂停（$it），暂不保存" } ?: "已被暂停，暂不保存"
+        SavePlanner.Outcome.UNCHECKED -> "未能确认吊销状态，暂不保存"
         SavePlanner.Outcome.IN_LIBRARY -> "本地库中已有同一个密钥：${decision.detail}"
         SavePlanner.Outcome.REPEATED_KEY -> "与 ${decision.detail} 是同一个密钥"
         SavePlanner.Outcome.MISSING_CONTENT -> "内容已不在缓存中，请重新扫描后再保存"
@@ -331,7 +346,7 @@ class KeyboxRepository(
                 outcome.keybox,
                 KeyboxSource.LOCAL_PATH,
             )
-            keybox.primaryKeyId?.let { ids.putIfAbsent(it, entry.relativePath) }
+            keybox.keys.forEach { ids.putIfAbsent(it.keyId, entry.relativePath) }
         }
         return ids
     }

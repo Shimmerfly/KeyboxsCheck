@@ -163,6 +163,35 @@ class KeyboxClassifierTest {
         assertTrue(IGNORED_IDENTITY_FIELDS.any { it.equals("DeviceID", ignoreCase = true) })
     }
 
+    @Test
+    fun `a repeated second key makes the files twins`() {
+        // A keybox carries an ECDSA and an RSA key. Comparing only the first key
+        // would let the second copy of a key through unnoticed.
+        val repeated = KeyboxClassifier.repeatedKeys(
+            listOf(
+                analyzed("a.xml", "EC-1", secondKeyId = "RSA-1"),
+                analyzed("b.xml", "EC-2", secondKeyId = "RSA-1"),
+            ),
+        )
+
+        assertEquals(1, repeated.size)
+        assertEquals("RSA-1", repeated[0].keyId)
+        assertEquals(listOf("a.xml", "b.xml"), repeated[0].fileNames)
+    }
+
+    @Test
+    fun `both keys of a twin pair are reported`() {
+        val repeated = KeyboxClassifier.repeatedKeys(
+            listOf(
+                analyzed("a.xml", "EC-1", secondKeyId = "RSA-1"),
+                analyzed("b.xml", "EC-1", secondKeyId = "RSA-1"),
+            ),
+        )
+
+        assertEquals(listOf("EC-1", "RSA-1"), repeated.map { it.keyId }.sorted())
+        assertTrue(repeated.all { it.fileNames == listOf("a.xml", "b.xml") })
+    }
+
     private fun analyzed(
         fileName: String,
         keyId: String,
@@ -170,8 +199,10 @@ class KeyboxClassifierTest {
         status: RevocationStatus = RevocationStatus.VALID,
         chainFingerprint: String = "CHAIN-$keyId",
         contentSha256: String = "SHA-$fileName",
+        secondKeyId: String? = null,
     ): AnalyzedKeybox {
-        val key = AnalyzedKey(
+        val keys = ArrayList<AnalyzedKey>()
+        keys += AnalyzedKey(
             index = 0,
             algorithm = "ecdsa",
             keyId = keyId,
@@ -179,11 +210,21 @@ class KeyboxClassifierTest {
             status = status,
             chainValid = true,
         )
+        if (secondKeyId != null) {
+            keys += AnalyzedKey(
+                index = 1,
+                algorithm = "rsa",
+                keyId = secondKeyId,
+                identitySource = IdentitySource.PRIVATE_KEY,
+                status = status,
+                chainValid = true,
+            )
+        }
         return AnalyzedKeybox(
             fileName = fileName,
             contentSha256 = contentSha256,
             deviceId = deviceId,
-            keys = listOf(key),
+            keys = keys,
             chainFingerprint = chainFingerprint,
             source = KeyboxSource.LOCAL_PATH,
         )

@@ -135,29 +135,133 @@ class SavePlannerTest {
         assertNull(plan[0].detail)
     }
 
+    @Test
+    fun `a revoked key is never written`() {
+        val plan = SavePlanner.plan(
+            keys = listOf(analyzed("leaked.xml", "KEY-1", status = RevocationStatus.REVOKED, reason = "KEY_COMPROMISE")),
+            availableDigests = setOf("SHA-leaked.xml"),
+            libraryKeys = emptyMap(),
+        )
+
+        assertEquals(SavePlanner.Outcome.REVOKED, plan[0].outcome)
+        assertEquals("KEY_COMPROMISE", plan[0].detail)
+        assertFalse(plan[0].saveable)
+    }
+
+    @Test
+    fun `a suspended key is never written`() {
+        val plan = SavePlanner.plan(
+            keys = listOf(analyzed("held.xml", "KEY-1", status = RevocationStatus.SUSPENDED)),
+            availableDigests = setOf("SHA-held.xml"),
+            libraryKeys = emptyMap(),
+        )
+
+        assertEquals(SavePlanner.Outcome.SUSPENDED, plan[0].outcome)
+        assertFalse(plan[0].saveable)
+    }
+
+    @Test
+    fun `a key nobody could check is never written`() {
+        val plan = SavePlanner.plan(
+            keys = listOf(analyzed("unknown.xml", "KEY-1", status = RevocationStatus.UNKNOWN)),
+            availableDigests = setOf("SHA-unknown.xml"),
+            libraryKeys = emptyMap(),
+        )
+
+        assertEquals(SavePlanner.Outcome.UNCHECKED, plan[0].outcome)
+        assertFalse(plan[0].saveable)
+    }
+
+    @Test
+    fun `the worst key of a file decides for the whole file`() {
+        val plan = SavePlanner.plan(
+            keys = listOf(
+                analyzed(
+                    "two-keys.xml",
+                    "EC-1",
+                    secondKeyId = "RSA-1",
+                    secondStatus = RevocationStatus.REVOKED,
+                ),
+                analyzed("clean.xml", "EC-1"),
+            ),
+            availableDigests = setOf("SHA-two-keys.xml", "SHA-clean.xml"),
+            libraryKeys = emptyMap(),
+        )
+
+        // A keybox hands out both keys, so one revoked key is enough to damn it —
+        // and it must not reserve its keys and block the usable copy either.
+        assertEquals(SavePlanner.Outcome.REVOKED, plan[0].outcome)
+        assertEquals(SavePlanner.Outcome.SAVED, plan[1].outcome)
+    }
+
+    @Test
+    fun `the second key of a file counts when the library is consulted`() {
+        val plan = SavePlanner.plan(
+            keys = listOf(analyzed("two-keys.xml", "EC-1", secondKeyId = "RSA-1")),
+            availableDigests = setOf("SHA-two-keys.xml"),
+            libraryKeys = mapOf("RSA-1" to "localdev1/20261003N58052.xml"),
+        )
+
+        assertEquals(SavePlanner.Outcome.IN_LIBRARY, plan[0].outcome)
+        assertEquals("localdev1/20261003N58052.xml", plan[0].detail)
+    }
+
+    @Test
+    fun `a file is a twin when any of its keys repeats`() {
+        val plan = SavePlanner.plan(
+            keys = listOf(
+                analyzed("first.xml", "EC-1", secondKeyId = "RSA-1"),
+                analyzed("second.xml", "EC-2", secondKeyId = "RSA-1"),
+            ),
+            availableDigests = setOf("SHA-first.xml", "SHA-second.xml"),
+            libraryKeys = emptyMap(),
+        )
+
+        assertEquals(SavePlanner.Outcome.SAVED, plan[0].outcome)
+        assertEquals(SavePlanner.Outcome.REPEATED_KEY, plan[1].outcome)
+        assertEquals("first.xml", plan[1].detail)
+    }
+
     private fun analyzed(
         fileName: String,
         keyId: String,
         deviceId: String? = null,
         expired: Boolean = false,
         contentSha256: String = "SHA-$fileName",
+        status: RevocationStatus = RevocationStatus.VALID,
+        reason: String? = null,
+        secondKeyId: String? = null,
+        secondStatus: RevocationStatus = RevocationStatus.VALID,
     ): AnalyzedKeybox {
-        val key = AnalyzedKey(
-            index = 0,
-            algorithm = "ecdsa",
-            keyId = keyId,
-            identitySource = IdentitySource.PRIVATE_KEY,
-            status = RevocationStatus.VALID,
-            chainValid = true,
-            expired = expired,
-        )
+        val keys = ArrayList<AnalyzedKey>()
+        keys += key(0, "ecdsa", keyId, status, expired, reason)
+        if (secondKeyId != null) keys += key(1, "rsa", secondKeyId, secondStatus, false, null)
         return AnalyzedKeybox(
             fileName = fileName,
             contentSha256 = contentSha256,
             deviceId = deviceId,
-            keys = listOf(key),
+            keys = keys,
             chainFingerprint = "CHAIN-$fileName",
             source = KeyboxSource.LOCAL_PATH,
         )
     }
+
+    private fun key(
+        index: Int,
+        algorithm: String,
+        keyId: String,
+        status: RevocationStatus,
+        expired: Boolean,
+        reason: String?,
+    ) = AnalyzedKey(
+        index = index,
+        algorithm = algorithm,
+        keyId = keyId,
+        identitySource = IdentitySource.PRIVATE_KEY,
+        status = status,
+        matchedSerial = if (status == RevocationStatus.VALID) null else "SERIAL-$keyId",
+        revocationReason = reason,
+        chainValid = true,
+        expired = expired,
+    )
 }

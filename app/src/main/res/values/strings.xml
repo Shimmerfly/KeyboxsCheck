@@ -103,6 +103,7 @@
     <string name="keybox_output_title">Save confirmed keyboxes</string>
     <string name="keybox_output_dir">Output directory</string>
     <string name="keybox_save">Save confirmed keyboxes</string>
+    <string name="keybox_save_needs_revocation">The revocation list is unavailable, so nothing can be saved yet: refresh it first. Only a key the list has cleared is written — a revoked, suspended or unchecked key never is.</string>
     <string name="keybox_notes">Details</string>
     <string name="keybox_source_local">Local</string>
     <string name="keybox_root_recognized">Chain root: %1$s</string>

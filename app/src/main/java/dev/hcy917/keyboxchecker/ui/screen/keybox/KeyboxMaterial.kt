@@ -577,12 +577,22 @@ private fun SaveGroup(state: KeyboxUiState, actions: KeyboxActions) {
                         fontFamily = FontFamily.Monospace,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    // Nothing is written until a usable list has cleared the scan:
+                    // a key nobody could check is not a key worth keeping.
+                    val revocationReady = state.report?.revocation?.isUsable == true
                     Button(
                         onClick = actions.onSaveConfirmed,
-                        enabled = state.report != null && !state.isScanning,
+                        enabled = state.report != null && !state.isScanning && revocationReady,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(stringResource(R.string.keybox_save))
+                    }
+                    if (state.report != null && !revocationReady) {
+                        Text(
+                            text = stringResource(R.string.keybox_save_needs_revocation),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
                     }
                 }
             }

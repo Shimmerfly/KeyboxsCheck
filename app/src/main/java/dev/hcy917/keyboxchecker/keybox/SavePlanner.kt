@@ -3,11 +3,18 @@ package dev.hcy917.keyboxchecker.keybox
 /**
  * Decides which confirmed keyboxes "save" may actually write.
  *
- * A keybox is identified by its key, not by its bytes: two files that carry the
- * same key are the same certificate to the device, however much their editable
- * `DeviceID` or attestation properties differ. Writing both would leave the
- * library holding one key twice, so the plan keeps the first file it can write
- * for a key and reports every later one as [Outcome.REPEATED_KEY].
+ * Only a key the revocation list has cleared is written. An expired certificate
+ * and a published revocation both mean the key is dead to a device, and a key
+ * whose status could not be established is not written either: "the list could
+ * not be reached" is not a reason to hand a device a key that may be revoked.
+ *
+ * A keybox is identified by its key material, not by its bytes: two files that
+ * carry the same key are the same certificate to the device, however much their
+ * editable `DeviceID` or attestation properties differ. Writing both would leave
+ * the library holding one key twice, so the plan keeps the first file it can
+ * write for a key and reports every later one as [Outcome.REPEATED_KEY]. A file
+ * carries up to two keys (an ECDSA and an RSA one), so every key it holds takes
+ * part in that comparison.
  *
  * The comparison deliberately spans more than the batch in hand: a key that is
  * already in the library is reported as [Outcome.IN_LIBRARY] and is not written
@@ -21,6 +28,11 @@ object SavePlanner {
         NOT_KEYBOX,
         CONTENT_DUPLICATE,
         EXPIRED,
+        REVOKED,
+        SUSPENDED,
+
+        /** The revocation list could not clear this key, so it is not written. */
+        UNCHECKED,
         IN_LIBRARY,
         REPEATED_KEY,
         MISSING_CONTENT,
@@ -29,7 +41,7 @@ object SavePlanner {
     data class Decision(
         val keybox: AnalyzedKeybox,
         val outcome: Outcome,
-        /** The file this decision refers to: its twin, or the library copy. */
+        /** The twin file, the library copy, or why the key was revoked. */
         val detail: String? = null,
     ) {
         val saveable: Boolean get() = outcome == Outcome.SAVED
@@ -65,22 +77,38 @@ object SavePlanner {
                 decisions += Decision(keybox, Outcome.EXPIRED)
                 continue
             }
-            val keyId = keybox.primaryKeyId
-            if (keyId != null) {
-                libraryKeys[keyId]?.let {
-                    decisions += Decision(keybox, Outcome.IN_LIBRARY, it)
+
+            val worst = keybox.keys.maxByOrNull { it.status.severity }
+            when (worst?.status) {
+                RevocationStatus.REVOKED -> {
+                    decisions += Decision(keybox, Outcome.REVOKED, worst.revocationReason)
                     continue
                 }
-                chosen[keyId]?.let {
-                    decisions += Decision(keybox, Outcome.REPEATED_KEY, it)
+                RevocationStatus.SUSPENDED -> {
+                    decisions += Decision(keybox, Outcome.SUSPENDED, worst.revocationReason)
                     continue
                 }
+                RevocationStatus.UNKNOWN -> {
+                    decisions += Decision(keybox, Outcome.UNCHECKED)
+                    continue
+                }
+                else -> Unit
+            }
+
+            val keyIds = keybox.keys.map { it.keyId }
+            keyIds.firstNotNullOfOrNull { libraryKeys[it] }?.let {
+                decisions += Decision(keybox, Outcome.IN_LIBRARY, it)
+                continue
+            }
+            keyIds.firstNotNullOfOrNull { chosen[it] }?.let {
+                decisions += Decision(keybox, Outcome.REPEATED_KEY, it)
+                continue
             }
             if (keybox.contentSha256 !in availableDigests) {
                 decisions += Decision(keybox, Outcome.MISSING_CONTENT)
                 continue
             }
-            if (keyId != null) chosen[keyId] = keybox.fileName
+            keyIds.forEach { chosen[it] = keybox.fileName }
             decisions += Decision(keybox, Outcome.SAVED)
         }
         return decisions

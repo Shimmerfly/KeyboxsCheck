@@ -537,8 +537,16 @@ private fun SaveCardMiuix(state: KeyboxUiState, actions: KeyboxActions) {
             MiuixTextButton(
                 text = stringResource(R.string.keybox_save),
                 onClick = actions.onSaveConfirmed,
-                enabled = state.report != null && !state.isScanning,
+                enabled = state.report != null && !state.isScanning &&
+                    state.report.revocation.isUsable,
             )
+            if (state.report != null && !state.report.revocation.isUsable) {
+                MiuixText(
+                    text = stringResource(R.string.keybox_save_needs_revocation),
+                    fontSize = MiuixTheme.textStyles.footnote1.fontSize,
+                    color = MiuixTheme.colorScheme.error,
+                )
+            }
         }
     }
 }

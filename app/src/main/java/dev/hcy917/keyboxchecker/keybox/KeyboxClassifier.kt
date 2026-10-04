@@ -14,14 +14,17 @@ object KeyboxClassifier {
     /**
      * Keys that more than one file carries, worst first then by file name.
      *
-     * Files whose key cannot be identified are left out: nothing can be claimed
-     * about a key that was never derived.
+     * Every key of a file takes part: a keybox holds an ECDSA and an RSA key, and
+     * a file is the same certificate as another one as soon as *any* of its keys
+     * is the same — comparing only the first key would let a second copy in.
      */
     fun repeatedKeys(keyboxes: List<AnalyzedKeybox>): List<RepeatedKey> {
         val byKey = LinkedHashMap<String, MutableList<String>>()
         for (keybox in keyboxes) {
-            val keyId = keybox.primaryKeyId ?: continue
-            byKey.getOrPut(keyId) { ArrayList() }.add(keybox.fileName)
+            for (keyId in keybox.keys.map { it.keyId }.distinct()) {
+                val names = byKey.getOrPut(keyId) { ArrayList() }
+                if (!names.contains(keybox.fileName)) names.add(keybox.fileName)
+            }
         }
         return byKey
             .filterValues { it.size > 1 }

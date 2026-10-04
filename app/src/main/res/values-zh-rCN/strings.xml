@@ -100,6 +100,7 @@
     <string name="keybox_output_title">保存确认的 keybox</string>
     <string name="keybox_output_dir">输出目录</string>
     <string name="keybox_save">保存确认的 keybox</string>
+    <string name="keybox_save_needs_revocation">吊销列表不可用，暂时无法保存：请先刷新吊销列表。只有确认未吊销的密钥才会写出——已吊销、已暂停或无法确认状态的都不会保存。</string>
     <string name="keybox_notes">详情</string>
     <string name="keybox_source_local">本地</string>
     <string name="keybox_root_recognized">链根：%1$s</string>

@@ -44,7 +44,8 @@ its remote-provisioning (RKP) detection.
    `https://android.googleapis.com/attestation/status`, reporting the worst
    status found: `REVOKED`, `SUSPENDED`, `VALID` or `UNKNOWN`. The published list
    mixes decimal and hex serials, so both readings are indexed. Without a usable
-   list every key is reported as `UNKNOWN` rather than pretending to be valid.
+   list every key is reported as `UNKNOWN` rather than pretending to be valid,
+   and saving is refused until a check has cleared the key.
    An expired certificate is `REVOKED` on its own — that verdict is reached
    locally, so it holds even when the list cannot be fetched.
 7. **Compare by key, list by file**: keys are identified by the SHA-256 of the
@@ -54,12 +55,21 @@ its remote-provisioning (RKP) detection.
    result does *not* merge a key seen more than once: every file gets its own
    entry, and the files that share a key are flagged as repeats — so a second
    copy that differs only in its `DeviceID` cannot hide.
-8. **Save** the confirmed keyboxes that are still valid:
+8. **Save** the confirmed keyboxes that are still valid — *only* the ones a
+   revocation check has cleared:
 
+   - **nothing is written without the revocation list.** A keybox is a secret; if
+     the list cannot be reached, every key reads as `UNKNOWN` and saving is
+     refused (the screen says so) rather than writing a key that may be revoked.
+     `REVOKED`, `SUSPENDED`, `UNKNOWN` and expired keyboxes are never saved, and
+     every skipped file says why;
    - every candidate is compared against the other files of this scan *and*
      against the library already on disk: a key is written once, a key the
      library already holds is never written again, and each skipped file says
      which file it repeats or which saved key it matches;
+   - a keybox carries two keys (an ECDSA and an RSA one), so **every** key of a
+     file takes part in that comparison — two files are the same certificate as
+     soon as one of their keys matches;
    - expired keyboxes (any certificate outside its validity window) are reported
      as `REVOKED` and are not saved — they are listed as skipped instead;
    - `DeviceID` is rewritten to **your own device id**, which you type into the

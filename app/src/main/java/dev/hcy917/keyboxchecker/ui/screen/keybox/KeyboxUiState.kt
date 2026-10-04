@@ -52,12 +52,19 @@ data class KeyboxActions(
     val onToggleFile: (String) -> Unit,
 )
 
-/** The other scanned files that carry [keybox]'s key, if any. */
+/**
+ * The other scanned files that carry any of [keybox]'s keys, if any.
+ *
+ * Every key of the file is looked at: a keybox holds an ECDSA and an RSA key, and
+ * two files are the same certificate as soon as one of those keys matches.
+ */
 fun KeyboxUiState.twinNames(keybox: AnalyzedKeybox): List<String> {
-    val keyId = keybox.primaryKeyId ?: return emptyList()
+    val keyIds = keybox.keys.map { it.keyId }.toSet()
+    if (keyIds.isEmpty()) return emptyList()
     return repeatedKeys
-        .firstOrNull { it.keyId == keyId }
-        ?.fileNames
-        ?.filter { it != keybox.fileName }
-        .orEmpty()
+        .filter { it.keyId in keyIds }
+        .flatMap { it.fileNames }
+        .filter { it != keybox.fileName }
+        .distinct()
+        .sorted()
 }
