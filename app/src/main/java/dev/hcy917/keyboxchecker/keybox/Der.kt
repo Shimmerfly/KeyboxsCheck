@@ -449,7 +449,7 @@ object Der {
         var bit = scalar.bitLength() - 1
         while (bit >= 0) {
             if (resultX != null && resultY != null) {
-                val doubled = add(resultX!!, resultY!!, resultX!!, resultY!!)
+                val doubled = add(resultX, resultY, resultX, resultY)
                 resultX = doubled?.first
                 resultY = doubled?.second
             }
@@ -458,7 +458,7 @@ object Der {
                     resultX = generator.affineX
                     resultY = generator.affineY
                 } else {
-                    val sum = add(resultX!!, resultY!!, generator.affineX, generator.affineY)
+                    val sum = add(resultX, resultY, generator.affineX, generator.affineY)
                     resultX = sum?.first
                     resultY = sum?.second
                 }
