@@ -104,7 +104,7 @@ class KeyboxRepository(
         treeUri?.let { candidates += collectDocuments(it) }
         for (path in paths) {
             val trimmed = path.trim()
-            if (trimmed.isNotEmpty()) candidates += collectFiles(File(trimmed))
+            if (trimmed.isNotEmpty()) candidates += collectRootFiles(trimmed)
         }
         for (uri in documents) candidates += documentCandidate(uri)
         emitAll(scanCandidates(candidates, inputDescription, revocation, KeyboxSource.LOCAL_PATH))
@@ -363,38 +363,44 @@ class KeyboxRepository(
 
     private class Candidate(val displayName: String, val read: () -> ByteArray?)
 
-    private fun collectFiles(root: File): List<Candidate> {
-        val out = ArrayList<Candidate>()
-        if (!root.exists()) return out
-        if (root.isFile) {
-            return if (isXmlName(root.name)) listOf(fileCandidate(root, root.name)) else emptyList()
+    /** Enumerates and reads a typed input path through `su`, not app permissions. */
+    private fun collectRootFiles(path: String): List<Candidate> {
+        if (!root.available()) {
+            throw IllegalStateException("需要 root 权限才能扫描输入路径，请在授权提示中允许 root 后重试")
         }
+        val rootPath = File(path).absolutePath.trimEnd('/').ifEmpty { "/" }
+        val files = root.findXmlFiles(rootPath, MAX_DEPTH + 1)
+            ?: throw IllegalStateException("root 无法枚举输入路径：$rootPath")
 
-        val stack = ArrayDeque<Triple<File, Int, String?>>()
-        stack.addLast(Triple(root, 0, null))
-        while (stack.isNotEmpty()) {
-            val (directory, depth, parentName) = stack.removeLast()
-            if (depth > MAX_DEPTH) continue
-            val children = directory.listFiles() ?: continue
-            for (child in children) {
-                if (child.isDirectory) {
-                    if (shouldSkipDirectory(child.name, parentName)) continue
-                    if (isSymbolicLink(child)) continue
-                    stack.addLast(Triple(child, depth + 1, child.name))
-                } else if (child.isFile && isXmlName(child.name)) {
-                    out += fileCandidate(child, child.relativeTo(root).path)
+        return files.asSequence()
+            .filterNot { shouldSkipRootPath(rootPath, it) }
+            .map { filePath ->
+                val displayName = when {
+                    filePath == rootPath -> File(filePath).name.ifBlank { filePath }
+                    rootPath == "/" -> filePath.removePrefix("/")
+                    filePath.startsWith("$rootPath/") -> filePath.removePrefix("$rootPath/")
+                    else -> File(filePath).name
                 }
+                Candidate(displayName) { root.readBytes(filePath, MAX_FILE_BYTES) }
             }
-        }
-        return out
+            .toList()
     }
 
-    private fun fileCandidate(file: File, displayName: String): Candidate = Candidate(displayName) {
-        if (file.length() > MAX_FILE_BYTES) {
-            null
-        } else {
-            runCatching { file.readBytes() }.getOrNull()
+    /** Keeps the existing directory exclusions while enumeration runs as root. */
+    private fun shouldSkipRootPath(rootPath: String, filePath: String): Boolean {
+        if (filePath == rootPath) return false
+        val relative = when {
+            rootPath == "/" -> filePath.removePrefix("/")
+            filePath.startsWith("$rootPath/") -> filePath.removePrefix("$rootPath/")
+            else -> return false
         }
+        val directories = relative.split('/').dropLast(1)
+        var parentName: String? = null
+        for (directory in directories) {
+            if (shouldSkipDirectory(directory, parentName)) return true
+            parentName = directory
+        }
+        return false
     }
 
     /**

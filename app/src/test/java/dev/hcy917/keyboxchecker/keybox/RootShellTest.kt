@@ -53,6 +53,20 @@ class RootShellTest {
     }
 
     @Test
+    fun `recursive XML search quotes its path and bounds its depth`() {
+        val shell = shell()
+
+        assertEquals(
+            "find '/storage/emulated/0/my folder' -maxdepth 17 -type f -iname '*.xml' -print 2>/dev/null",
+            shell.findXmlCommand("/storage/emulated/0/my folder", 17),
+        )
+        assertEquals(
+            "find '/tmp/it'\\''s' -maxdepth 0 -type f -iname '*.xml' -print 2>/dev/null",
+            shell.findXmlCommand("/tmp/it's", 0),
+        )
+    }
+
+    @Test
     fun `a stat line becomes a name, a size and a modification time`() {
         val shell = shell()
 

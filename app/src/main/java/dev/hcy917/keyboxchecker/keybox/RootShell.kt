@@ -103,15 +103,25 @@ class RootShell(private val scratchDir: () -> File) {
      * path under `/data/adb` at all; the copy is `chmod 644` so the app — which
      * owns the directory but not the file — can read what root wrote.
      */
-    fun readBytes(remotePath: String): ByteArray? {
+    fun readBytes(remotePath: String, maxBytes: Long? = null): ByteArray? {
         val scratch = scratchFile() ?: return null
         return try {
+            val readCommand = if (maxBytes == null) {
+                "cat ${quote(remotePath)}"
+            } else {
+                require(maxBytes >= 0) { "maxBytes must not be negative" }
+                // Read one byte past the limit to reject large inputs without
+                // copying an unbounded file into app memory.
+                "head -c ${maxBytes + 1} ${quote(remotePath)}"
+            }
             val outcome = run(
-                "cat ${quote(remotePath)} > ${quote(scratch.absolutePath)}" +
+                "$readCommand > ${quote(scratch.absolutePath)}" +
                     " && chmod 644 ${quote(scratch.absolutePath)}",
             )
             if (outcome?.ok != true) return null
-            runCatching { scratch.readBytes() }.getOrNull()
+            runCatching { scratch.readBytes() }
+                .getOrNull()
+                ?.takeIf { maxBytes == null || it.size.toLong() <= maxBytes }
         } finally {
             scratch.delete()
         }
@@ -152,6 +162,22 @@ class RootShell(private val scratchDir: () -> File) {
         return outcome.output.lineSequence()
             .mapNotNull { parseListing(it) }
             .toList()
+    }
+
+    /** Recursively finds XML files without following directory symlinks. */
+    fun findXmlFiles(remotePath: String, maxDepth: Int): List<String>? {
+        val outcome = run(findXmlCommand(remotePath, maxDepth)) ?: return null
+        if (!outcome.ok) return null
+        return outcome.output.lineSequence()
+            .map { it.removeSuffix("\r") }
+            .filter { it.isNotEmpty() }
+            .toList()
+    }
+
+    /** Pure command builder, so quoting and depth are testable without root. */
+    internal fun findXmlCommand(remotePath: String, maxDepth: Int): String {
+        require(maxDepth >= 0) { "maxDepth must not be negative" }
+        return "find ${quote(remotePath)} -maxdepth $maxDepth -type f -iname '*.xml' -print 2>/dev/null"
     }
 
     /** Deletes one file, whether or not it was there. */
