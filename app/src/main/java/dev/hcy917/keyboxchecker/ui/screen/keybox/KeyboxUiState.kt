@@ -29,7 +29,13 @@ data class KeyboxUiState(
     /** Keys carried by more than one of the scanned files. */
     val repeatedKeys: List<RepeatedKey> = emptyList(),
     val expandedFiles: Set<String> = emptySet(),
+    /**
+     * Where confirmed keyboxes are written: the TEESimulator module's folder.
+     * It is root-only, and there is nothing to choose, so this is read-only.
+     */
     val outputDir: String = "",
+    /** Null until root has been asked for; false once it has been refused. */
+    val rootReady: Boolean? = null,
     val revocationSource: RevocationSource = RevocationSource.NONE,
     val revocationEntries: Int = 0,
     val revocationFetchedAt: Long = 0L,
@@ -50,6 +56,8 @@ data class KeyboxActions(
     val onRefreshRevocation: () -> Unit,
     val onSaveConfirmed: () -> Unit,
     val onToggleFile: (String) -> Unit,
+    /** Asks for root again, in case the prompt was dismissed earlier. */
+    val onRequestRoot: () -> Unit,
 )
 
 /**

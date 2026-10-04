@@ -19,6 +19,10 @@ data class SavedEntry(
     val status: RevocationStatus? = null,
     val reason: String? = null,
     val keyId: String? = null,
+    /** True when the TEESimulator config points at this file. */
+    val selected: Boolean = false,
+    /** The profiles that point at this file, so the badge can name them. */
+    val selectedBy: List<String> = emptyList(),
 ) {
     /**
      * Revoked *and* suspended count as "no longer usable", which is what the
@@ -34,7 +38,18 @@ data class PendingShare(val uri: Uri, val file: File, val name: String)
 
 data class SavedUiState(
     val entries: List<SavedEntry> = emptyList(),
-    val outputDir: String = "",
+    /** The module's folder, `/data/adb/teesim`. */
+    val libraryPath: String = "",
+    /**
+     * Whether the library can be reached at all. The folder belongs to the
+     * TEESimulator module and is root-only, so without root there is nothing to
+     * list rather than an empty library.
+     */
+    val rootReady: Boolean = false,
+    /** True once root has been asked for, so "not yet" can be told from "denied". */
+    val rootChecked: Boolean = false,
+    /** True when `config.json` was read, so a keybox can be made current. */
+    val configReady: Boolean = false,
     val isChecking: Boolean = false,
     val isBusy: Boolean = false,
     val progress: ScanProgress? = null,
@@ -57,6 +72,8 @@ data class SavedUiState(
         get() = if (checked) entries.filter { it.isRevoked }.map { it.keybox.relativePath } else emptyList()
 
     val totalBytes: Long get() = entries.sumOf { it.keybox.sizeBytes }
+
+    val currentName: String? get() = entries.firstOrNull { it.selected }?.keybox?.fileName
 }
 
 data class SavedActions(
@@ -68,6 +85,10 @@ data class SavedActions(
     val onShare: () -> Unit,
     val onShareLaunched: () -> Unit,
     val onDismissMessage: () -> Unit,
+    /** Asks for root again, in case the prompt was dismissed earlier. */
+    val onRequestRoot: () -> Unit,
+    /** Points the module's config at this file. */
+    val onMakeCurrent: (String) -> Unit,
 )
 
 /** Remote-provisioned keyboxes are worth calling out: they are the ones that rotate. */

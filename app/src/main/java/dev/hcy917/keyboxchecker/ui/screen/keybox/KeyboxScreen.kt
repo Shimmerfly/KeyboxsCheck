@@ -3,6 +3,7 @@ package dev.hcy917.keyboxchecker.ui.screen.keybox
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -34,6 +35,11 @@ fun KeyboxScreen() {
         ActivityResultContracts.OpenMultipleDocuments(),
     ) { uris -> viewModel.onFilesPicked(uris) }
 
+    // Saving writes into the TEESimulator module's folder, which needs root, so
+    // the state of that access is resolved as soon as the screen appears: the
+    // save button can then say why it is unavailable instead of failing on tap.
+    LaunchedEffect(Unit) { viewModel.refreshRoot() }
+
     val actions = KeyboxActions(
         onPathChanged = viewModel::onPathChanged,
         onPickDirectory = { pickDirectory.launch(null) },
@@ -44,6 +50,7 @@ fun KeyboxScreen() {
         onRefreshRevocation = viewModel::onRefreshRevocation,
         onSaveConfirmed = viewModel::onSaveConfirmed,
         onToggleFile = viewModel::onToggleFile,
+        onRequestRoot = viewModel::onRequestRoot,
     )
 
     val onBack = dropUnlessResumed { navigator.pop() }

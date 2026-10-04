@@ -79,27 +79,38 @@ its remote-provisioning (RKP) detection.
      `20261003R12345.xml` — `R` for an RKP keybox, `N` for anything else, with
      the random part re-drawn until it does not collide with a file already
      saved that day;
-   - next to them the app writes `classification.json` and `report.md`.
+   - the file goes straight into `/data/adb/teesim`, the folder the TEESimulator
+     module serves its keyboxes from: no subfolder, and nothing else is written
+     beside it, because the module reads that folder and no other file belongs in
+     it. Writing there needs root, so the app asks for it the first time it needs
+     it; without root nothing at all is saved and the screen says so.
 9. **Browse what you saved** in the *Saved* section of the bottom bar
-   (`Home → Saved → Settings`). Each entry is labelled by date, kind and serial —
-   `3 Oct 2026 Local 58052` — where the stored `R`/`N` marker decides whether it
-   reads *RKP* or *Local*; the file on disk keeps its original name. The section
-   carries three collection-wide actions:
+   (`Home → Saved → Settings`), which lists that same module folder. Each entry
+   is labelled by date, kind and serial — `3 Oct 2026 Local 58052` — where the
+   stored `R`/`N` marker decides whether it reads *RKP* or *Local*; the file on
+   disk keeps its original name. The keybox the module's `config.json` points at
+   is highlighted in the list and named as the current one, and **Use this
+   keybox** points every profile in that file at the keybox you pick, behind a
+   confirmation — the keybox itself is never modified. The section carries four
+   collection-wide actions:
 
    - **Check revocation** treats the whole library as one scan and writes the
      verdict of every file back into the list, so revoked ones turn red;
    - **Delete all revoked** removes only the files a check has confirmed as
      `REVOKED` or `SUSPENDED`, behind a confirmation dialog — nothing is deleted
      before a check has run;
-   - **Export** packs every keybox together with `classification.json` and
-     `report.md` into one zip, either to a location you choose or straight into
-     the system share sheet.
+   - **Use this keybox** switches the module over to the keybox you pick;
+   - **Export** packs every keybox into one zip, either to a location you choose
+     or straight into the system share sheet.
 
 ## Requirements
 
 - Android 8.0 (API 26) or newer.
-- No root. Reading arbitrary absolute paths is optional and uses
-  `MANAGE_EXTERNAL_STORAGE`; the default path is the Storage Access Framework.
+- **Root**, for saving and for the *Saved* section: the keyboxes live in
+  `/data/adb/teesim`, the folder the TEESimulator module owns and only root
+  can read or write. Scanning and checking need no root, and neither does
+  reading arbitrary absolute paths, which is optional and uses
+  `MANAGE_EXTERNAL_STORAGE`; the default is the Storage Access Framework.
 - A network connection for the revocation list. Without one the app uses the
   24-hour cache and, if there is no cache at all, reports every key as
   `UNKNOWN` rather than pretending it is valid.
@@ -161,8 +172,9 @@ debug-signed APK and prints a warning.
 
 - No telemetry and no accounts. The only network calls are Google's public
   revocation list and the upstream template sync, which runs in CI.
-- Nothing about your keyboxes leaves the device: saved files, the classification
-  JSON and the report are written to the output directory you choose.
+- Nothing about your keyboxes leaves the device: they are written into the
+  module's folder on your own device and nowhere else. No report file is
+  written beside them any more.
 - This project is not affiliated with or endorsed by Google. Use it on keyboxes
   you own or are authorised to inspect; a keybox is a secret that identifies a
   device's attestation identity.

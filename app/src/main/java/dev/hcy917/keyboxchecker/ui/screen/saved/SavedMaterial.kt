@@ -71,6 +71,21 @@ internal fun SavedPagerMaterial(
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     var confirmingDelete by remember { mutableStateOf(false) }
+    var pendingCurrent by remember { mutableStateOf<String?>(null) }
+
+    pendingCurrent?.let { fileName ->
+        ExpressiveConfirmDialog(
+            title = stringResource(R.string.saved_make_current_title),
+            message = stringResource(R.string.saved_make_current_text, fileName),
+            confirmText = stringResource(R.string.saved_make_current_confirm),
+            dismissText = stringResource(R.string.saved_dismiss),
+            onConfirm = {
+                pendingCurrent = null
+                actions.onMakeCurrent(fileName)
+            },
+            onDismiss = { pendingCurrent = null },
+        )
+    }
 
     if (confirmingDelete) {
         ExpressiveConfirmDialog(
@@ -110,6 +125,10 @@ internal fun SavedPagerMaterial(
         ) {
             item { SummaryGroup(state) }
 
+            if (state.rootChecked && !state.rootReady) {
+                item { RootGroup(state, actions) }
+            }
+
             item {
                 ActionsGroup(
                     state = state,
@@ -145,6 +164,8 @@ internal fun SavedPagerMaterial(
                         entry = entry,
                         index = index,
                         count = state.entries.size,
+                        configReady = state.configReady,
+                        onMakeCurrent = { pendingCurrent = it },
                     )
                 }
             }
@@ -192,7 +213,7 @@ private fun SummaryGroup(state: SavedUiState) {
                             style = MaterialTheme.typography.labelSmall,
                         )
                         Text(
-                            text = state.outputDir.ifBlank { "—" },
+                            text = state.libraryPath.ifBlank { "—" },
                             style = MaterialTheme.typography.bodySmall,
                             fontFamily = FontFamily.Monospace,
                         )
@@ -210,6 +231,31 @@ private fun SummaryGroup(state: SavedUiState) {
                                 color = MaterialTheme.colorScheme.error,
                             )
                         }
+                    }
+                },
+            )
+        }
+    }
+}
+
+@Composable
+private fun RootGroup(state: SavedUiState, actions: SavedActions) {
+    SegmentedColumn(modifier = Modifier.fillMaxWidth()) {
+        item {
+            SegmentedListItem(
+                headlineContent = {
+                    Text(
+                        text = stringResource(R.string.saved_root_title),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                },
+                supportingContent = { Text(stringResource(R.string.saved_root_note, state.libraryPath)) },
+                trailingContent = {
+                    TextButton(
+                        onClick = actions.onRequestRoot,
+                        enabled = !state.isBusy,
+                    ) {
+                        Text(stringResource(R.string.saved_root_request))
                     }
                 },
             )
@@ -387,10 +433,32 @@ private fun NotesGroup(notes: List<String>) {
 }
 
 @Composable
-private fun EntryGroup(entry: SavedEntry, index: Int, count: Int) {
+private fun EntryGroup(
+    entry: SavedEntry,
+    index: Int,
+    count: Int,
+    configReady: Boolean,
+    onMakeCurrent: (String) -> Unit,
+) {
     val status = entry.status
     SegmentedItem(index = index, count = count) {
         SegmentedListItem(
+            // The keybox the module actually serves is the selected row, which
+            // tints the container; it also carries a check mark, so the choice
+            // still reads without colour. Tapping another row offers to switch.
+            selected = entry.selected,
+            onClick = { if (configReady && !entry.selected) onMakeCurrent(entry.keybox.fileName) },
+            leadingContent = if (entry.selected) {
+                {
+                    Icon(
+                        imageVector = Icons.Rounded.CheckCircle,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            } else {
+                null
+            },
             headlineContent = {
                 Column {
                     Text(savedDisplayName(entry.keybox))
@@ -404,6 +472,18 @@ private fun EntryGroup(entry: SavedEntry, index: Int, count: Int) {
             },
             supportingContent = {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    if (entry.selected) {
+                        val profiles = entry.selectedBy.joinToString("、")
+                        Text(
+                            text = if (profiles.isBlank()) {
+                                stringResource(R.string.saved_current_badge)
+                            } else {
+                                stringResource(R.string.saved_current_badge_profiles, profiles)
+                            },
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -439,6 +519,11 @@ private fun EntryGroup(entry: SavedEntry, index: Int, count: Int) {
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error,
                         )
+                    }
+                    if (configReady && !entry.selected) {
+                        TextButton(onClick = { onMakeCurrent(entry.keybox.fileName) }) {
+                            Text(stringResource(R.string.saved_make_current))
+                        }
                     }
                 }
             },

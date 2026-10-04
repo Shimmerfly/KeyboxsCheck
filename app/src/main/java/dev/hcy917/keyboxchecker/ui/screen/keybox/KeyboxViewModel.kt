@@ -185,30 +185,64 @@ class KeyboxViewModel : ViewModel() {
             return
         }
         viewModelScope.launch {
-            val directory = File(state.outputDir.ifBlank { repository.defaultOutputDir().absolutePath })
+            // The keyboxes land in the TEESimulator module's folder, which only
+            // root can write, so the first save is what asks for root.
+            val granted = withContext(Dispatchers.IO) {
+                repository.rootAvailable() || repository.requestRoot()
+            }
+            _uiState.update { it.copy(rootReady = granted) }
+            if (!granted) {
+                setMessage("未获得 root 权限，无法写入 ${repository.libraryPath()}")
+                return@launch
+            }
             val result = withContext(Dispatchers.IO) {
-                repository.saveConfirmed(report, directory, state.localDeviceId)
+                repository.saveConfirmed(report, state.localDeviceId)
             }
             val notes = buildList {
-                add("输出目录：${result.directory.absolutePath}")
+                add("输出目录：${result.directory}")
                 if (result.saved.isEmpty()) add("没有写入任何文件")
                 addAll(result.saved.map { "已保存 $it" })
                 addAll(result.skipped.map { "跳过 $it" })
                 addAll(result.failed.map { "失败 $it" })
-                addAll(result.reportFiles.map { "已写出报告 ${it.name}" })
             }
             _uiState.update { it.copy(message = "保存完成", notes = notes) }
+        }
+    }
+
+    /**
+     * Resolves whether the module's folder can be written. Called when the page
+     * opens, so the save button can be disabled upfront instead of failing after
+     * the user taps it.
+     */
+    fun refreshRoot() {
+        viewModelScope.launch {
+            val granted = withContext(Dispatchers.IO) { repository.rootGranted() }
+            _uiState.update { it.copy(rootReady = granted) }
+        }
+    }
+
+    /** Asks for root again after the prompt was dismissed. */
+    fun onRequestRoot() {
+        viewModelScope.launch {
+            val granted = withContext(Dispatchers.IO) { repository.requestRoot() }
+            _uiState.update { it.copy(rootReady = granted) }
+            setMessage(
+                if (granted) {
+                    "已获得 root 权限"
+                } else {
+                    "未获得 root 权限，无法写入 ${repository.libraryPath()}"
+                },
+            )
         }
     }
 
     // ------------------------------------------------------------------ internal
 
     private fun buildInitialState(): KeyboxUiState {
-        val stored = prefs.getString(KEY_OUTPUT_DIR, null)
         return KeyboxUiState(
             path = prefs.getString(KEY_PATH, "").orEmpty(),
             localDeviceId = prefs.getString(KEY_LOCAL_DEVICE_ID, "").orEmpty(),
-            outputDir = stored ?: runCatching { repository.defaultOutputDir().absolutePath }.getOrDefault(""),
+            outputDir = repository.libraryPath(),
         )
     }
 
@@ -255,7 +289,6 @@ class KeyboxViewModel : ViewModel() {
         const val PREFS = "settings"
         const val KEY_PATH = "keybox_path"
         const val KEY_TREE_URI = "keybox_tree_uri"
-        const val KEY_OUTPUT_DIR = "keybox_output_dir"
         const val KEY_LOCAL_DEVICE_ID = "keybox_local_device_id"
     }
 }

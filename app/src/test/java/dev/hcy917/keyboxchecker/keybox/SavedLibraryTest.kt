@@ -8,7 +8,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -77,142 +76,118 @@ class SavedLibraryTest {
     // ----------------------------------------------------------------- listing
 
     @Test
-    fun `listing walks the device folders and reports the path used on disk`() {
-        val root = temporaryFolder.newFolder("keyboxes")
-        val folder = File(root, "localdev1").apply { mkdirs() }
-        File(folder, "20261001N00001.xml").writeText("<k/>")
-        File(folder, "20261003R00002.xml").writeText("<k/>")
-        File(root, "report.md").writeText("report")
+    fun `the folder listing becomes one entry per keybox, newest first`() {
+        val listed = SavedLibrary.of(
+            listOf(
+                file("20261001N00001.xml"),
+                file("20261003R00002.xml"),
+                file("20261002N00003.xml"),
+            ),
+        )
 
-        val listed = SavedLibrary.list(root)
-
-        assertEquals(2, listed.size)
         assertEquals(
-            listOf("localdev1/20261003R00002.xml", "localdev1/20261001N00001.xml"),
+            listOf("20261003R00002.xml", "20261002N00003.xml", "20261001N00001.xml"),
             listed.map { it.relativePath },
         )
-        assertEquals("localdev1", listed[0].deviceFolder)
         assertEquals(SavedKind.REMOTE, listed[0].kind)
         assertTrue(listed.all { it.named })
-        assertTrue(listed.all { it.sizeBytes > 0 })
+    }
+
+    @Test
+    fun `keyboxes saved on the same day are ordered by their five digits`() {
+        val listed = SavedLibrary.of(
+            listOf(file("20261003N12000.xml"), file("20261003N99000.xml"), file("20261003N00001.xml")),
+        )
+
+        assertEquals(
+            listOf("20261003N99000.xml", "20261003N12000.xml", "20261003N00001.xml"),
+            listed.map { it.fileName },
+        )
     }
 
     @Test
     fun `a file dropped in by hand is listed but not treated as named`() {
-        val root = temporaryFolder.newFolder("keyboxes")
-        File(root, "handmade.xml").writeText("<k/>")
-
-        val listed = SavedLibrary.list(root)
+        val listed = SavedLibrary.of(listOf(file("keybox.xml", modifiedMillis = 1_700_000_000_000L)))
 
         assertEquals(1, listed.size)
         assertFalse(listed.single().named)
-        assertEquals("handmade.xml", listed.single().fileName)
+        assertEquals("keybox.xml", listed.single().fileName)
         assertEquals("", listed.single().serial)
         // An unnamed file still has to sort somewhere: its mtime stands in.
-        assertEquals(File(root, "handmade.xml").lastModified(), listed.single().savedAtMillis)
+        assertEquals(1_700_000_000_000L, listed.single().savedAtMillis)
     }
 
     @Test
-    fun `non xml files and deeper folders are ignored`() {
-        val root = temporaryFolder.newFolder("keyboxes")
-        val folder = File(root, "localdev1").apply { mkdirs() }
-        File(folder, "20261001N00001.xml").writeText("<k/>")
-        File(folder, "notes.txt").writeText("x")
-        val deeper = File(folder, "nested").apply { mkdirs() }
-        File(deeper, "20261002N00002.xml").writeText("<k/>")
+    fun `anything that is not an xml file stays out of the library`() {
+        assertFalse(SavedLibrary.isKeyboxFile("notes.txt"))
+        assertFalse(SavedLibrary.isKeyboxFile("classification.json"))
+        assertTrue(SavedLibrary.isKeyboxFile("20261003N58052.XML"))
 
-        val listed = SavedLibrary.list(root)
-
-        assertEquals(listOf("localdev1/20261001N00001.xml"), listed.map { it.relativePath })
-    }
-
-    @Test
-    fun `an empty or missing library lists nothing instead of failing`() {
-        assertEquals(emptyList<SavedKeybox>(), SavedLibrary.list(temporaryFolder.newFolder("empty")))
-        assertEquals(emptyList<SavedKeybox>(), SavedLibrary.list(File(temporaryFolder.root, "absent")))
-    }
-
-    @Test
-    fun `the newest keybox comes first`() {
-        val root = temporaryFolder.newFolder("keyboxes")
-        listOf("20260101N00001.xml", "20261231N00002.xml", "20260615R00003.xml").forEach {
-            File(root, it).writeText("<k/>")
-        }
-
-        assertEquals(
-            listOf("20261231N00002.xml", "20260615R00003.xml", "20260101N00001.xml"),
-            SavedLibrary.list(root).map { it.fileName },
+        val listed = SavedLibrary.of(
+            listOf(file("20261003N58052.xml"), file("notes.txt"), file("report.md")),
         )
+
+        assertEquals(listOf("20261003N58052.xml"), listed.map { it.fileName })
     }
+
+    @Test
+    fun `an empty listing is an empty library`() {
+        assertEquals(emptyList<SavedKeybox>(), SavedLibrary.of(emptyList()))
+    }
+
+    @Test
+    fun `the size comes straight from the listing`() {
+        val listed = SavedLibrary.of(listOf(file("20261003N58052.xml", sizeBytes = 4096L)))
+        assertEquals(4096L, listed.single().sizeBytes)
+    }
+
+    private fun file(
+        name: String,
+        sizeBytes: Long = 1024L,
+        modifiedMillis: Long = 0L,
+    ) = SavedFile(name = name, sizeBytes = sizeBytes, modifiedMillis = modifiedMillis)
 }
 
 /**
  * The export is the only way a collection leaves the device, so what it puts in
- * the zip — and what it does when a file is missing — is worth pinning down.
+ * the zip — and what it does when an entry is unusable — is worth pinning down.
  */
 class SavedArchiveTest {
 
-    @get:Rule
-    val temporaryFolder = TemporaryFolder()
-
     @Test
-    fun `the archive carries the keyboxes and the reports that sit beside them`() {
-        val root = temporaryFolder.newFolder("keyboxes")
-        val folder = File(root, "localdev1").apply { mkdirs() }
-        File(folder, "20261003N58052.xml").writeText("<keybox/>")
-        File(root, "classification.json").writeText("{}")
-        File(root, "report.md").writeText("# report")
-
-        val listed = SavedLibrary.list(root)
-        val names = SavedArchive.entries(root, listed)
-
-        assertEquals(
-            listOf("localdev1/20261003N58052.xml", "classification.json", "report.md"),
-            names,
-        )
-    }
-
-    @Test
-    fun `reports that were never written are not announced`() {
-        val root = temporaryFolder.newFolder("keyboxes")
-        File(root, "20261003N58052.xml").writeText("<keybox/>")
-
-        assertEquals(
-            listOf("20261003N58052.xml"),
-            SavedArchive.entries(root, SavedLibrary.list(root)),
-        )
-    }
-
-    @Test
-    fun `writing puts every entry in the zip with its contents intact`() {
-        val root = temporaryFolder.newFolder("keyboxes")
-        val folder = File(root, "localdev1").apply { mkdirs() }
-        File(folder, "20261003N58052.xml").writeText("<keybox/>")
-        File(root, "report.md").writeText("# report")
-
+    fun `writing puts every keybox in the zip with its contents intact`() {
         val bytes = ByteArrayOutputStream()
         val written = SavedArchive.write(
-            root,
-            listOf("localdev1/20261003N58052.xml", "report.md"),
+            listOf(
+                item("20261003N58052.xml", "<keybox/>"),
+                item("20261004N00001.xml", "<keybox id='2'/>"),
+            ),
             bytes,
         )
 
         assertEquals(2, written)
         val entries = readZip(bytes.toByteArray())
-        assertEquals(setOf("localdev1/20261003N58052.xml", "report.md"), entries.keys)
-        assertEquals("<keybox/>", entries["localdev1/20261003N58052.xml"])
-        assertEquals("# report", entries["report.md"])
+        assertEquals(setOf("20261003N58052.xml", "20261004N00001.xml"), entries.keys)
+        assertEquals("<keybox/>", entries["20261003N58052.xml"])
+        assertEquals("<keybox id='2'/>", entries["20261004N00001.xml"])
     }
 
     @Test
-    fun `a keybox deleted between listing and packing does not abort the archive`() {
-        val root = temporaryFolder.newFolder("keyboxes")
-        File(root, "20261003N58052.xml").writeText("<keybox/>")
-
+    fun `repeated paths are packed once`() {
         val bytes = ByteArrayOutputStream()
         val written = SavedArchive.write(
-            root,
-            listOf("20261003N58052.xml", "gone/20261004N00001.xml"),
+            listOf(item("20261003N58052.xml", "<keybox/>"), item("20261003N58052.xml", "<keybox/>")),
+            bytes,
+        )
+
+        assertEquals(1, written)
+    }
+
+    @Test
+    fun `an entry with no name is skipped instead of aborting the archive`() {
+        val bytes = ByteArrayOutputStream()
+        val written = SavedArchive.write(
+            listOf(item("", "<keybox/>"), item("20261003N58052.xml", "<keybox/>")),
             bytes,
         )
 
@@ -221,18 +196,10 @@ class SavedArchiveTest {
     }
 
     @Test
-    fun `repeated paths are packed once`() {
-        val root = temporaryFolder.newFolder("keyboxes")
-        File(root, "20261003N58052.xml").writeText("<keybox/>")
-
+    fun `an empty collection still writes a valid, empty zip`() {
         val bytes = ByteArrayOutputStream()
-        val written = SavedArchive.write(
-            root,
-            listOf("20261003N58052.xml", "20261003N58052.xml"),
-            bytes,
-        )
-
-        assertEquals(1, written)
+        assertEquals(0, SavedArchive.write(emptyList(), bytes))
+        assertEquals(emptyMap<String, String>(), readZip(bytes.toByteArray()))
     }
 
     @Test
@@ -242,6 +209,12 @@ class SavedArchiveTest {
         assertTrue(name.endsWith(".zip"))
         assertTrue(Regex("""^keyboxes-\d{8}-\d{4}\.zip$""").matches(name))
     }
+
+    private fun item(path: String, text: String) = SavedArchive.Item(
+        path = path,
+        modifiedMillis = 0L,
+        bytes = text.toByteArray(Charsets.UTF_8),
+    )
 
     /** Reads a zip back into entry name -> text content. */
     private fun readZip(bytes: ByteArray): Map<String, String> {

@@ -28,13 +28,13 @@ sealed interface ScanEvent {
     data class Done(val report: ScanReport) : ScanEvent
 }
 
-/** Outcome of writing the confirmed keyboxes and the two report files. */
+/** Outcome of writing the confirmed keyboxes into the library. */
 data class SaveResult(
-    val directory: File,
+    /** The library folder the files went into. */
+    val directory: String,
     val saved: List<String>,
     val skipped: List<String>,
     val failed: List<String>,
-    val reportFiles: List<File>,
 )
 
 /** Outcome of deleting saved keyboxes from the library. */
@@ -63,6 +63,9 @@ class KeyboxRepository(
      */
     private val capturedBytes = LinkedHashMap<String, ByteArray>()
     private var capturedTotal = 0L
+
+    /** Everything about the library folder goes through `su`. */
+    private val root = RootShell { scratchDir() }
 
     // --------------------------------------------------------------- revocation
 
@@ -194,9 +197,23 @@ class KeyboxRepository(
 
     // ------------------------------------------------------------------- saving
 
-    /** `getExternalFilesDir` when available, otherwise the private files dir. */
-    fun defaultOutputDir(): File =
-        context.getExternalFilesDir(OUTPUT_DIR_NAME) ?: File(context.filesDir, OUTPUT_DIR_NAME)
+    /**
+     * A directory the app can write and read back, used to stage files that
+     * root produces.
+     *
+     * The external files dir is preferred because files root creates there are
+     * relabelled for the owning app, which makes them readable without the app
+     * having to fight SELinux over its own cache.
+     */
+    /**
+     * Where root stages files it copies out of the module folder.
+     *
+     * Deliberately the app's own storage rather than external storage: the
+     * emulated external volume is a FUSE mount where `chmod` and writes by
+     * another uid behave differently per device, while the internal directory is
+     * an ordinary file system both root and the app can reach.
+     */
+    private fun scratchDir(): File = File(context.cacheDir, SCRATCH_DIR_NAME)
 
     fun takePersistable(uri: Uri): Boolean = runCatching {
         context.contentResolver.takePersistableUriPermission(
@@ -207,8 +224,8 @@ class KeyboxRepository(
     }.getOrDefault(false)
 
     /**
-     * Writes every confirmed, unexpired keybox that is not already held, plus
-     * the report files.
+     * Writes every confirmed, unexpired keybox that is not already held into the
+     * library the TEESimulator module reads.
      *
      * A keybox is judged by the key it carries, never by its bytes: two files
      * whose editable `DeviceID` (or a stray space) differ are still the same
@@ -223,40 +240,49 @@ class KeyboxRepository(
      * a collection pulled from several sources looks uniform and carries no
      * source device identity.
      *
-     * Nothing is dropped silently: files we cannot write and files we skip are
-     * both reported back so the UI can show them.
+     * Only keyboxes are written: the folder belongs to the module, so a report
+     * would be litter it never asked for. Nothing is dropped silently either —
+     * files we cannot write and files we skip are both reported back so the UI
+     * can show them.
      */
     fun saveConfirmed(
         report: ScanReport,
-        targetDir: File,
         localDeviceId: String,
     ): SaveResult {
         val saved = ArrayList<String>()
         val skipped = ArrayList<String>()
         val failed = ArrayList<String>()
         val deviceId = localDeviceId.trim()
+        val library = LIBRARY_DIR
 
-        if (deviceId.isEmpty()) {
-            report.keys.forEach { skipped += "${it.fileName}（未填写本机 ID）" }
-            return SaveResult(targetDir, saved, skipped, failed, emptyList())
+        fun skipAll(reason: String): SaveResult {
+            report.keys.forEach { skipped += "${it.fileName}（$reason）" }
+            return SaveResult(library, saved, skipped, failed)
         }
+
+        if (deviceId.isEmpty()) return skipAll("未填写本机 ID")
 
         // Nothing is saved on a status nobody could establish. Without the list
         // every key reads as UNKNOWN, and writing "I could not check this" into
         // the library is worse than writing nothing at all.
         if (!report.revocation.isUsable) {
-            report.keys.forEach {
-                skipped += "${it.fileName}（吊销列表不可用，无法确认是否已被吊销，暂不保存）"
-            }
-            return SaveResult(targetDir, saved, skipped, failed, emptyList())
+            return skipAll("吊销列表不可用，无法确认是否已被吊销，暂不保存")
         }
 
-        val folder = File(targetDir, deviceFolder(deviceId))
-        val taken = existingNames(targetDir)
+        // The library belongs to the TEESimulator module and is root-only.
+        if (!root.available()) return skipAll("需要 root 权限才能写入 $library，暂不保存")
+        if (!root.exists(library) && !root.makeDirectory(library)) {
+            return skipAll("无法创建 $library，暂不保存")
+        }
+
+        val listed = root.listXml(library)
+        if (listed == null) return skipAll("无法读取 $library，暂不保存")
+
+        val taken = listed.mapTo(HashSet()) { it.name.lowercase(Locale.US) }
         val plan = SavePlanner.plan(
             keys = report.keys,
             availableDigests = capturedBytes.keys,
-            libraryKeys = libraryKeyIds(targetDir),
+            libraryKeys = libraryKeyIds(listed),
         )
 
         for (decision in plan) {
@@ -276,31 +302,16 @@ class KeyboxRepository(
                 continue
             }
             val name = nextKeyboxName(taken, keybox.remoteProvisioned, nowMillis())
-            val destination = File(folder, "$name.xml")
-            try {
-                destination.parentFile?.mkdirs()
-                destination.writeBytes(rewritten)
-                taken += "$name.xml"
-                saved += destination.relativeTo(targetDir).path
-            } catch (error: Exception) {
-                failed += "${keybox.fileName}（${error.message ?: "写入失败"}）"
+            val fileName = "$name.xml"
+            if (root.writeBytes("$library/$fileName", rewritten)) {
+                taken += fileName.lowercase(Locale.US)
+                saved += fileName
+            } else {
+                failed += "${keybox.fileName}（写入 $library 失败）"
             }
         }
 
-        val reportFiles = try {
-            exportReport(report, targetDir)
-        } catch (error: Exception) {
-            failed += "报告写入失败：${error.message ?: error::class.java.simpleName}"
-            emptyList()
-        }
-
-        return SaveResult(
-            directory = targetDir,
-            saved = saved,
-            skipped = skipped,
-            failed = failed,
-            reportFiles = reportFiles,
-        )
+        return SaveResult(library, saved, skipped, failed)
     }
 
     /** Why a planned file was not written, in the words of the notes list. */
@@ -328,45 +339,24 @@ class KeyboxRepository(
      * the key identity is read: the revocation list is deliberately not
      * consulted, so this stays offline and fast.
      */
-    private fun libraryKeyIds(root: File): Map<String, String> {
-        if (!root.isDirectory) return emptyMap()
+    private fun libraryKeyIds(listed: List<RootShell.RemoteFile>): Map<String, String> {
         val ids = HashMap<String, String>()
-        val offline = RevocationSnapshot(emptyMap(), RevocationSource.NONE, 0L)
-        val analyzer = KeyboxAnalyzer(offline, nowMillis)
-        for (entry in SavedLibrary.list(root)) {
-            val file = File(root, entry.relativePath)
-            if (file.length() > MAX_FILE_BYTES) continue
-            val bytes = runCatching { file.readBytes() }.getOrNull() ?: continue
+        val analyzer = KeyboxAnalyzer(OFFLINE_REVOCATION, nowMillis)
+        for (file in listed) {
+            if (file.sizeBytes > MAX_FILE_BYTES) continue
+            val bytes = root.readBytes("$LIBRARY_DIR/${file.name}") ?: continue
             val text = decodeXml(bytes) ?: continue
-            val outcome = KeyboxParser.parse(text, entry.relativePath)
+            val outcome = KeyboxParser.parse(text, file.name)
             if (outcome !is ParseOutcome.Ok) continue
             val keybox = analyzer.analyze(
-                entry.relativePath,
+                file.name,
                 Der.sha256(bytes),
                 outcome.keybox,
                 KeyboxSource.LOCAL_PATH,
             )
-            keybox.keys.forEach { ids.putIfAbsent(it.keyId, entry.relativePath) }
+            keybox.keys.forEach { ids.putIfAbsent(it.keyId, file.name) }
         }
         return ids
-    }
-
-    /** Writes `classification.json` and `report.md` into [targetDir]. */
-    fun exportReport(report: ScanReport, targetDir: File): List<File> {
-        targetDir.mkdirs()
-        val json = File(targetDir, "classification.json")
-        val markdown = File(targetDir, "report.md")
-        json.writeText(ReportWriter.toJson(report), Charsets.UTF_8)
-        markdown.writeText(ReportWriter.toMarkdown(report), Charsets.UTF_8)
-        // Keep a timestamped copy of the JSON so successive scans do not clobber each other.
-        val archived = File(
-            targetDir,
-            ReportWriter.suggestedFileName("classification", "json", report.generatedAtMillis),
-        )
-        if (archived.absolutePath != json.absolutePath) {
-            runCatching { archived.writeText(ReportWriter.toJson(report), Charsets.UTF_8) }
-        }
-        return listOf(json, markdown)
     }
 
     // -------------------------------------------------------------- enumeration
@@ -471,31 +461,93 @@ class KeyboxRepository(
 
     // ------------------------------------------------------------------ library
 
-    /** The keyboxes already written by "save confirmed", newest first. */
-    fun listSaved(): List<SavedKeybox> = SavedLibrary.list(defaultOutputDir())
+    /**
+     * The folder the TEESimulator module reads keyboxes from.
+     *
+     * It belongs to the module and is only reachable through `su`; the app never
+     * writes anything else there, because a stray file would be litter in
+     * somebody else's directory.
+     */
+    fun libraryPath(): String = LIBRARY_DIR
 
-    /** Relative paths the archive of [keyboxes] should carry. */
-    fun savedArchiveEntries(keyboxes: List<SavedKeybox>): List<String> =
-        SavedArchive.entries(defaultOutputDir(), keyboxes)
+    /** Whether root can be obtained. Asks the user the first time. */
+    fun rootAvailable(): Boolean = root.available()
+
+    /**
+     * Whether root has already been granted, without ever asking again.
+     *
+     * Re-entering a page must not fire a fresh prompt every time, so screens ask
+     * this and only call [rootAvailable] or [requestRoot] from a button.
+     */
+    fun rootGranted(): Boolean = root.invocation != null
+
+    /** Asks again, in case the user just granted or denied the prompt. */
+    fun requestRoot(): Boolean = root.probe() != null
+
+    /** The keyboxes already written by "save confirmed", newest first. */
+    fun listSaved(): List<SavedKeybox> = SavedLibrary.of(listLibraryFiles())
+
+    private fun listLibraryFiles(): List<SavedFile> =
+        root.listXml(LIBRARY_DIR)
+            ?.map { SavedFile(name = it.name, sizeBytes = it.sizeBytes, modifiedMillis = it.modifiedMillis) }
+            .orEmpty()
+
+    /**
+     * Re-reads the saved keyboxes and analyses them with [revocation].
+     *
+     * The library is a root-only folder, so this reads each file through `su`
+     * and parses it in memory with exactly the engine the keybox page uses; a
+     * verdict here therefore means the same thing as a verdict there.
+     */
+    fun analyzeSaved(revocation: RevocationSnapshot): Map<String, AnalyzedKeybox> {
+        val listed = root.listXml(LIBRARY_DIR).orEmpty()
+        val analyzer = KeyboxAnalyzer(revocation, nowMillis)
+        val out = LinkedHashMap<String, AnalyzedKeybox>()
+        for (file in listed) {
+            if (file.sizeBytes > MAX_FILE_BYTES) continue
+            val bytes = root.readBytes("$LIBRARY_DIR/${file.name}") ?: continue
+            val text = decodeXml(bytes) ?: continue
+            val parsed = KeyboxParser.parse(text, file.name)
+            if (parsed !is ParseOutcome.Ok) continue
+            out[file.name] = analyzer.analyze(
+                file.name,
+                Der.sha256(bytes),
+                parsed.keybox,
+                KeyboxSource.LOCAL_PATH,
+            )
+        }
+        return out
+    }
 
     fun savedArchiveName(): String = SavedArchive.suggestedName(nowMillis())
 
+    /** Reads the keyboxes an archive should carry, through root. */
+    private fun archiveItems(keyboxes: List<SavedKeybox>): List<SavedArchive.Item> =
+        keyboxes.mapNotNull { keybox ->
+            val bytes = root.readBytes("$LIBRARY_DIR/${keybox.relativePath}") ?: return@mapNotNull null
+            SavedArchive.Item(
+                path = keybox.relativePath,
+                modifiedMillis = keybox.savedAtMillis,
+                bytes = bytes,
+            )
+        }
+
     /** Packs the library into a document the user chose through the SAF. */
-    fun exportArchive(entries: List<String>, uri: Uri): Int {
+    fun exportArchive(keyboxes: List<SavedKeybox>, uri: Uri): Int {
         val stream = context.contentResolver.openOutputStream(uri)
             ?: throw IllegalStateException("无法写入所选位置")
-        return stream.use { SavedArchive.write(defaultOutputDir(), entries, it) }
+        return stream.use { SavedArchive.write(archiveItems(keyboxes), it) }
     }
 
     /**
-     * Packs the library into the app cache so it can be handed to another app
-     * through a `content://` uri. The cache is the only place a `FileProvider`
-     * path is declared for, and the OS clears it on its own schedule.
+     * Packs the library into a file the app itself can hand out, so it can be
+     * shared through a `content://` uri. The app's own storage is the only place
+     * a `FileProvider` path is declared for.
      */
-    fun cacheArchive(entries: List<String>, name: String): File {
+    fun cacheArchive(keyboxes: List<SavedKeybox>, name: String): File {
         val directory = File(context.cacheDir, EXPORT_DIR_NAME).apply { mkdirs() }
         val file = File(directory, name)
-        file.outputStream().use { SavedArchive.write(defaultOutputDir(), entries, it) }
+        file.outputStream().use { SavedArchive.write(archiveItems(keyboxes), it) }
         return file
     }
 
@@ -506,30 +558,39 @@ class KeyboxRepository(
         file,
     )
 
-    /**
-     * Deletes saved keyboxes and prunes the device folders they leave empty, so
-     * a library that has had everything revoked deleted does not keep a trail of
-     * empty directories behind.
-     */
+    /** Deletes the named keyboxes from the library. */
     fun deleteSaved(relativePaths: List<String>): DeleteResult {
-        val root = defaultOutputDir()
         val deleted = ArrayList<String>()
         val failed = ArrayList<String>()
         for (relative in relativePaths.distinct()) {
-            val file = File(root, relative)
-            val removed = runCatching { file.delete() }.getOrDefault(false)
-            if (removed) {
+            if (root.delete("$LIBRARY_DIR/$relative")) {
                 deleted += relative
-                file.parentFile?.let { parent ->
-                    if (parent != root && parent.list()?.isEmpty() == true) {
-                        runCatching { parent.delete() }
-                    }
-                }
             } else {
                 failed += relative
             }
         }
         return DeleteResult(deleted, failed)
+    }
+
+    // ------------------------------------------------------------ module config
+
+    /** What `/data/adb/teesim/config.json` says, or null when it cannot be read. */
+    fun readTeessimConfig(): TeessimConfig.Document? {
+        val text = root.readText("$LIBRARY_DIR/${TeessimConfig.FILE_NAME}") ?: return null
+        return TeessimConfig.parse(text)
+    }
+
+    /**
+     * Points every profile of the module's config at [fileName].
+     *
+     * Returns false when there is no config to change or it cannot be written;
+     * the caller has already confirmed the "every profile" part with the user.
+     */
+    fun setTeessimKeybox(fileName: String): Boolean {
+        val path = "$LIBRARY_DIR/${TeessimConfig.FILE_NAME}"
+        val text = root.readText(path) ?: return false
+        val updated = TeessimConfig.withKeybox(text, fileName) ?: return false
+        return root.writeBytes(path, updated.toByteArray(Charsets.UTF_8))
     }
 
     // ----------------------------------------------------------------- helpers
@@ -564,24 +625,6 @@ class KeyboxRepository(
         return text?.takeIf { it.isNotBlank() }
     }
 
-    /** Every file name already present under [targetDir], lower-cased, depth ≤ 2. */
-    private fun existingNames(targetDir: File): MutableSet<String> {
-        val names = HashSet<String>()
-        val stack = ArrayDeque<Pair<File, Int>>()
-        stack += targetDir to 0
-        while (stack.isNotEmpty()) {
-            val (directory, depth) = stack.removeLast()
-            val children = directory.listFiles() ?: continue
-            for (child in children) {
-                if (child.isDirectory) {
-                    if (depth < 2) stack += child to (depth + 1)
-                } else {
-                    names += child.name.lowercase(Locale.US)
-                }
-            }
-        }
-        return names
-    }
 
     /**
      * `yyyyMMdd` + `R` (remotely provisioned) or `N` + five digits, e.g.
@@ -644,8 +687,16 @@ class KeyboxRepository(
         const val MAX_DEPTH = 16
         const val MAX_NAME_ATTEMPTS = 500
         const val REVOCATION_CACHE_NAME = "revocation.json"
-        const val OUTPUT_DIR_NAME = "keyboxes"
+
+        /** The folder the TEESimulator module serves keyboxes from. */
+        const val LIBRARY_DIR = "/data/adb/teesim"
+
+        /** Staging area for files root writes on the app's behalf. */
+        const val SCRATCH_DIR_NAME = "root-tmp"
         const val EXPORT_DIR_NAME = "exports"
+
+        /** A snapshot that has consulted nothing, for purely offline passes. */
+        val OFFLINE_REVOCATION = RevocationSnapshot(emptyMap(), RevocationSource.NONE, 0L)
         const val PHASE_ENUMERATING = "正在枚举文件"
         const val PHASE_SCANNING = "正在解析 keybox"
         const val PHASE_FINISHED = "分析完成"
@@ -690,13 +741,6 @@ class KeyboxRepository(
         fun isSymbolicLink(file: File): Boolean = runCatching {
             java.nio.file.Files.isSymbolicLink(file.toPath())
         }.getOrDefault(false)
-
-        fun deviceFolder(deviceId: String?): String {
-            val cleaned = deviceId?.trim().orEmpty()
-                .replace(Regex("[^A-Za-z0-9._-]"), "_")
-                .trim('_')
-            return cleaned.ifEmpty { "unknown" }
-        }
 
         fun safeFileName(name: String): String {
             val cleaned = name.substringAfterLast('/').substringAfterLast('\\')

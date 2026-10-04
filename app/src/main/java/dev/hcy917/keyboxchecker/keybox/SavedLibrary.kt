@@ -1,11 +1,17 @@
 package dev.hcy917.keyboxchecker.keybox
 
-import java.io.File
 import java.util.Calendar
 import java.util.Locale
 
 /** How a saved keybox was provisioned, as encoded by the `R`/`N` marker of its name. */
 enum class SavedKind { LOCAL, REMOTE }
+
+/** One file the library folder holds, as the directory listing described it. */
+data class SavedFile(
+    val name: String,
+    val sizeBytes: Long,
+    val modifiedMillis: Long,
+)
 
 /**
  * One keybox already written by "save confirmed".
@@ -13,13 +19,16 @@ enum class SavedKind { LOCAL, REMOTE }
  * Everything the library shows is derived from the file name that
  * [KeyboxRepository] produced — `yyyyMMdd` + `R|N` + five digits — plus the file
  * itself, so listing the library never has to parse a keybox again.
+ *
+ * The library is flat: keyboxes are dropped straight into the module's folder,
+ * with no folder per device, so [relativePath] is normally just [fileName]. A
+ * keybox put there by hand (`keybox.xml`) keeps its own name and is listed as
+ * unnamed.
  */
 data class SavedKeybox(
     val fileName: String,
-    /** `localdev1/20261003N58052.xml`, relative to the library root. */
+    /** Path relative to the library root; the same as [fileName] in a flat library. */
     val relativePath: String,
-    /** Folder the keybox was filed under, i.e. the DeviceID it was saved with. */
-    val deviceFolder: String,
     /** Midnight of the day the name claims; the file's mtime when the name is foreign. */
     val savedAtMillis: Long,
     val kind: SavedKind,
@@ -40,11 +49,10 @@ data class SavedKeybox(
  *
  * Pure JVM on purpose: the naming rule is exactly what the library renders, so
  * it is unit-tested next to the rest of the engine instead of through the UI.
+ * Listing itself is left to the caller because the library lives in a folder
+ * only root can read.
  */
 object SavedLibrary {
-
-    /** Device folders sit directly under the library root. */
-    const val MAX_DEPTH = 2
 
     private val NAME_PATTERN = Regex("""^(\d{4})(\d{2})(\d{2})([RNrn])(\d{5})\.xml$""")
 
@@ -55,33 +63,16 @@ object SavedLibrary {
         val serial: String,
     )
 
-    /** Every saved keybox under [root], newest first. */
-    fun list(root: File): List<SavedKeybox> {
-        val out = ArrayList<SavedKeybox>()
-        val stack = ArrayDeque<Pair<File, Int>>()
-        stack += root to 0
-        while (stack.isNotEmpty()) {
-            val (directory, depth) = stack.removeLast()
-            val children = directory.listFiles() ?: continue
-            for (child in children) {
-                if (child.isDirectory) {
-                    // Two levels take part: the output folder and the single
-                    // device folder the keyboxes are written into. Anything
-                    // nested deeper was not put there by the save path.
-                    if (depth + 1 < MAX_DEPTH) stack += child to (depth + 1)
-                    continue
-                }
-                if (!isKeyboxFile(child.name)) continue
-                out += describe(root, child)
-            }
-        }
+    /** Every listed keybox of [files], newest first. */
+    fun of(files: List<SavedFile>): List<SavedKeybox> {
+        val out = files.filter { isKeyboxFile(it.name) }.map { describe(it) }
         return out.sortedWith(
             compareByDescending<SavedKeybox> { it.savedAtMillis }
                 .thenByDescending { it.serial },
         )
     }
 
-    /** The keyboxes inside [root] that share one day and kind, for grouping in the UI. */
+    /** Only keyboxes take part in the library; anything else in there is left alone. */
     fun isKeyboxFile(name: String): Boolean = name.endsWith(".xml", ignoreCase = true)
 
     /**
@@ -116,19 +107,16 @@ object SavedLibrary {
         return ParsedName(calendar.timeInMillis, kind, match.groupValues[5])
     }
 
-    private fun describe(root: File, file: File): SavedKeybox {
-        val relative = runCatching { file.relativeTo(root).path }.getOrDefault(file.name)
+    private fun describe(file: SavedFile): SavedKeybox {
         val parsed = parseName(file.name)
-        val folder = relative.substringBeforeLast(File.separatorChar, "")
         return SavedKeybox(
             fileName = file.name,
-            relativePath = relative,
-            deviceFolder = folder,
-            savedAtMillis = parsed?.dateMillis ?: file.lastModified(),
+            relativePath = file.name,
+            savedAtMillis = parsed?.dateMillis ?: file.modifiedMillis,
             kind = parsed?.kind ?: SavedKind.LOCAL,
             serial = parsed?.serial.orEmpty(),
             named = parsed != null,
-            sizeBytes = file.length(),
+            sizeBytes = file.sizeBytes,
         )
     }
 }

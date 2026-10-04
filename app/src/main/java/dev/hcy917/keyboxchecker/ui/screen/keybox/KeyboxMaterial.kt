@@ -580,9 +580,12 @@ private fun SaveGroup(state: KeyboxUiState, actions: KeyboxActions) {
                     // Nothing is written until a usable list has cleared the scan:
                     // a key nobody could check is not a key worth keeping.
                     val revocationReady = state.report?.revocation?.isUsable == true
+                    // The folder belongs to the TEESimulator module, so root has
+                    // to be granted before anything can be written into it.
+                    val rootReady = state.rootReady != false
                     Button(
                         onClick = actions.onSaveConfirmed,
-                        enabled = state.report != null && !state.isScanning && revocationReady,
+                        enabled = state.report != null && !state.isScanning && revocationReady && rootReady,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(stringResource(R.string.keybox_save))
@@ -593,6 +596,16 @@ private fun SaveGroup(state: KeyboxUiState, actions: KeyboxActions) {
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error,
                         )
+                    }
+                    if (state.rootReady == false) {
+                        Text(
+                            text = stringResource(R.string.keybox_save_needs_root, state.outputDir),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                        TextButton(onClick = actions.onRequestRoot) {
+                            Text(stringResource(R.string.saved_root_request))
+                        }
                     }
                 }
             }

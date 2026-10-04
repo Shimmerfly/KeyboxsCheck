@@ -77,6 +77,8 @@ fun SavedPager(
             onShare = viewModel::onShare,
             onShareLaunched = viewModel::onShareLaunched,
             onDismissMessage = viewModel::onDismissMessage,
+            onRequestRoot = viewModel::onRequestRoot,
+            onMakeCurrent = viewModel::onMakeCurrent,
         )
     }
 

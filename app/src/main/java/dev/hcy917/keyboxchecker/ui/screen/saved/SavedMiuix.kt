@@ -1,5 +1,6 @@
 package dev.hcy917.keyboxchecker.ui.screen.saved
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Warning
@@ -61,6 +63,55 @@ internal fun SavedPagerMiuix(
 ) {
     val scrollBehavior = MiuixScrollBehavior()
     var confirmingDelete by remember { mutableStateOf(false) }
+    var pendingCurrent by remember { mutableStateOf<String?>(null) }
+
+    pendingCurrent?.let { fileName ->
+        OverlayDialog(
+            show = true,
+            onDismissRequest = { pendingCurrent = null },
+            insideMargin = DpSize(0.dp, 0.dp),
+        ) {
+            MiuixText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp, bottom = 8.dp),
+                text = stringResource(R.string.saved_make_current_title),
+                fontSize = MiuixTheme.textStyles.title4.fontSize,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                color = MiuixTheme.colorScheme.onSurface,
+            )
+            MiuixText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 8.dp),
+                text = stringResource(R.string.saved_make_current_text, fileName),
+                fontSize = MiuixTheme.textStyles.body2.fontSize,
+                textAlign = TextAlign.Center,
+                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                MiuixTextButton(
+                    text = stringResource(R.string.saved_dismiss),
+                    onClick = { pendingCurrent = null },
+                    modifier = Modifier.weight(1f),
+                )
+                MiuixTextButton(
+                    text = stringResource(R.string.saved_make_current_confirm),
+                    onClick = {
+                        pendingCurrent = null
+                        actions.onMakeCurrent(fileName)
+                    },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+    }
 
     if (confirmingDelete) {
         OverlayDialog(
@@ -132,6 +183,11 @@ internal fun SavedPagerMiuix(
             overscrollEffect = null,
         ) {
             item { SummaryCardMiuix(state) }
+
+            if (state.rootChecked && !state.rootReady) {
+                item { RootCardMiuix(state, actions) }
+            }
+
             item {
                 ActionsCardMiuix(
                     state = state,
@@ -164,7 +220,11 @@ internal fun SavedPagerMiuix(
             }
 
             items(state.entries, key = { it.keybox.relativePath }) { entry ->
-                EntryCardMiuix(entry)
+                EntryCardMiuix(
+                    entry = entry,
+                    configReady = state.configReady,
+                    onMakeCurrent = { pendingCurrent = it },
+                )
             }
 
             if (state.notes.isNotEmpty()) {
@@ -213,7 +273,7 @@ private fun SummaryCardMiuix(state: SavedUiState) {
                 color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
             )
             MiuixText(
-                text = state.outputDir.ifBlank { "—" },
+                text = state.libraryPath.ifBlank { "—" },
                 fontSize = MiuixTheme.textStyles.body2.fontSize,
                 color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
             )
@@ -315,6 +375,34 @@ private fun ActionsCardMiuix(
 }
 
 @Composable
+private fun RootCardMiuix(state: SavedUiState, actions: SavedActions) {
+    MiuixCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            MiuixText(
+                text = stringResource(R.string.saved_root_title),
+                fontSize = MiuixTheme.textStyles.title4.fontSize,
+                fontWeight = FontWeight.Medium,
+                color = MiuixTheme.colorScheme.error,
+            )
+            MiuixText(
+                text = stringResource(R.string.saved_root_note, state.libraryPath),
+                fontSize = MiuixTheme.textStyles.body2.fontSize,
+                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
+            )
+            MiuixTextButton(
+                text = stringResource(R.string.saved_root_request),
+                onClick = actions.onRequestRoot,
+                enabled = !state.isBusy,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+}
+
+@Composable
 private fun BusyCardMiuix(state: SavedUiState) {
     MiuixCard(modifier = Modifier.fillMaxWidth()) {
         Column(
@@ -398,8 +486,28 @@ private fun NotesCardMiuix(notes: List<String>) {
 }
 
 @Composable
-private fun EntryCardMiuix(entry: SavedEntry) {
-    MiuixCard(modifier = Modifier.fillMaxWidth()) {
+private fun EntryCardMiuix(
+    entry: SavedEntry,
+    configReady: Boolean,
+    onMakeCurrent: (String) -> Unit,
+) {
+    MiuixCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                // The keybox the module actually serves is worth pointing out at
+                // a glance, so it gets a border on top of the inline badge.
+                if (entry.selected) {
+                    Modifier.border(
+                        width = 2.dp,
+                        color = MiuixTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(12.dp),
+                    )
+                } else {
+                    Modifier
+                },
+            ),
+    ) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -419,6 +527,20 @@ private fun EntryCardMiuix(entry: SavedEntry) {
                     )
                 }
                 StatusPillMiuix(entry.status)
+            }
+
+            if (entry.selected) {
+                val profiles = entry.selectedBy.joinToString("、")
+                MiuixText(
+                    text = if (profiles.isBlank()) {
+                        stringResource(R.string.saved_current_badge)
+                    } else {
+                        stringResource(R.string.saved_current_badge_profiles, profiles)
+                    },
+                    fontSize = MiuixTheme.textStyles.body2.fontSize,
+                    fontWeight = FontWeight.Medium,
+                    color = MiuixTheme.colorScheme.primary,
+                )
             }
 
             Row(
@@ -459,6 +581,14 @@ private fun EntryCardMiuix(entry: SavedEntry) {
                     text = reason,
                     fontSize = MiuixTheme.textStyles.body2.fontSize,
                     color = MiuixTheme.colorScheme.error,
+                )
+            }
+
+            if (configReady && !entry.selected) {
+                MiuixTextButton(
+                    text = stringResource(R.string.saved_make_current),
+                    onClick = { onMakeCurrent(entry.keybox.fileName) },
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
