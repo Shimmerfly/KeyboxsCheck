@@ -33,14 +33,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.MenuOpen
 import androidx.compose.material.icons.filled.Brightness1
 import androidx.compose.material.icons.filled.Brightness3
@@ -53,18 +51,14 @@ import androidx.compose.material.icons.rounded.DesignServices
 import androidx.compose.material.icons.rounded.Style
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -88,10 +82,14 @@ import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
 import com.materialkolor.rememberDynamicColorScheme
 import dev.hcy917.keyboxchecker.R
+import dev.hcy917.keyboxchecker.ui.component.material.ExpressiveScaffold
+import dev.hcy917.keyboxchecker.ui.component.material.ExpressiveToggleButton
 import dev.hcy917.keyboxchecker.ui.component.material.SegmentedColumn
 import dev.hcy917.keyboxchecker.ui.component.material.SegmentedDropdownItem
 import dev.hcy917.keyboxchecker.ui.component.material.SegmentedSwitchItem
 import dev.hcy917.keyboxchecker.ui.component.material.TonalCard
+import dev.hcy917.keyboxchecker.ui.component.material.TopBarBackButton
+import dev.hcy917.keyboxchecker.ui.component.material.expressiveTopAppBarColors
 import dev.hcy917.keyboxchecker.ui.theme.ColorMode
 import dev.hcy917.keyboxchecker.ui.theme.keyColorOptions
 import dev.hcy917.keyboxchecker.ui.theme.MaterialYouFallbackSeed
@@ -110,23 +108,14 @@ fun ColorPaletteScreenMaterial(
     val colorSpec = state.currentColorSpec
     val haptic = LocalHapticFeedback.current
 
-    LaunchedEffect(Unit) {
-        scrollBehavior.state.heightOffset = scrollBehavior.state.heightOffsetLimit
-    }
-
-    Scaffold(
+    ExpressiveScaffold(
         topBar = {
             LargeFlexibleTopAppBar(
                 navigationIcon = {
-                    IconButton(
-                        onClick = actions.onBack
-                    ) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }
+                    TopBarBackButton(onClick = actions.onBack)
                 },
                 title = { Text(stringResource(R.string.settings_theme)) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surface
-                ),
+                colors = expressiveTopAppBarColors(),
                 windowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
                 scrollBehavior = scrollBehavior
             )
@@ -135,204 +124,210 @@ fun ColorPaletteScreenMaterial(
     ) { paddingValues ->
         val navBars = WindowInsets.navigationBars.asPaddingValues()
         val captionBar = WindowInsets.captionBar.asPaddingValues()
+        val isDark = currentColorMode.isDark || currentColorMode.isSystem && isSystemInDarkTheme()
 
-        Column(
+        LazyColumn(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(paddingValues)
-                .nestedScroll(scrollBehavior.nestedScrollConnection)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .nestedScroll(scrollBehavior.nestedScrollConnection),
+            verticalArrangement = Arrangement.spacedBy(13.dp)
         ) {
-            val isDark = currentColorMode.isDark || currentColorMode.isSystem && isSystemInDarkTheme()
-            ThemePreviewCard(
-                keyColor = currentKeyColor,
-                isDark = isDark,
-                paletteStyle = colorStyle,
-                colorSpec = colorSpec,
-            )
+            item {
+                ThemePreviewCard(
+                    keyColor = currentKeyColor,
+                    isDark = isDark,
+                    paletteStyle = colorStyle,
+                    colorSpec = colorSpec,
+                )
+            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            item {
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    item {
+                        ColorButtonMaterial(
+                            color = Color.Unspecified,
+                            isSelected = currentKeyColor == 0,
+                            isDark = isDark,
+                            paletteStyle = colorStyle,
+                            colorSpec = colorSpec,
+                            onClick = {
+                                actions.onSetKeyColor(0)
+                            }
+                        )
+                    }
 
-            LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                item {
-                    ColorButtonMaterial(
-                        color = Color.Unspecified,
-                        isSelected = currentKeyColor == 0,
-                        isDark = isDark,
-                        paletteStyle = colorStyle,
-                        colorSpec = colorSpec,
-                        onClick = {
-                            actions.onSetKeyColor(0)
-                        }
-                    )
-                }
-
-                items(keyColorOptions) { color ->
-                    ColorButtonMaterial(
-                        color = Color(color),
-                        isSelected = currentKeyColor == color,
-                        isDark = isDark,
-                        paletteStyle = colorStyle,
-                        colorSpec = colorSpec,
-                        onClick = {
-                            actions.onSetKeyColor(color)
-                        }
-                    )
+                    items(keyColorOptions) { color ->
+                        ColorButtonMaterial(
+                            color = Color(color),
+                            isSelected = currentKeyColor == color,
+                            isDark = isDark,
+                            paletteStyle = colorStyle,
+                            colorSpec = colorSpec,
+                            onClick = {
+                                actions.onSetKeyColor(color)
+                            }
+                        )
+                    }
                 }
             }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                val options = listOf(
-                    listOf(ColorMode.SYSTEM) to stringResource(R.string.settings_theme_mode_system),
-                    listOf(ColorMode.LIGHT) to stringResource(R.string.settings_theme_mode_light),
-                    listOf(ColorMode.DARK) to stringResource(R.string.settings_theme_mode_dark),
-                    listOf(ColorMode.DARK_AMOLED) to stringResource(R.string.settings_theme_mode_dark)
-                )
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val options = listOf(
+                        listOf(ColorMode.SYSTEM) to stringResource(R.string.settings_theme_mode_system),
+                        listOf(ColorMode.LIGHT) to stringResource(R.string.settings_theme_mode_light),
+                        listOf(ColorMode.DARK) to stringResource(R.string.settings_theme_mode_dark),
+                        listOf(ColorMode.DARK_AMOLED) to stringResource(R.string.settings_theme_mode_dark)
+                    )
 
-                options.chunked(4).forEach { rowOptions ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
-                    ) {
-                        rowOptions.forEachIndexed { index, (modes, label) ->
-                            ToggleButton(
-                                checked = currentColorMode in modes,
-                                onCheckedChange = {
-                                    if (it) {
-                                        haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
-                                        actions.onSetColorMode(modes.first())
-                                    }
-                                },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .semantics { role = Role.RadioButton },
-                                shapes = when (index) {
-                                    0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                                    rowOptions.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                                    else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
-                                },
-                            ) {
-                                Icon(
-                                    imageVector = when (modes.first()) {
-                                        ColorMode.SYSTEM -> Icons.Filled.Brightness4
-                                        ColorMode.LIGHT -> Icons.Filled.Brightness7
-                                        ColorMode.DARK -> Icons.Filled.Brightness3
-                                        ColorMode.DARK_AMOLED -> Icons.Filled.Brightness1
-                                        else -> Icons.Filled.Brightness4
+                    options.chunked(4).forEach { rowOptions ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+                        ) {
+                            rowOptions.forEachIndexed { index, (modes, label) ->
+                                ExpressiveToggleButton(
+                                    checked = currentColorMode in modes,
+                                    onCheckedChange = {
+                                        if (it) {
+                                            haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
+                                            actions.onSetColorMode(modes.first())
+                                        }
                                     },
-                                    contentDescription = label
-                                )
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .semantics { role = Role.RadioButton },
+                                    shapes = when (index) {
+                                        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                        rowOptions.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                                    },
+                                ) {
+                                    Icon(
+                                        imageVector = when (modes.first()) {
+                                            ColorMode.SYSTEM -> Icons.Filled.Brightness4
+                                            ColorMode.LIGHT -> Icons.Filled.Brightness7
+                                            ColorMode.DARK -> Icons.Filled.Brightness3
+                                            ColorMode.DARK_AMOLED -> Icons.Filled.Brightness1
+                                            else -> Icons.Filled.Brightness4
+                                        },
+                                        contentDescription = label
+                                    )
+                                }
                             }
                         }
                     }
-                }
 
-                SegmentedColumn(
-                    modifier = Modifier.padding(top = 4.dp),
-                    content = listOf(
-                        {
-                            val styles = PaletteStyle.entries
-                            SegmentedDropdownItem(
-                                icon = Icons.Rounded.Style,
-                                title = stringResource(R.string.settings_color_style),
-                                items = styles.map { it.name },
-                                selectedIndex = styles.indexOf(colorStyle),
-                                onItemSelected = { index ->
-                                    actions.onSetColorStyle(styles[index].name)
-                                }
-                            )
-                        },
-                        {
-                            val specs = ColorSpec.SpecVersion.entries
-                            SegmentedDropdownItem(
-                                icon = Icons.Rounded.DesignServices,
-                                title = stringResource(R.string.settings_color_spec),
-                                items = specs.map { it.name },
-                                selectedIndex = specs.indexOf(colorSpec).coerceAtLeast(0),
-                                onItemSelected = { index ->
-                                    actions.onSetColorSpec(specs[index].name)
-                                }
-                            )
-                        }
-                    )
-                )
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                     SegmentedColumn(
                         modifier = Modifier.padding(top = 4.dp),
                         content = listOf(
                             {
-                                SegmentedSwitchItem(
-                                    icon = Icons.AutoMirrored.Rounded.MenuOpen,
-                                    title = stringResource(id = R.string.settings_enable_predictive_back),
-                                    summary = stringResource(id = R.string.settings_enable_predictive_back_summary),
-                                    checked = uiState.enablePredictiveBack,
-                                    onCheckedChange = actions.onSetEnablePredictiveBack
+                                val styles = PaletteStyle.entries
+                                SegmentedDropdownItem(
+                                    icon = Icons.Rounded.Style,
+                                    title = stringResource(R.string.settings_color_style),
+                                    items = styles.map { it.name },
+                                    selectedIndex = styles.indexOf(colorStyle),
+                                    onItemSelected = { index ->
+                                        actions.onSetColorStyle(styles[index].name)
+                                    }
+                                )
+                            },
+                            {
+                                val specs = ColorSpec.SpecVersion.entries
+                                SegmentedDropdownItem(
+                                    icon = Icons.Rounded.DesignServices,
+                                    title = stringResource(R.string.settings_color_spec),
+                                    items = specs.map { it.name },
+                                    selectedIndex = specs.indexOf(colorSpec).coerceAtLeast(0),
+                                    onItemSelected = { index ->
+                                        actions.onSetColorSpec(specs[index].name)
+                                    }
                                 )
                             }
                         )
                     )
-                }
 
-                TonalCard(modifier = Modifier.padding(top = 4.dp)) {
-                    var sliderValue by remember(uiState.pageScale) { mutableFloatStateOf(uiState.pageScale) }
-
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                Icons.Rounded.AspectRatio,
-                                contentDescription = stringResource(id = R.string.settings_page_scale),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        SegmentedColumn(
+                            modifier = Modifier.padding(top = 4.dp),
+                            content = listOf(
+                                {
+                                    SegmentedSwitchItem(
+                                        icon = Icons.AutoMirrored.Rounded.MenuOpen,
+                                        title = stringResource(id = R.string.settings_enable_predictive_back),
+                                        summary = stringResource(id = R.string.settings_enable_predictive_back_summary),
+                                        checked = uiState.enablePredictiveBack,
+                                        onCheckedChange = actions.onSetEnablePredictiveBack
+                                    )
+                                }
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column(
-                                modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    TonalCard(modifier = Modifier.padding(top = 4.dp)) {
+                        var sliderValue by remember(uiState.pageScale) { mutableFloatStateOf(uiState.pageScale) }
+
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = stringResource(R.string.settings_page_scale),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                Icon(
+                                    Icons.Rounded.AspectRatio,
+                                    contentDescription = stringResource(id = R.string.settings_page_scale),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.settings_page_scale),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = stringResource(id = R.string.settings_page_scale_summary),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.outline
+                                    )
+                                }
                                 Text(
-                                    text = stringResource(id = R.string.settings_page_scale_summary),
+                                    text = "${(sliderValue * 100).toInt()}%",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.outline
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
-                            Text(
-                                text = "${(sliderValue * 100).toInt()}%",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+
+                            Slider(
+                                value = sliderValue,
+                                onValueChange = { sliderValue = it },
+                                onValueChangeFinished = { actions.onSetPageScale(sliderValue) },
+                                valueRange = 0.8f..1.1f,
+                                modifier = Modifier.fillMaxWidth()
                             )
                         }
-
-                        Slider(
-                            value = sliderValue,
-                            onValueChange = { sliderValue = it },
-                            onValueChangeFinished = { actions.onSetPageScale(sliderValue) },
-                            valueRange = 0.8f..1.1f,
-                            modifier = Modifier.fillMaxWidth()
-                        )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp + navBars.calculateBottomPadding() + captionBar.calculateBottomPadding()))
+            item {
+                Spacer(modifier = Modifier.height(16.dp + navBars.calculateBottomPadding() + captionBar.calculateBottomPadding()))
+            }
         }
     }
 }
