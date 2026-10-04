@@ -13,25 +13,22 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.filled.ContactPage
+import androidx.compose.material.icons.filled.DisplaySettings
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Update
-import androidx.compose.material.icons.rounded.Dashboard
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeFlexibleTopAppBar
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -39,16 +36,18 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.hcy917.keyboxchecker.R
 import dev.hcy917.keyboxchecker.ui.UiMode
+import dev.hcy917.keyboxchecker.ui.component.material.ExpressiveScaffold
 import dev.hcy917.keyboxchecker.ui.component.material.SegmentedColumn
 import dev.hcy917.keyboxchecker.ui.component.material.SegmentedDropdownItem
 import dev.hcy917.keyboxchecker.ui.component.material.SegmentedListItem
 import dev.hcy917.keyboxchecker.ui.component.material.SegmentedSwitchItem
 import dev.hcy917.keyboxchecker.ui.component.material.SendLogBottomSheet
 import dev.hcy917.keyboxchecker.ui.component.material.SnackBarHost
+import dev.hcy917.keyboxchecker.ui.component.material.expressiveTopAppBarColors
 
 /**
- * @author weishu
- * @date 2023/1/1.
+ * Material 3 Expressive settings page, matching the official manager's grouping:
+ * one segmented column per topic, each 13dp apart, on `surfaceContainer`.
  */
 @Composable
 fun SettingPagerMaterial(
@@ -60,11 +59,16 @@ fun SettingPagerMaterial(
     val snackBarHost = remember { SnackbarHostState() }
     var showBottomSheet by remember { mutableStateOf(false) }
 
-    Scaffold(
+    ExpressiveScaffold(
         topBar = {
             TopBar(scrollBehavior = scrollBehavior)
         },
-        snackbarHost = { SnackBarHost(hostState = snackBarHost, modifier = Modifier.padding(bottom = bottomInnerPadding)) },
+        snackbarHost = {
+            SnackBarHost(
+                hostState = snackBarHost,
+                modifier = Modifier.padding(bottom = bottomInnerPadding),
+            )
+        },
         contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
     ) { paddingValues ->
         Column(
@@ -73,12 +77,11 @@ fun SettingPagerMaterial(
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
             SegmentedColumn(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 13.dp),
                 content = listOf {
                     SegmentedSwitchItem(
-                        icon = Icons.Filled.Update,
+                        icon = Icons.Filled.SystemUpdate,
                         title = stringResource(id = R.string.settings_check_update),
                         summary = stringResource(id = R.string.settings_check_update_summary),
                         checked = uiState.checkUpdate,
@@ -88,11 +91,11 @@ fun SettingPagerMaterial(
             )
 
             SegmentedColumn(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 13.dp),
                 content = buildList {
                     add {
                         SegmentedDropdownItem(
-                            icon = Icons.Rounded.Dashboard,
+                            icon = Icons.Filled.DisplaySettings,
                             title = stringResource(id = R.string.settings_ui_mode),
                             summary = stringResource(id = R.string.settings_ui_mode_summary),
                             items = UiMode.entries.map { it.name },
@@ -118,7 +121,7 @@ fun SettingPagerMaterial(
             )
 
             SegmentedColumn(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 13.dp),
                 content = listOf(
                     {
                         SegmentedListItem(
@@ -133,19 +136,24 @@ fun SettingPagerMaterial(
                         )
                     },
                     {
+                        val about = stringResource(id = R.string.about)
                         SegmentedListItem(
                             onClick = actions.onOpenAbout,
-                            headlineContent = { Text(stringResource(id = R.string.about)) },
+                            headlineContent = { Text(about) },
                             leadingContent = {
                                 Icon(
-                                    Icons.Filled.ContactPage,
-                                    stringResource(id = R.string.about)
+                                    Icons.Filled.Info,
+                                    about
                                 )
+                            },
+                            trailingContent = {
+                                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
                             },
                         )
                     }
                 )
             )
+
             Spacer(modifier = Modifier.height(8.dp))
 
             if (showBottomSheet) {
@@ -165,10 +173,7 @@ private fun TopBar(
 ) {
     LargeFlexibleTopAppBar(
         title = { Text(stringResource(R.string.settings)) },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            scrolledContainerColor = MaterialTheme.colorScheme.surface
-        ),
+        colors = expressiveTopAppBarColors(),
         windowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
         scrollBehavior = scrollBehavior
     )
