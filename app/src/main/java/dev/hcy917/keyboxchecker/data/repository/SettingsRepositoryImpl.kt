@@ -60,4 +60,8 @@ class SettingsRepositoryImpl : SettingsRepository {
     override var pageScale: Float
         get() = prefs.getFloat("page_scale", 1.0f)
         set(value) = prefs.edit { putFloat("page_scale", value) }
+
+    override var navigationRailExpanded: Boolean
+        get() = prefs.getBoolean("navigation_rail_expanded", false)
+        set(value) = prefs.edit { putBoolean("navigation_rail_expanded", value) }
 }
