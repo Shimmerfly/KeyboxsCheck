@@ -65,7 +65,6 @@ import dev.hcy917.keyboxchecker.ui.screen.about.AboutScreen
 import dev.hcy917.keyboxchecker.ui.screen.colorpalette.ColorPaletteScreen
 import dev.hcy917.keyboxchecker.ui.screen.home.HomePager
 import dev.hcy917.keyboxchecker.ui.screen.saved.SavedPager
-import dev.hcy917.keyboxchecker.ui.screen.permission.PermissionScreen
 import dev.hcy917.keyboxchecker.ui.screen.settings.SettingPager
 import dev.hcy917.keyboxchecker.ui.theme.TemplateTheme
 import dev.hcy917.keyboxchecker.ui.theme.LocalColorMode
@@ -151,7 +150,6 @@ class MainActivity : ComponentActivity() {
                                 entry<Route.Main> { mainScreenEntry() }
                                 entry<Route.About> { AboutScreen() }
                                 entry<Route.ColorPalette> { ColorPaletteScreen() }
-                                entry<Route.Permissions> { PermissionScreen() }
                                 entry<Route.Keybox> { KeyboxScreen() }
                                 entry<Route.Home> { mainScreenEntry() }
                                 entry<Route.Settings> { mainScreenEntry() }

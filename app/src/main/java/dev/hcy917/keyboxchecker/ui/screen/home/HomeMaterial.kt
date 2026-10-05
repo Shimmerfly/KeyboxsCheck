@@ -47,7 +47,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.hcy917.keyboxchecker.R
-import dev.hcy917.keyboxchecker.permission.PermissionState
 import dev.hcy917.keyboxchecker.ui.component.WarningLevel
 import dev.hcy917.keyboxchecker.ui.component.dialog.rememberConfirmDialog
 import dev.hcy917.keyboxchecker.ui.component.material.ExpressiveScaffold
@@ -63,7 +62,6 @@ import dev.hcy917.keyboxchecker.ui.component.material.expressiveTopAppBarColors
 @Composable
 fun HomePagerMaterial(
     state: HomeUiState,
-    permissionState: PermissionState,
     actions: HomeActions,
     bottomInnerPadding: Dp,
 ) {
@@ -83,9 +81,10 @@ fun HomePagerMaterial(
         ) {
             UpdateCard(state)
 
-            PermissionCard(
-                state = permissionState,
-                onClick = actions.onPermissionsClick,
+            RootCard(
+                granted = state.rootReady,
+                libraryPath = state.libraryPath,
+                onRequestRoot = actions.onRequestRoot,
             )
 
             InfoCard(systemInfo = state.systemInfo)
@@ -161,12 +160,17 @@ private fun TopBar(
     )
 }
 
+/**
+ * The one thing the app cannot work without: root. Everything the keybox
+ * section reads and writes lives in the TEESimulator module's folder, so this
+ * card both reports whether root is in hand and asks for it when it is not.
+ */
 @Composable
-private fun PermissionCard(
-    state: PermissionState,
-    onClick: () -> Unit,
+private fun RootCard(
+    granted: Boolean,
+    libraryPath: String,
+    onRequestRoot: () -> Unit,
 ) {
-    val granted = state.requiredGranted
     val containerColor = if (granted) {
         MaterialTheme.colorScheme.secondaryContainer
     } else {
@@ -174,7 +178,7 @@ private fun PermissionCard(
     }
     val contentColor = contentColorFor(containerColor)
     val title = stringResource(
-        if (granted) R.string.permission_status_ready_title else R.string.permission_status_missing_title
+        if (granted) R.string.home_root_granted_title else R.string.home_root_missing_title
     )
 
     Surface(
@@ -182,17 +186,26 @@ private fun PermissionCard(
         color = containerColor,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        onClick = onClick,
+        enabled = !granted,
+        onClick = onRequestRoot,
     ) {
         ListItem(
-            leadingContent = { Icon(Icons.Rounded.CheckCircle, contentDescription = title) },
+            leadingContent = {
+                Icon(
+                    imageVector = if (granted) Icons.Rounded.CheckCircle else Icons.Rounded.Warning,
+                    contentDescription = title,
+                )
+            },
             trailingContent = {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
+                if (!granted) {
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
+                }
             },
             supportingContent = {
                 Text(
                     text = stringResource(
-                        if (granted) R.string.permission_ready else R.string.permission_missing
+                        if (granted) R.string.home_root_granted_note else R.string.home_root_missing_note,
+                        libraryPath,
                     ),
                     style = MaterialTheme.typography.bodyMedium,
                 )

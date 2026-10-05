@@ -30,10 +30,6 @@ sealed interface Route : NavKey, Parcelable {
     @Serializable
     data object ColorPalette : Route
 
-    @Parcelize
-    @Serializable
-    data object Permissions : Route
-
     /** Keybox scanning, revocation lookup and key identity classification. */
     @Parcelize
     @Serializable

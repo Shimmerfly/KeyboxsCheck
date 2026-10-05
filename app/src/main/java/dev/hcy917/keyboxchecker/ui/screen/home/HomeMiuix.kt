@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.hcy917.keyboxchecker.R
-import dev.hcy917.keyboxchecker.permission.PermissionState
 import dev.hcy917.keyboxchecker.ui.theme.LocalEnableBlur
 import dev.hcy917.keyboxchecker.ui.util.BlurredBar
 import dev.hcy917.keyboxchecker.ui.util.rememberBlurBackdrop
@@ -59,7 +58,6 @@ import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 @Composable
 fun HomePagerMiuix(
     state: HomeUiState,
-    permissionState: PermissionState,
     actions: HomeActions,
     bottomInnerPadding: Dp,
 ) {
@@ -96,7 +94,11 @@ fun HomePagerMiuix(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        PermissionCardMiuix(permissionState, actions.onPermissionsClick)
+                        RootCardMiuix(
+                            granted = state.rootReady,
+                            libraryPath = state.libraryPath,
+                            onRequestRoot = actions.onRequestRoot,
+                        )
                         InfoCard(systemInfo = state.systemInfo)
                         KeyboxEntryCard(onClick = actions.onKeyboxClick)
                     }
@@ -107,27 +109,31 @@ fun HomePagerMiuix(
     }
 }
 
+/**
+ * The Miuix home card for root: same job as the Material one, in the Miuix
+ * idiom. Tapping it is what makes the superuser app show its prompt.
+ */
 @Composable
-private fun PermissionCardMiuix(
-    state: PermissionState,
-    onClick: () -> Unit,
+private fun RootCardMiuix(
+    granted: Boolean,
+    libraryPath: String,
+    onRequestRoot: () -> Unit,
 ) {
-    val requiredGranted = state.requiredGranted
-    val iconColor = if (requiredGranted) Color(0xFF36D167) else Color(0xFFF72727)
-    val containerColor = if (requiredGranted) Color(0xFFDFFAE4) else Color(0xFFF8E2E2)
+    val iconColor = if (granted) Color(0xFF36D167) else Color(0xFFF72727)
+    val containerColor = if (granted) Color(0xFFDFFAE4) else Color(0xFFF8E2E2)
     val textColor = Color(0xFF111111)
     val summary =
-        if (requiredGranted) {
-            stringResource(R.string.permission_ready)
+        if (granted) {
+            stringResource(R.string.home_root_granted_note, libraryPath)
         } else {
-            stringResource(R.string.permission_missing)
+            stringResource(R.string.home_root_missing_note, libraryPath)
         }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.defaultColors(color = containerColor),
-        onClick = onClick,
-        showIndication = true,
+        onClick = onRequestRoot,
+        showIndication = !granted,
     ) {
         Box(
             modifier = Modifier
@@ -143,7 +149,7 @@ private fun PermissionCardMiuix(
                 Icon(
                     modifier = Modifier.size(182.dp),
                     imageVector =
-                        if (requiredGranted) Icons.Rounded.CheckCircleOutline else Icons.Rounded.Cancel,
+                        if (granted) Icons.Rounded.CheckCircleOutline else Icons.Rounded.Cancel,
                     tint = iconColor,
                     contentDescription = null,
                 )
@@ -157,10 +163,10 @@ private fun PermissionCardMiuix(
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         text =
-                            if (requiredGranted) {
-                                stringResource(R.string.permission_status_ready_title)
+                            if (granted) {
+                                stringResource(R.string.home_root_granted_title)
                             } else {
-                                stringResource(R.string.permission_status_missing_title)
+                                stringResource(R.string.home_root_missing_title)
                             },
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -175,10 +181,10 @@ private fun PermissionCardMiuix(
                 }
                 Text(
                     text =
-                        if (requiredGranted) {
-                            stringResource(R.string.permission_granted)
+                        if (granted) {
+                            stringResource(R.string.home_root_granted_footer)
                         } else {
-                            stringResource(R.string.permission_action_required)
+                            stringResource(R.string.home_root_request)
                         },
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,

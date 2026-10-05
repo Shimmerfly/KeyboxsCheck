@@ -10,7 +10,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import dev.hcy917.keyboxchecker.permission.PermissionManager
 import dev.hcy917.keyboxchecker.ui.LocalUiMode
 import dev.hcy917.keyboxchecker.ui.UiMode
 import dev.hcy917.keyboxchecker.ui.navigation3.Navigator
@@ -25,9 +24,6 @@ fun HomePager(
 ) {
     val viewModel = viewModel<HomeViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val permissionManager = remember(context) { PermissionManager(context) }
-    val permissionState by permissionManager.state.collectAsStateWithLifecycle()
 
     var hasActivated by remember { mutableStateOf(false) }
     if (isCurrentPage) hasActivated = true
@@ -37,27 +33,25 @@ fun HomePager(
             viewModel.refresh()
         }
     }
-    LifecycleResumeEffect(permissionManager) {
-        permissionManager.refresh()
+    LifecycleResumeEffect(Unit) {
+        viewModel.refreshRoot()
         onPauseOrDispose { }
     }
 
     val actions = HomeActions(
-        onPermissionsClick = { navigator.push(Route.Permissions) },
+        onRequestRoot = viewModel::requestRoot,
         onKeyboxClick = { navigator.push(Route.Keybox) },
     )
 
     when (LocalUiMode.current) {
         UiMode.Miuix -> HomePagerMiuix(
             state = uiState,
-            permissionState = permissionState,
             actions = actions,
             bottomInnerPadding = bottomInnerPadding,
         )
 
         UiMode.Material -> HomePagerMaterial(
             state = uiState,
-            permissionState = permissionState,
             actions = actions,
             bottomInnerPadding = bottomInnerPadding,
         )

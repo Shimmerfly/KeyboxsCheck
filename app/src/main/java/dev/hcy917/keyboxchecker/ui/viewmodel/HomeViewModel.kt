@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import dev.hcy917.keyboxchecker.keybox.KeyboxRepository
 import dev.hcy917.keyboxchecker.templateApp
 import dev.hcy917.keyboxchecker.ui.screen.home.HomeUiState
 import dev.hcy917.keyboxchecker.ui.screen.home.SystemInfo
@@ -19,17 +20,36 @@ import dev.hcy917.keyboxchecker.ui.util.checkNewVersion
 
 class HomeViewModel : ViewModel() {
 
+    private val repository = KeyboxRepository(templateApp, templateApp.okhttpClient)
+
     private val _uiState = MutableStateFlow(buildState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     fun refresh() {
         viewModelScope.launch {
             val baseState = withContext(Dispatchers.IO) { buildState() }
-            _uiState.update { baseState }
+            _uiState.update { baseState.copy(latestVersionInfo = it.latestVersionInfo) }
             if (baseState.checkUpdateEnabled) {
                 val latestVersionInfo = withContext(Dispatchers.IO) { checkNewVersion() }
                 _uiState.update { it.copy(latestVersionInfo = latestVersionInfo) }
             }
+        }
+    }
+
+    /**
+     * Re-reads the answer root already gave. Every page rebuilds on resume, and
+     * root may have been granted from somewhere else in the meantime, but this
+     * must never prompt: only the card's tap may do that.
+     */
+    fun refreshRoot() {
+        _uiState.update { it.copy(rootReady = repository.rootGranted()) }
+    }
+
+    /** Asks for root; this is what makes the superuser app show its prompt. */
+    fun requestRoot() {
+        viewModelScope.launch {
+            val granted = withContext(Dispatchers.IO) { repository.requestRoot() }
+            _uiState.update { it.copy(rootReady = granted) }
         }
     }
 
@@ -38,13 +58,14 @@ class HomeViewModel : ViewModel() {
         val appVersion = getAppVersion(templateApp)
 
         return HomeUiState(
-            checkUpdateEnabled = templateApp.getSharedPreferences("settings", Context.MODE_PRIVATE)
-                .getBoolean("check_update", true),
+            checkUpdateEnabled = prefs.getBoolean("check_update", true),
             latestVersionInfo = LatestVersionInfo(),
             currentAppVersionCode = appVersion.versionCode,
             systemInfo = SystemInfo(
                 appVersion = "${appVersion.versionName} (${appVersion.versionCode})",
             ),
+            libraryPath = repository.libraryPath(),
+            rootReady = repository.rootGranted(),
         )
     }
 }
