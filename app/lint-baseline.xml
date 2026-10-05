@@ -24,17 +24,6 @@
     </issue>
 
     <issue
-        id="InlinedApi"
-        message="Field requires API level 33 (current min is 26): `android.Manifest.permission#POST_NOTIFICATIONS`"
-        errorLine1="        Manifest.permission.POST_NOTIFICATIONS.takeIf { Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU }"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/dev/hcy917/keyboxchecker/permission/PermissionManager.kt"
-            line="30"
-            column="9"/>
-    </issue>
-
-    <issue
         id="NewApi"
         message="Call requires API level 33 (current min is 26): `BgEffectPainter`"
         errorLine1="        val painter = remember { BgEffectPainter() }"
@@ -131,17 +120,6 @@
             file="src/main/AndroidManifest.xml"
             line="25"
             column="9"/>
-    </issue>
-
-    <issue
-        id="BatteryLife"
-        message="Use of `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` violates the Play Store Content Policy regarding acceptable use cases, as described in https://developer.android.com/training/monitoring-device-state/doze-standby.html"
-        errorLine1="        Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/dev/hcy917/keyboxchecker/permission/PermissionManager.kt"
-            line="52"
-            column="25"/>
     </issue>
 
     <issue
@@ -598,94 +576,6 @@
             file="src/main/java/dev/hcy917/keyboxchecker/ui/screen/keybox/KeyboxViewModel.kt"
             line="187"
             column="42"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="                data = Uri.parse(&quot;package:${appContext.packageName}&quot;)"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/dev/hcy917/keyboxchecker/permission/PermissionManager.kt"
-            line="40"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="                data = Uri.parse(&quot;package:${appContext.packageName}&quot;)"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/dev/hcy917/keyboxchecker/permission/PermissionManager.kt"
-            line="40"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            data = Uri.parse(&quot;package:${appContext.packageName}&quot;)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/dev/hcy917/keyboxchecker/permission/PermissionManager.kt"
-            line="53"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            data = Uri.parse(&quot;package:${appContext.packageName}&quot;)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/dev/hcy917/keyboxchecker/permission/PermissionManager.kt"
-            line="53"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            data = Uri.parse(&quot;package:${appContext.packageName}&quot;)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/dev/hcy917/keyboxchecker/permission/PermissionManager.kt"
-            line="58"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            data = Uri.parse(&quot;package:${appContext.packageName}&quot;)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/dev/hcy917/keyboxchecker/permission/PermissionManager.kt"
-            line="58"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            data = Uri.parse(&quot;package:${appContext.packageName}&quot;)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/dev/hcy917/keyboxchecker/permission/PermissionManager.kt"
-            line="63"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            data = Uri.parse(&quot;package:${appContext.packageName}&quot;)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/dev/hcy917/keyboxchecker/permission/PermissionManager.kt"
-            line="63"
-            column="20"/>
     </issue>
 
     <issue
