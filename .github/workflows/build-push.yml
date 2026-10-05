@@ -1,0 +1,53 @@
+name: Build on push
+
+# Every push gets a debug APK, and nothing else. The thorough checks live in
+# build.yml, which is manual now: a push only has to answer "does it still
+# build", so this workflow runs the single Gradle task that produces the APK
+# and skips the unit tests, lint and the release variant that made the old run
+# take ten minutes.
+on:
+  push:
+
+permissions:
+  contents: read
+
+# A newer push makes the run in flight pointless, so stop it instead of letting
+# two builds compete for the same caches.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Assemble debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    # Restores the Gradle user home and the build cache, which is what brings a
+    # repeat build down from minutes to well under one.
+    - name: Set up Gradle
+      uses: gradle/actions/setup-gradle@v4
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Assemble debug APK
+      run: ./gradlew :app:assembleDebug --build-cache --console=plain
+
+    - name: Upload debug APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug
+        path: app/build/outputs/apk/debug/*.apk
+        # An APK is already compressed, so re-compressing it only costs time.
+        compression-level: 0
+        retention-days: 7
