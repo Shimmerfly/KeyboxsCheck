@@ -25,6 +25,15 @@ class HomeViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(buildState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+    init {
+        // Entering the app is reason enough to ask. Nothing on the keybox side
+        // works without root, the superuser app answers from memory once it has
+        // been told yes, and the grant itself only lives in this process - so
+        // without this the card read "not granted" on every cold start until it
+        // was tapped again.
+        refreshRoot()
+    }
+
     fun refresh() {
         viewModelScope.launch {
             val baseState = withContext(Dispatchers.IO) { buildState() }
@@ -37,15 +46,20 @@ class HomeViewModel : ViewModel() {
     }
 
     /**
-     * Re-reads the answer root already gave. Every page rebuilds on resume, and
-     * root may have been granted from somewhere else in the meantime, but this
-     * must never prompt: only the card's tap may do that.
+     * Re-reads root, asking only while this process has no verdict yet.
+     *
+     * [KeyboxRepository.rootAvailable] answers from the verdict it already has,
+     * so a page rebuild is not a reason to prompt again; the first call in a
+     * process is the one that talks to the superuser app.
      */
     fun refreshRoot() {
-        _uiState.update { it.copy(rootReady = repository.rootGranted()) }
+        viewModelScope.launch {
+            val granted = withContext(Dispatchers.IO) { repository.rootAvailable() }
+            _uiState.update { it.copy(rootReady = granted) }
+        }
     }
 
-    /** Asks for root; this is what makes the superuser app show its prompt. */
+    /** The card's tap: asks again even after a refusal. */
     fun requestRoot() {
         viewModelScope.launch {
             val granted = withContext(Dispatchers.IO) { repository.requestRoot() }
